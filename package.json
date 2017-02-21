@@ -75,6 +75,7 @@
     "redux": "^3.6.0",
     "redux-async-connect": "^1.0.0-rc4",
     "shortid": "^2.2.6",
+    "url-loader": "^0.5.7",
     "urlsafe-base64": "^1.0.0"
   },
   "devDependencies": {

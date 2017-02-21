@@ -39,6 +39,7 @@ export default class TabContainer extends Component {
 
     const playerContent = (<div>
       <RaisedButton
+        className="new-player-button"
         onClick={this.props.openNewModal}
         label="New Player"
         secondary={Boolean(true)}
@@ -47,6 +48,7 @@ export default class TabContainer extends Component {
         }}
       />
       <RaisedButton
+        className="upload-player-button"
         onClick={this.props.openUpload}
         label="Upload Players"
         secondary={Boolean(true)}
@@ -56,6 +58,7 @@ export default class TabContainer extends Component {
       />
       <div className="date" style={{ cursor: 'pointer' }}>
         <DatePicker
+          className="session-date-picker"
           floatingLabelText="Date of Session"
           hintText="Date" value={this.props.date}
           onChange={(_, date) => this.props.setDate(date)}
@@ -81,10 +84,10 @@ export default class TabContainer extends Component {
       value={this.state.tab}
       onChange={this.toggleTab}
     >
-      <Tab label="Registration" value={0}>
+      <Tab label="Registration" value={0} className="registration-tab">
         {playerContent}
       </Tab>
-      <Tab label="Grouping" value={1}>
+      <Tab label="Grouping" value={1} className="grouping-tab">
         <Grouping sortedPlayers={sortedPlayers} addedPlayers={this.props.addedPlayers} />
       </Tab>
     </Tabs>);

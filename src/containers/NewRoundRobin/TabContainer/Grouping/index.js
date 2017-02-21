@@ -216,9 +216,9 @@ export default class Grouping extends Component {
         max={this.props.max}
       />
 
-      { schemata }
-      { groupTables }
-      { this.state.dialog && this.dialog() }
+      {schemata}
+      {groupTables}
+      {this.state.dialog && this.dialog()}
     </div>);
   }
 }

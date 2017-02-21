@@ -1,0 +1,22 @@
+footer {
+  margin-top: 10px;
+  bottom: 0;
+  margin-left: 49%;
+  position: static;
+}
+
+.git {
+  cursor: pointer;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background-image: url("/images/git.png");
+  background-size: cover;
+}
+
+.git:hover {
+  width: 50px;
+  height: 50px;
+  background-image: url("/images/git-hover.png");
+  background-size: cover;
+}

@@ -1,4 +1,5 @@
 @import '~assets/variables.scss';
+@import '~assets/IndieFlower.scss';
 
 html,
 body,
@@ -6,6 +7,7 @@ body,
 #root {
   height: 100%;
 }
+
 
 .app-container {
   display: flex;
@@ -70,7 +72,7 @@ q:before, q:after {
   width: 100%;
   height: 100%;
   z-index: 99;
-  background-color: rgba(0,0,0,0.5); /*dim the background*/
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .loading {
@@ -152,13 +154,13 @@ h3 {
   min-width: 400px;
   width: 50%;
 }
+
 .new-session-container {
   display: flex;
   flex-direction: column;
-  /*width: 100%;*/
-  /*align-items: center;*/
   margin: 0 auto;
 }
+
 .player-container {
   position: relative;
   display: flex;
@@ -166,8 +168,6 @@ h3 {
   align-items: center;
   border: 1px solid #dad7de;
   border-radius: 4px;
-  /*background-color: #f7f5fa;*/
-  /*width: 70%;*/
   width: 400px;
   margin: 5% auto 0 auto;
 }
@@ -205,6 +205,7 @@ h3 {
 .col-button {
   width: 30px;
 }
+
 @media (max-width: 560px){
   .col-name {
     padding-right: 10px;
@@ -218,6 +219,7 @@ h3 {
     width: 15px;
   }
 }
+
 @media (min-width: 740px){
   .col-name {
     padding-right: 10px;
@@ -271,6 +273,7 @@ h3 {
   width: 80%;
   border: 1px solid #E0E0E0;
 }
+
 .session-container-body {
   padding: 20px;
   .trcol {
@@ -340,6 +343,7 @@ form {
   background-color: white;
   box-shadow: 2px 2px 5px #E0E0E0;
   z-index: 400;
+
   h3 {
     font-size: 36px;
     font-weight: 200;
@@ -362,6 +366,7 @@ form {
     margin-right: 10px;
   }
 }
+
 .record-btn {
     color: grey;
     font-size: 16px;
@@ -371,10 +376,12 @@ form {
     border-radius: 3px;
     cursor: pointer;
 }
+
 .activated p {
   padding-bottom: 20px;
   font-family: 'Roboto', sans-serif;
 }
+
 .score-div {
   display: flex;
   flex-direction: row;
@@ -396,11 +403,13 @@ form {
     margin-bottom: 10px;
   }
 }
+
 .save {
   position: absolute;
   top: -20px;
   right: -10px;
 }
+
 .create {
   position: absolute;
   top: -20px;
@@ -441,6 +450,7 @@ form {
     margin-right: 20px;
   }
 }
+
 .player-query {
   /*border: 1px solid #E0E0E0;*/
   width: 80%;
@@ -453,14 +463,17 @@ form {
     margin: 0 auto;
   }
 }
+
 .player-result-main-container {
   padding: 20px;
 }
+
 .result-query-container {
   margin: 5% auto 0 auto;
   width: 80%;
   border: 1px solid #E0E0E0;
 }
+
 .name-select-div {
   display: flex;
   flex-direction: row;
@@ -481,47 +494,12 @@ form {
   }
 }
 
-footer {
-  margin-top: 10px;
-  bottom: 0;
-  margin-left: 49%;
-  position: static;
-}
-
-.git {
-  cursor: pointer;
-  left: 20px;
-  width: 50px;
-  height: 50px;
-  background-image: url("/images/git.png");
-  background-size: cover;
-}
-
-.git:hover {
-  width: 50px;
-  height: 50px;
-  background-image: url("/images/git-hover.png");
-  background-size: cover;
-}
-
-
 @media (min-width: 944px) and (min-device-width: 944px){
-  .banner-container {
-    transform: translateY(-15%);
-  }
   .forms {
     top: 30%;
   }
-  .nav {
-    right: -20%;
-  }
 }
-@media (min-width: 1144px) and (min-device-width: 1144px){
-  .banner-container {
-    transform: translateY(-20%);
-  }
 
-}
 @media (min-width: 535px) and (max-device-width: 535px){
   .banner {
     background-image: url("/images/tt_banner.jpg");
@@ -530,19 +508,20 @@ footer {
     -ms-background-position-y: center;
     background-position: center center;
   }
-  .banner-container {
-    transform: translateY(-5%);
-  }
+
   .banner-text {
     font-size: 24px;
   }
+
   .result-entry {
     max-width: 400px;
   }
+
   .result-query-container {
     width: 90%;
   }
 }
+
 @media (min-width: 335px) and (min-device-width: 335px){
   .club-nav {
     position: absolute;
@@ -559,6 +538,7 @@ footer {
     position: relative;
     left: 20px;
   }
+
   .name-select-div {
     display: flex;
     flex-direction: column;

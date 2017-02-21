@@ -3,6 +3,7 @@ export Footer from './Footer';
 export RecordTableEnter from './RecordTableEnter';
 export RecordTableView from './RecordTableView';
 export ClubQueryDetail from './ClubQueryDetail';
+export Tutorial from './Tutorial';
 export * from './Auth';
 export * from './Profile';
 export * from './Groups';

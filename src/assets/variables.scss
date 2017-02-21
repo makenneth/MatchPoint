@@ -4,15 +4,18 @@
   -o-transition: $anim-part $duration $curve $delay;
   -moz-transition: $anim-part $duration $curve $delay;
 }
+
 @mixin reg-transition-no-delay($anim-part, $duration, $curve){
   -webkit-transition: $anim-part $duration $curve;
   transition: $anim-part $duration $curve;
   -o-transition: $anim-part $duration $curve;
   -moz-transition: $anim-part $duration $curve;
 }
+
 @mixin default-font {
   font-family: 'Roboto', sans-serif;
 }
+
 @mixin reg-anim ($name, $duration, $timing) {
     animation-name: $name;
     -moz-animation-name: $name;

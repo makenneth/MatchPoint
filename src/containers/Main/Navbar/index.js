@@ -183,7 +183,6 @@ export default class Navbar extends Component {
 
   render() {
     const { expanded } = this.state;
-    console.log(expanded);
     return (<div className="nav-bar">
       <div>
         <div className="logo" onClick={() => this.handleLink(this.props.club._id ? '/club' : '/', 0)}>

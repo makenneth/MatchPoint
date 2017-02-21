@@ -38,6 +38,14 @@ module.exports = {
       {
         test: /\.css$/,
         loaders: ['style', 'css'],
+      },
+      {
+        test: /\.ttf$/,
+        loader: 'url',
+        query: {
+          limit: '10000',
+          mimetype: 'application/octet-stream'
+        }
       }
     ]
   },

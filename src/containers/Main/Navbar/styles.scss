@@ -43,6 +43,7 @@
       color: white;
       @include reg-transition-no-delay(color, 0.5s, ease-in-out)
     }
+
     .logo:hover {
       color: #FFA000;
     }
@@ -50,6 +51,7 @@
 
   li {
     cursor: pointer;
+    font-size: 18px;
 
     &:hover {
       color: #FFA000;
@@ -67,10 +69,11 @@
 
   .collapsed-icon {
     cursor: pointer;
+    font-size: 24px;
     transition: color 0.5s;
 
     &:hover {
-      color: black;
+      color: #FFA000;
     }
   }
 
