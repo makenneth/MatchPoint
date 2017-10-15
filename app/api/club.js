@@ -39,14 +39,14 @@ router.get("/", (req, res, next) => {
     }
   })
 })
-.get("/:clubId/roundrobins", (req, res, next) => {
-  const clubId = req.params.clubId;
-  RoundRobinModel.findRoundRobinsByClub(clubId)
-    .then((roundrobins) => {
-      res.status(200).send({ clubId, roundrobins });
-      res.end();
-    }).catch(err => next({ code: 500, message: err }));
-})
+// .get("/:clubId/roundrobins", (req, res, next) => {
+//   const clubId = req.params.clubId;
+//   RoundRobinModel.findRoundRobinsByClub(clubId)
+//     .then((roundrobins) => {
+//       res.status(200).send({ clubId, roundrobins });
+//       res.end();
+//     }).catch(err => next({ code: 500, message: err }));
+// })
 .post("/", jsonParser, (req, res, next) => {
   const user = req.body.user;
   const err = ClubValidation.validate(user);

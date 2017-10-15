@@ -1,10 +1,10 @@
 import shortid from "shortid";
 import db from '../utils/connection';
 
-class PlayerModel {
-  formatPlayer(row) {
+class Player {
+  static formatPlayer(row) {
     const fields = [
-      'id', 'short_id', 'usatt_url', 'rating', 'name', 'updated_at', 'created_on'
+      'id', 'short_id', 'usatt_url', 'rating', 'name', 'updated_at', 'created_on', 'group_id', 'pos'
     ];
     const player = {};
     fields.forEach(field => {
@@ -167,7 +167,7 @@ class PlayerModel {
       `, [clubId], (err, results, field) => {
         connection.release();
         if (err) throw(err);
-        const data = results.map(row => this.formatPlayer(row));
+        const data = results.map(row => Player.formatPlayer(row));
         return resolve(data);
       });
     });
@@ -186,12 +186,12 @@ class PlayerModel {
         if (results.length === 0) {
           return reject({ player: 'Player not found' });
         }
-        const player = this.formatPlayer(results[0]);
+        const player = Player.formatPlayer(results[0]);
         return resolve(player);
       });
     });
   }
 }
 
-const model = new PlayerModel();
+const model = new Player();
 export default model;

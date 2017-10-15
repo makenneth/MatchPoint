@@ -1,6 +1,6 @@
 import express from "express";
-import ClubModel from "../models/club";
-// import RoundRobinModel from "../models/roundrobin";
+import Club from "../models/club";
+import RuondRobin from "../models/roundrobin";
 import { clubMethods, jsonParser, csrfProtection, client } from "../helpers/appModules";
 import Mailer from "../helpers/mailer";
 
@@ -52,7 +52,7 @@ router.post("/accounts/resend", (req, res, next) => {
   const id = req.params.id;
   const { date, data, ratingUpdateList } = req.body.result;
 
-  ClubModel.postPlayersRating(req.club._id, date, ratingUpdateList)
+  Club.postPlayersRating(req.club._id, date, ratingUpdateList)
     .then(() => RoundRobinModel.saveResult(id, data))
     .then((session) => {
       client.del(`players:${req.club._id}`);
@@ -64,21 +64,14 @@ router.post("/accounts/resend", (req, res, next) => {
     });
 })
 .post("/sessions", jsonParser, csrfProtection, (req, res) => {
-  const clubId = req.club._id;
+  const clubId = req.club.id;
   const data = req.body.session;
-  const newRR = new RoundRobinModel({
-    _clubId: clubId,
-    date: data.date,
-    numOfPlayers: data.numOfPlayers,
-    players: data.players,
-    // schemata: data.schemata,
-    selectedSchema: data.selectedSchema
-  });
 
-  newRR.save()
-    .then(() => {
-      client.del(`sessions:${clubId}`);
-      res.status(200).send(newRR);
+  Roundrobin.create(clubId, data.players, data.date, data.selectedSchema)
+    .then(async (id) => {
+      // client.del(`sessions:${clubId}`);
+      const roundrobin = await Roundrobin.find(clubId, id);
+      res.status(200).send({ roundrobin });
     }).catch((err) => {
       console.log(err);
       res.status(422).send("Something went wrong...");
@@ -89,9 +82,9 @@ router.post("/accounts/resend", (req, res, next) => {
 
   let promise;
   if (type === "password") {
-    promise = ClubModel.changePassword(req.club, data);
+    promise = Club.changePassword(req.club, data);
   } else if (type === "info") {
-    promise = ClubModel.changeInfo(req.club, data);
+    promise = Club.changeInfo(req.club, data);
   } else {
     res.status(404).send("No changes were made.");
     return;

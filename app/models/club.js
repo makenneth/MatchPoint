@@ -19,7 +19,7 @@ import ClubValidation from "../validations/club";
   // updated_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMSTAMP
   // created_on      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 
-class ClubModel {
+class Club {
   static generateToken() {
     return URLSafeBase64.encode(crypto.randomBytes(32));
   }
@@ -32,7 +32,7 @@ class ClubModel {
     return bcrypt.hash(password, 10);
   }
 
-  formatClubRow(row) {
+  static formatClubRow(row) {
     const fields = [
       'id', 'password_digest', 'session_token',
       'short_id', 'username', 'club_name',
@@ -60,7 +60,7 @@ class ClubModel {
         if (err) throw err;
         console.log(results);
         if (results.length > 0) {
-          const club = this.formatClubRow(results[0]);
+          const club = Club.formatClubRow(results[0]);
           resolve(club);
         } else {
           reject({ club: 'Club not found.' });
@@ -79,7 +79,7 @@ class ClubModel {
         connection.release();
         if (err) throw err;
         if (results.length > 0) {
-          const club = this.formatClubRow(results[0]);
+          const club = Club.formatClubRow(results[0]);
           resolve(club);
         } else {
           reject({ club: 'Club not found.' });
@@ -97,7 +97,7 @@ class ClubModel {
       `, (err, results, field) => {
         connection.release();
         if (err) throw(err);
-        const clubs = results.map(r => this.formatClubRow(r));
+        const clubs = results.map(r => Club.formatClubRow(r));
         resolve(clubs);
       });
     });
@@ -308,7 +308,7 @@ class ClubModel {
         connection.release();
         if (err) throw(err);
         if (results.length > 0) {
-          const club = this.formatClubRow(results[0]);
+          const club = Club.formatClubRow(results[0]);
           return resolve(club);
         } else {
           return reject({ token: 'Session token might have expired.' });
@@ -363,7 +363,7 @@ class ClubModel {
             password: 'Username or password is not correct.'
           });
         }
-        const club = this.formatClubRow(results[0]);
+        const club = Club.formatClubRow(results[0]);
         delete club.password_digest;
         return resolve(club);
       });
@@ -371,5 +371,5 @@ class ClubModel {
   }
 }
 
-const model = new ClubModel();
+const model = new Club();
 export default model;

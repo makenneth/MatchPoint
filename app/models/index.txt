@@ -87,7 +87,6 @@ CREATE TABLE roundrobin_players (
   roundrobin_id INT NOT NULL,
   group_id TINYINT NOT NULL,
   pos TINYINT NOT NULL,
-  created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (player_id) REFERENCES players (id),
   FOREIGN KEY (roundrobin_id) REFERENCES roundrobins (id),
   PRIMARY KEY (roundrobin_id, id)
