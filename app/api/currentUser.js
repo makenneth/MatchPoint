@@ -1,6 +1,6 @@
 import express from "express";
 import Club from "../models/club";
-import RuondRobin from "../models/roundrobin";
+import RoundRobin from "../models/roundrobin";
 import { clubMethods, jsonParser, csrfProtection, client } from "../helpers/appModules";
 import Mailer from "../helpers/mailer";
 
@@ -16,31 +16,36 @@ router.post("/accounts/resend", (req, res, next) => {
       }
     );
 })
-.get("/sessions", (req, res) => {
+.get("/sessions", (req, res, err) => {
   const clubId = req.club._id;
-  client.get(`sessions:${clubId}`, (err, reply) => {
-    if (!reply) {
-      RoundRobinModel.findRoundRobinsByClub(clubId)
-        .then((roundrobins) => {
-          client.set(`sessions:${clubId}`, JSON.stringify(roundrobins));
-          return res.status(200).send(roundrobins);
-        });
-    } else {
-      res.status(200).send(JSON.parse(reply));
-    }
-  })
+  // client.get(`sessions:${clubId}`, (err, reply) => {
+    // if (!reply) {
+      RoundRobin.findAllByClub(clubId)
+        .then(
+          (roundrobins) => {
+          // client.set(`sessions:${clubId}`, JSON.stringify(roundrobins));
+            return res.status(200).send({ roundrobins });
+          },
+          (err) => {
+            next({ code: 400, message: err });
+          }
+        ).catch(err => next({ code: 500, message: err }))
+    // } else {
+      // res.status(200).send(JSON.parse(reply));
+    // }
+  // })
 })
 .get("/sessions/:id", (req, res) => {
   const clubId = req.club._id;
   const id = req.params.id;
 
-  RoundRobinModel.findRoundRobin(clubId, id)
+  RoundRobin.findRoundRobin(clubId, id)
     .then(roundrobin => res.status(200).send(roundrobin))
     .catch(() => res.status(422).send("Cannot retrieve the session data."));
 })
 .delete("/sessions/:id", (req, res, next) => {
   const id = req.params.id;
-  RoundRobinModel.deleteRoundRobin(req.club._id, id)
+  RoundRobin.deleteRoundRobin(req.club._id, id)
     .then(() => {
       client.del(`sessions:${req.club._id}`);
       return res.status(200).send(id);
@@ -53,7 +58,7 @@ router.post("/accounts/resend", (req, res, next) => {
   const { date, data, ratingUpdateList } = req.body.result;
 
   Club.postPlayersRating(req.club._id, date, ratingUpdateList)
-    .then(() => RoundRobinModel.saveResult(id, data))
+    .then(() => RoundRobin.saveResult(id, data))
     .then((session) => {
       client.del(`players:${req.club._id}`);
       client.del(`sessions:${req.club._id}`);
@@ -63,18 +68,25 @@ router.post("/accounts/resend", (req, res, next) => {
       res.status(422).send(err);
     });
 })
-.post("/sessions", jsonParser, csrfProtection, (req, res) => {
+.post("/sessions", jsonParser, csrfProtection, (req, res, next) => {
   const clubId = req.club.id;
   const data = req.body.session;
-
-  Roundrobin.create(clubId, data.players, data.date, data.selectedSchema)
-    .then(async (id) => {
-      // client.del(`sessions:${clubId}`);
-      const roundrobin = await Roundrobin.find(clubId, id);
-      res.status(200).send({ roundrobin });
-    }).catch((err) => {
-      console.log(err);
-      res.status(422).send("Something went wrong...");
+  console.log(clubId, data);
+  RoundRobin.create(clubId, data.players, data.date, data.selectedSchema)
+    .then(
+      async (id) => {
+        console.log(id);
+        // client.del(`sessions:${clubId}`);
+        const roundrobin = await RoundRobin.findByClub(clubId, id);
+        console.log(roundrobin);
+        res.status(200).send({ roundrobin });
+      },
+      err => {
+        console.log(err);
+        throw err;
+      }
+    ).catch((err) => {
+      next({ code: 500, message: err });
     });
 }).patch("", jsonParser, (req, res) => {
   const data = req.body.data;

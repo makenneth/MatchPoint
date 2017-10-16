@@ -21,7 +21,7 @@ export default class ClubHelper {
     delete club.password_digest;
     delete club.confirm_token;
 
-    res.cookie(
+    res.status(200).cookie(
       "matchpoint_session",
       sessionToken,
       { maxAge: 14 * 24 * 60 * 60 * 1000, httpOnly: true, domain: 'localhost' }

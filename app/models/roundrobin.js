@@ -16,12 +16,12 @@ class Roundrobin {
     fields.forEach(field => {
       if (field === 'results' || field === 'selectedSchema') {
         try {
-          roundrobins[field] = JSON.parse(row[field]);
+          roundrobin[field] = JSON.parse(row[field]);
         } catch (e) {
           Raven.captureException(e);
         }
       } else if (row[field]) {
-        roundrobins[field] = row[field];
+        roundrobin[field] = row[field];
       }
     });
 
@@ -35,7 +35,7 @@ class Roundrobin {
         INNER JOIN clubs AS c
         ON c.id = r.club_id
         WHERE c.id = ?
-        ORDER BY r.created_on DESC
+        ORDER BY r.date DESC
       `, [clubId], (err, results, fields) => {
         connection.release();
         if (err) throw err;
@@ -100,20 +100,20 @@ class Roundrobin {
           throw tError;
         }
         connection.query(`INSERT INTO roundrobins
-          (short_id, club_id, date, selected_schema)
-          VALUES (?, ?, ?, ?)
-        `, [shortId.generate(), clubId, date, schema],
+          (short_id, club_id, date, num_players, selected_schema)
+          VALUES (?, ?, ?, ?, ?)
+        `, [shortid.generate(), clubId, date, players.length, schema],
         (err, results, fields) => {
           if (err) {
             connection.rollback();
             connection.release();
             throw err;
           }
-
+          console.log(results.insertId);
           resolve(results.insertId);
         });
       });
-    }).then((id) => this.createRoundrobinPlayers(connection, id, players, schema));
+    }).then((id) => this.createRoundrobinPlayers(connection, id, players, selectedSchema));
   }
 
   createRoundrobinPlayers(connection, id, players, schema) {
@@ -132,6 +132,7 @@ class Roundrobin {
         return id;
       },
       (err) => {
+        console.log(err);
         connection.rollback();
         connection.release();
         reject(err);
@@ -147,9 +148,10 @@ class Roundrobin {
       `, [playerId, id, group, pos],
       (err, results, fields) => {
         if (err) {
+          console.log(err);
           throw err;
         }
-
+        console.log('done', playerId);
         resolve(playerId);
       });
     });
@@ -199,4 +201,4 @@ class Roundrobin {
 
 }
 
-export default Roundrobin;
+export default new Roundrobin();

@@ -23,7 +23,7 @@ app.use((err, req, res, next) => {
   try {
     next();
   } catch (e) {
-    Raven.captureException(e);
+    Raven.captureException(JSON.stringify(e));
     res.status(500).send({ error_description: "Internal Server Error" });
   }
 })
@@ -72,15 +72,15 @@ app.get("*", csrfProtection, (req, res) => {
 
 app.use((err, req, res, next) => {
   if (err.code && err.code === 500) {
-    Raven.captureException(err);
-    next({ code: 500 });
+    Raven.captureException(JSON.stringify(err));
+    return next({ code: 500 });
   }
   next(err);
 });
 
 app.use((err, req, res, next) => {
   let errorMessage = err.message;
-  console.log(errorMessage);
+  // console.log(errorMessage);
   if (!errorMessage) {
     switch (err.code) {
       case 500:

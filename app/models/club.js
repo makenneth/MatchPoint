@@ -124,7 +124,7 @@ class Club {
 
   async resetSessionTokenWithOldToken(token) {
     const connection = await db.getConnection();
-    const newToken = ClubModel.generateToken();
+    const newToken = Club.generateToken();
     return new Promise((resolve, reject) => {
       connection.query(`
         UPDATE clubs SET session_token = ?
@@ -149,7 +149,7 @@ class Club {
       if (error) throw error;
     }
     try {
-      const isPassword = await ClubModel.isPassword(data.password);
+      const isPassword = await Club.isPassword(data.password);
     } catch (_e) {
       return Promise.reject({ password: "Password is incorrect" });
     }
@@ -161,7 +161,7 @@ class Club {
       if (club.email !== info.email) {
         sql += ' email = ?, confirmed = 0, confirm_token'
         //although this will work, it will still say "welcome to matchpoint";
-        const confirmToken = ClubModel.generateToken();
+        const confirmToken = Club.generateToken();
         inserts.push(info.email, confirmToken);
       }
       sql += 'city = ?, state = ? ';
@@ -220,23 +220,22 @@ class Club {
 
   async create(user) {
     const connection = await db.getConnection();
-    const digest = await ClubModel.generatePasswordDigest(user.password);
-    const isPassword = await ClubModel.isPassword(user.password, digest);
+    const digest = await Club.generatePasswordDigest(user.password);
+    const isPassword = await Club.isPassword(user.password, digest);
     return new Promise((resolve, reject) => {
       connection.beginTransaction((tError) => {
         if (tError) {
           connection.release();
           throw tError;
         }
-
         connection.query(`
          INSERT INTO clubs
          (short_id, username, email, club_name, password_digest, session_token, confirm_token)
          VALUES
-         (?, ?, ?, ?, ?, ?)`,
+         (?, ?, ?, ?, ?, ?, ?)`,
          [
            shortid.generate(), user.username.toLowerCase(), user.email,
-           user.clubName, digest, ClubModel.generateToken(), ClubModel.generateToken()
+           user.clubName, digest, Club.generateToken(), Club.generateToken()
          ],
          (err, results, field) => {
             if (err) {
@@ -273,7 +272,7 @@ class Club {
   }
 
   async resetSessionToken(id) {
-    const token = ClubModel.generateToken();
+    const token = Club.generateToken();
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -319,7 +318,7 @@ class Club {
 
   async resetPasswordWithToken(token, newPassword) {
     const connection = await db.getConnection();
-    return ClubModel.generatePasswordDigest(newPassword)
+    return Club.generatePasswordDigest(newPassword)
       .then((digest) => {
         return new Promise((resolve, reject) => {
           connection.query(`
@@ -356,7 +355,7 @@ class Club {
         }
         const digest = results[0].password_digest;
         try {
-          const isPassword = await ClubModel.isPassword(password, digest);
+          const isPassword = await Club.isPassword(password, digest);
         } catch (e) {
           return reject({
             username: 'Username or password is not correct.',

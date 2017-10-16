@@ -24,13 +24,13 @@ export default class Mailer {
   confirmationOptions() {
     let emailHTML = `<p>Dear ${this.recipient.username},</p><br />`;
     emailHTML += "<p>Thank you for joining MatchPoints. To verify your email address, please click on the link below.</p>";
-    emailHTML += `<a href="${hostname}/accounts/activate?token=${this.recipient.confirmToken}">https://matchpoints.org/accounts/activate?token=${this.recipient.confirmToken}</a>`;
+    emailHTML += `<a href="${hostname}/accounts/activate?token=${this.recipient.confirm_token}">https://matchpoints.org/accounts/activate?token=${this.recipient.confirm_token}</a>`;
     emailHTML += "<p>Looking forward to serving your needs.</p><br />";
     emailHTML += `<p>Best,<br /><a href='${hostname}'>MatchPoints</a></p>`;
     let emailText = `Dear ${this.recipient.username},\n\n`;
     emailText += "Thank you for joining Match Points.\n\n";
     emailText += "To verify your email address, please click on the link below:\n\n";
-    emailText += `${hostname}/accounts/activate?token=${this.recipient.confirmToken}\n\n`;
+    emailText += `${hostname}/accounts/activate?token=${this.recipient.confirm_token}\n\n`;
     emailText += "Looking forward to serving your needs.\n\n";
     emailText += `Best,\nMatchPoints\n(${hostname})`;
     return {

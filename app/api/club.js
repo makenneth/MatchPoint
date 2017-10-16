@@ -47,28 +47,32 @@ router.get("/", (req, res, next) => {
 //       res.end();
 //     }).catch(err => next({ code: 500, message: err }));
 // })
-.post("/", jsonParser, (req, res, next) => {
+.post("/", jsonParser, async (req, res, next) => {
   const user = req.body.user;
-  const err = ClubValidation.validate(user);
-  if (err) {
-    return next({ code: 422, message: err });
+  {
+    const err = ClubValidation.validate(user);
+    if (err) {
+      console.log(err);
+      return next({ code: 422, message: err });
+    }
   }
-  ClubModel.create(user)
-    .then(
-      (userId) => {
-        // new Mailer(userId).sendConfirmationEmail();
-        ClubModel.detail(userId)
-          .then(club => ClubHelper.logIn(club, res))
-          .catch((err) => next({ code: 500, message: err }));
-      },
-      (err) => {
-        if (err.username) {
-          next({ code: 422, message: err });
-        } else {
-          next({ code: 500, message: err });
-        }
-      }
-    ).catch(err => next({ code: 500, message: err }))
+  let userId;
+  try {
+    userId = await ClubModel.create(user);
+  } catch (err) {
+    if (err.username) {
+      return next({ code: 422, message: err });
+    } else {
+      return next({ code: 500, message: err });
+    }
+  }
+  try {
+    const club = await ClubModel.detail(userId);
+    new Mailer(userId).sendConfirmationEmail();
+    ClubHelper.logIn(club, res);
+  } catch (e) {
+    return next({ code: 500, message: e });
+  }
 });
 
 export default router;
