@@ -1,9 +1,6 @@
 import { findSchemata } from 'helpers';
+import ActionTypes from 'redux/actionTypes';
 
-const FOUND_SCHEMATA = 'mp/session/FOUND_SCHEMATA';
-export const CHANGE_SCHEMA = 'mp/session/CHANGE_SCHEMA';
-export const MOVE_PLAYER_UP = 'mp/session/MOVE_PLAYER_UP';
-export const MOVE_PLAYER_DOWN = 'mp/session/MOVE_PLAYER_DOWN';
 const initialState = {
   selected: [],
   schemata: [[]],
@@ -11,18 +8,18 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case FOUND_SCHEMATA:
+    case ActionTypes.FOUND_SCHEMATA:
       return {
         ...state,
         schemata: action.payload,
         selected: [],
       };
-    case CHANGE_SCHEMA:
+    case ActionTypes.CHANGE_SCHEMA:
       return {
         ...state,
         selected: action.payload,
       };
-    case MOVE_PLAYER_UP: {
+    case ActionTypes.MOVE_PLAYER_UP: {
       if (action.payload === 0) {
         return state;
       }
@@ -34,7 +31,7 @@ export default (state = initialState, action) => {
         selected,
       };
     }
-    case MOVE_PLAYER_DOWN: {
+    case ActionTypes.MOVE_PLAYER_DOWN: {
       if (action.payload === state.selected.length - 1) {
         return state;
       }
@@ -58,28 +55,28 @@ export const updateSchemata = (numJoined, min = 3, max = 7) => {
   }
 
   return {
-    type: FOUND_SCHEMATA,
+    type: ActionTypes.FOUND_SCHEMATA,
     payload: findSchemata(numJoined, range),
   };
 };
 
 export const changeSchema = (schema) => {
   return {
-    type: CHANGE_SCHEMA,
+    type: ActionTypes.CHANGE_SCHEMA,
     payload: schema,
   };
 };
 
 export const movePlayerUp = (group) => {
   return {
-    type: MOVE_PLAYER_UP,
+    type: ActionTypes.MOVE_PLAYER_UP,
     payload: group,
   };
 };
 
 export const movePlayerDown = (group) => {
   return {
-    type: MOVE_PLAYER_DOWN,
+    type: ActionTypes.MOVE_PLAYER_DOWN,
     payload: group,
   };
 };

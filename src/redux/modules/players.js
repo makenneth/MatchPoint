@@ -78,10 +78,10 @@ function addPlayerRequest() {
   };
 }
 
-function addPlayerSuccess(player) {
+function addPlayerSuccess(player, checked) {
   return {
     type: ActionTypes.ADD_PLAYER_SUCCESS,
-    payload: { player },
+    payload: { player, checked },
   };
 }
 
@@ -92,7 +92,7 @@ function addPlayerFailure(error) {
   };
 }
 
-export function addPlayer({ name, rating }) {
+export function addPlayer({ name, rating, checked }) {
   return (dispatch) => {
     const player = { name, rating };
     dispatch(addPlayerRequest());
@@ -102,7 +102,7 @@ export function addPlayer({ name, rating }) {
     }).then(
       res => {
         dispatch(closeNewModal());
-        dispatch(addPlayerSuccess(res.player));
+        dispatch(addPlayerSuccess(res.player, checked));
       },
       err => dispatch(addPlayerFailure(err))
     );
@@ -115,10 +115,10 @@ function updatePlayerRequest() {
   };
 }
 
-function updatePlayerSuccess(player) {
+function updatePlayerSuccess(player, checked) {
   return {
     type: ActionTypes.UPDATE_PLAYER_SUCCESS,
-    payload: { player },
+    payload: { player, checked },
   };
 }
 
@@ -129,7 +129,7 @@ function updatePlayerFailure(error) {
   };
 }
 
-export function updatePlayer({ name, rating, id }) {
+export function updatePlayer({ name, rating, id, checked }) {
   return (dispatch) => {
     dispatch(updatePlayerRequest());
     const player = { name, rating, id };
@@ -139,7 +139,7 @@ export function updatePlayer({ name, rating, id }) {
     }).then(
       res => {
         dispatch(closeEditModal());
-        dispatch(updatePlayerSuccess(res.player));
+        dispatch(updatePlayerSuccess(res.player, checked));
       },
       err => dispatch(updatePlayerFailure(err))
     );

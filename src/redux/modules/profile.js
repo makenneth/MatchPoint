@@ -78,7 +78,7 @@ export function resendEmail() {
       method: 'POST',
     }).then(
       () => {
-        dispatch(setMessage('Email has been resend successfully'));
+        dispatch(setMessage('A new email is on its way.'));
         dispatch(resendEmailSuccess());
       },
       err => {

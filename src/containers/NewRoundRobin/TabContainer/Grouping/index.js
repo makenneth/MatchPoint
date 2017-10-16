@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import IconMenu from 'material-ui/IconMenu';
 import IconButton from 'material-ui/IconButton/IconButton';
@@ -11,9 +10,8 @@ import Dialog from 'material-ui/Dialog';
 import { /* NumOfPlayers, */ ParticipantGroup } from 'components';
 import { changeSchema, movePlayerUp, movePlayerDown } from 'redux/modules/schemata';
 import { stopLoad } from 'redux/modules/main';
-import { preSetTab } from 'redux/modules/navbar';
 import PDFGenerator from 'utils/PDFGenerator';
-import { setMinAndMax, temporarySave, saveSession } from 'redux/modules/newSession';
+import { setMinAndMax, temporarySave, createSession } from 'redux/modules/newSession';
 import moment from 'moment';
 
 @connect(
@@ -22,11 +20,10 @@ import moment from 'moment';
     changeSchema,
     setMinAndMax,
     stopLoad,
-    saveSession,
+    createSession,
     temporarySave,
     movePlayerUp,
     movePlayerDown,
-    preSetTab,
   }
 )
 export default class Grouping extends Component {
@@ -113,7 +110,7 @@ export default class Grouping extends Component {
       this.props.club.clubName,
       this.props.addedPlayers.toPlayerList(),
       this.props.selected,
-      this.props.numJoined,
+      this.props.addedPlayers.length(),
       moment(this.props.date).format('YYYY-MM-DD'),
     ).generate();
   }
@@ -126,14 +123,11 @@ export default class Grouping extends Component {
         dialogOpen: true,
       });
     } else {
-      this.props.saveSession({
+      this.props.createSession({
         date: moment(this.props.date).format('YYYY-MM-DD'),
-        numOfPlayers: this.props.numJoined,
+        numOfPlayers: this.props.addedPlayers.length(),
         selectedSchema: this.props.selected,
         players: this.props.addedPlayers.toPlayerList().flatten(),
-      }).then(() => {
-        this.props.preSetTab('/club/sessions');
-        browserHistory.push('/club/sessions');
       });
     }
   }

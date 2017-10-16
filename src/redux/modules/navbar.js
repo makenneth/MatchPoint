@@ -1,10 +1,4 @@
-import { LOGOUT_LOAD } from './auth';
-import { OPEN_LOGIN } from './splash';
-
-const OPEN_NAV = 'mp/navbar/OPEN_NAV';
-const CLOSE_NAV = 'mp/navbar/CLOSE_NAV';
-const SET_TAB = 'mp/navbar/SET_TAB';
-const PRE_SET_TAB = 'mp/navbar/PRE_SET_TAB';
+import ActionTypes from 'redux/actionTypes';
 
 const initialState = {
   opened: false,
@@ -13,29 +7,29 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case OPEN_NAV:
+    case ActionTypes.OPEN_NAV:
       return {
         ...state,
         opened: true,
       };
-    case OPEN_LOGIN:
-    case LOGOUT_LOAD:
+    case ActionTypes.OPEN_LOGIN:
+    case ActionTypes.LOG_OUT_REQUEST:
       return {
         opened: false,
         tab: 0,
       };
-    case CLOSE_NAV:
+    case ActionTypes.CLOSE_NAV:
       return {
         ...state,
         opened: false,
       };
-    case SET_TAB:
+    case ActionTypes.SET_TAB:
       return {
         ...state,
         tab: action.payload,
         opened: false,
       };
-    case PRE_SET_TAB:
+    case ActionTypes.PRE_SET_TAB:
       return {
         ...state,
         tab: action.payload,
@@ -45,26 +39,26 @@ export default (state = initialState, action) => {
   }
 };
 
-export const open = () => {
+export function open() {
   return {
-    type: OPEN_NAV,
+    type: ActionTypes.OPEN_NAV,
   };
-};
+}
 
-export const close = () => {
+export function close() {
   return {
-    type: CLOSE_NAV,
+    type: ActionTypes.CLOSE_NAV,
   };
-};
+}
 
-export const setTab = (tab) => {
+export function setTab(tab) {
   return {
-    type: SET_TAB,
+    type: ActionTypes.SET_TAB,
     payload: tab,
   };
-};
+}
 
-export const preSetTab = (path) => {
+export function preSetTab(path) {
   let tab = 0;
   if (path === '/club/sessions/new' || path === '/club') {
     tab = 1;
@@ -74,7 +68,7 @@ export const preSetTab = (path) => {
     tab = 3;
   }
   return {
-    type: PRE_SET_TAB,
+    type: ActionTypes.PRE_SET_TAB,
     payload: tab,
   };
-};
+}

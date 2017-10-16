@@ -7,6 +7,10 @@ export default class Heap {
     this.map = map || {};
   }
 
+  length() {
+    return this.heap.length;
+  }
+
   find(id) {
     return Number.isInteger(this.map[id]);
   }

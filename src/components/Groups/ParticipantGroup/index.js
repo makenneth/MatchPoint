@@ -32,7 +32,7 @@ const ParticipantGroup = (props) => {
       >
         {
           props.players.map((player, i) => (
-            <TableRow className="table-row" key={player._id}>
+            <TableRow className="table-row" key={player.id}>
               <TableRowColumn>{i + 1}</TableRowColumn>
               <TableRowColumn>{player.name}</TableRowColumn>
               <TableRowColumn>

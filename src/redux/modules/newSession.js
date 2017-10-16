@@ -1,79 +1,55 @@
-import axios from 'axios';
+import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
-import { getCSRF, Heap } from 'helpers';
+import { browserHistory } from 'react-router';
+import { Heap } from 'helpers';
 import { UPDATE_SESSION_SUCCESS } from 'redux/modules/sessions';
-import {
-  CHANGE_SCHEMA,
-  MOVE_PLAYER_UP,
-  MOVE_PLAYER_DOWN,
-} from 'redux/modules/schemata';
+import { preSetTab } from 'redux/modules/navbar';
 import { MESSAGE, LOAD } from 'redux/modules/main';
 import { RESTORE_TEMP_SESSION } from 'redux/modules/tempSession';
 
-export const RESTORE_STATE = 'mp/session/RESTORE_STATE';
-export const TEST_DATA_PARTICIPANTS = 'mp/session/TEST_DATA_PARTICIPANTS';
-export const TEST_DATA_GROUPING = 'mp/session/TEST_DATA_GROUPING';
-export const NEW_SESSION = 'mp/session/';
-export const LOAD_PLAYERS = 'mp/session/LOAD_PLAYERS';
-export const SET_MIN_AND_MAX = 'mp/session/SET_MIN_AND_MAX';
-export const PLAYERS_FAIL = 'mp/session/FETCH_PLAYERS';
-export const RESTORE_SESSION = 'mp/session/RESTORE_SESSION';
-export const ADD_PLAYERS_SUCCESS = 'mp/session/ADD_PLAYERS_SUCCESS';
-export const REGISTER_PLAYER = 'mp/session/REGISTER_PLAYER';
-export const UNREGISTER_PLAYER = 'mp/session/UNREGISTER_PLAYER';
-export const SAVE_SESSION_SUCCESS = 'mp/session/SAVE_SESSION_SUCCESS';
-
-const SET_DATE = 'mp/rr/SET_DATE';
-
 const initialState = {
-  prevState: null,
+  // prevState: null,
   loading: false,
   loaded: false,
   allPlayers: {},
   addedPlayers: new Heap(),
-  numJoined: 0,
   date: new Date(),
-  pdfs: null,
   max: 7,
   min: 3,
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case RESTORE_STATE:
-      return {
-        ...initialState,
-        ...state.prevstate,
-      };
-    case TEST_DATA_PARTICIPANTS: {
-      const currentState = Object.assign({}, initialState);
-      delete currentState.prevState;
-      return {
-        ...state,
-        prevState: currentState,
-        allPlayers: action.payload,
-      };
-    }
-    case SET_MIN_AND_MAX:
+    // case RESTORE_STATE:
+    //   return {
+    //     ...initialState,
+    //     ...state.prevstate,
+    //   };
+    // case TEST_DATA_PARTICIPANTS: {
+    //   const currentState = Object.assign({}, initialState);
+    //   delete currentState.prevState;
+    //   return {
+    //     ...state,
+    //     prevState: currentState,
+    //     allPlayers: action.payload,
+    //   };
+    // }
+    case ActionTypes.SET_MIN_AND_MAX:
       return {
         ...state,
         ...action.payload,
       };
-    case REGISTER_PLAYER: {
+    case ActionTypes.REGISTER_PLAYER: {
       const addedPlayers = state.addedPlayers.insert(state.allPlayers[action.payload]);
-      const numJoined = state.numJoined + 1;
       return {
         ...state,
-        numJoined,
         addedPlayers,
       };
     }
-    case UNREGISTER_PLAYER: {
+    case ActionTypes.UNREGISTER_PLAYER: {
       const addedPlayers = state.addedPlayers.remove(action.payload);
-      const numJoined = state.numJoined - 1;
       return {
         ...state,
-        numJoined,
         addedPlayers,
       };
     }
@@ -96,20 +72,17 @@ export default (state = initialState, action) => {
       const allPlayers = Object.assign({}, state.allPlayers);
       delete allPlayers[action.payload.id];
       let addedPlayers = state.addedPlayers;
-      let numJoined = state.numJoined;
       if (state.addedPlayers.find(action.payload.id)) {
         addedPlayers = state.addedPlayers.remove(action.payload.id);
-        numJoined -= 1;
       }
 
       return {
         ...state,
         allPlayers,
         addedPlayers,
-        numJoined,
       };
     }
-    case ADD_PLAYERS_SUCCESS: {
+    case ActionTypes.ADD_PLAYERS_SUCCESS: {
       const allPlayers = Object.assign({}, state.allPlayers);
       action.payload.forEach((player) => {
         allPlayers[player.id] = player;
@@ -121,37 +94,45 @@ export default (state = initialState, action) => {
       };
     }
     case ActionTypes.UPDATE_PLAYER_SUCCESS: {
-      const { player } = action.payload;
+      const { player, checked } = action.payload;
       const allPlayers = Object.assign({}, state.allPlayers);
+      let addedPlayers = state.addedPlayers;
+
       allPlayers[player.id] = player;
+      if (addedPlayers.find(player.id)) {
+        addedPlayers = addedPlayers.replace(player);
+      } else {
+        addedPlayers = addedPlayers.insert(player);
+      }
       return {
         ...state,
         allPlayers,
-        addedPlayers: state.addedPlayers.replace(player),
+        addedPlayers,
         loading: false,
       };
     }
 
     case ActionTypes.ADD_PLAYER_SUCCESS: {
+      const { player, checked } = action.payload;
       const allPlayers = Object.assign({}, state.allPlayers);
-      allPlayers[action.payload.player.id] = action.payload.player;
+      let addedPlayers = state.addedPlayers;
+      allPlayers[player.id] = player;
+      if (checked) {
+        addedPlayers = addedPlayers.insert(player);
+      }
       return {
         ...state,
         allPlayers,
+        addedPlayers,
         loading: false,
       };
     }
-    case SET_DATE:
+    case ActionTypes.SET_DATE:
       return {
         ...state,
         date: action.payload,
       };
-    case LOAD_PLAYERS:
-      return {
-        ...state,
-        loading: true,
-      };
-    case RESTORE_TEMP_SESSION: {
+    case ActionTypes.RESTORE_TEMP_SESSION: {
       const { addedPlayers: { heap, map }, date } = action.payload;
       return {
         ...state,
@@ -160,12 +141,12 @@ export default (state = initialState, action) => {
         date: new Date(date),
       };
     }
-    case UPDATE_SESSION_SUCCESS:
+    case ActionTypes.UPDATE_SESSION_SUCCESS:
       return {
         ...state,
         loaded: false,
       };
-    case SAVE_SESSION_SUCCESS:
+    case ActionTypes.CREATE_SESSION_SUCCESS:
       return {
         loading: false,
         loaded: false,
@@ -173,13 +154,12 @@ export default (state = initialState, action) => {
         addedPlayers: new Heap(),
         numJoined: 0,
         date: new Date(),
-        pdfs: null,
         max: null,
         min: null,
       };
-    case CHANGE_SCHEMA:
-    case MOVE_PLAYER_UP:
-    case MOVE_PLAYER_DOWN:
+    case ActionTypes.CHANGE_SCHEMA:
+    case ActionTypes.MOVE_PLAYER_UP:
+    case ActionTypes.MOVE_PLAYER_DOWN:
       return {
         ...state,
         addedPlayers: state.addedPlayers.removePlayerList(),
@@ -189,55 +169,77 @@ export default (state = initialState, action) => {
   }
 };
 
-export const setMinAndMax = (min, max) => {
+export function setMinAndMax(min, max) {
   return {
-    type: SET_MIN_AND_MAX,
+    type:ActionTypes.SET_MIN_AND_MAX,
     payload: {
       min, max,
     },
   };
-};
+}
 
-export const setDate = (date) => {
+export function setDate(date) {
   return {
-    type: SET_DATE,
+    type: ActionTypes.SET_DATE,
     payload: date,
   };
-};
+}
 
-export const registerPlayer = (id) => {
+export function registerPlayer(id) {
   return {
-    type: REGISTER_PLAYER,
+    type: ActionTypes.REGISTER_PLAYER,
     payload: id,
   };
-};
+}
 
-export const unregisterPlayer = (id) => {
+export function unregisterPlayer(id) {
   return {
-    type: UNREGISTER_PLAYER,
+    type: ActionTypes.UNREGISTER_PLAYER,
     payload: id,
   };
-};
+}
 
-export const restoreSession = (data) => {
-  return {
-    type: RESTORE_SESSION,
-    payload: data,
+// export const restoreSession = (data) => {
+//   return {
+//     type: RESTORE_SESSION,
+//     payload: data,
+//   };
+// };
+
+export function createSession(data) {
+  return (dispatch) => {
+    dispatch(createSessionRequest());
+
+    return request('/api/my/sessions', {
+      method: 'POST',
+      body: JSON.stringify({ session: data }),
+    }).then(
+      (res) => {
+        dispatch(createSessionSuccess(res.roundrobin));
+        dispatch(preSetTab('/club/sessions'));
+        browserHistory.push('/club/sessions');
+      },
+      (err) => dispatch(createSessionFailure(err))
+    );
   };
 };
 
-export const saveSession = (data) => {
-  const promise = axios({
-    url: '/api/my/session',
-    method: 'POST',
-    data: { session: data },
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
-
+function createSessionRequest() {
   return {
-    types: [LOAD, SAVE_SESSION_SUCCESS, MESSAGE],
-    promise,
+    type: ActionTypes.CREATE_SESSION_REQUEST,
   };
-};
+}
+
+function createSessionSuccess(session) {
+  return {
+    type: ActionTypes.CREATE_SESSION_SUCCESS,
+    payload: { session },
+  };
+}
+
+function createSessionFailure(error) {
+  return {
+    type: ActionTypes.CREATE_SESSION_FAILURE,
+    payload: { error },
+  };
+}

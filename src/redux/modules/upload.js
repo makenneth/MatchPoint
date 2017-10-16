@@ -1,12 +1,5 @@
-import axios from 'axios';
-import { getCSRF } from 'helpers';
-import { ADD_PLAYERS_SUCCESS } from './newSession';
-
-const LOAD = 'mp/upload/LOAD';
-const STOP_LOAD = 'mp/upload/STOP_LOAD';
-const FAIL = 'mp/upload/FAIL';
-const OPEN_UPLOAD_DIALOG = 'mp/dialogs/OPEN_UPLOAD_DIALOG';
-const CLOSE_UPLOAD_DIALOG = 'mp/dialogs/CLOSE_UPLOAD_DIALOG';
+import request from 'utils/request';
+import ActionTypes from 'redux/actionTypes';
 
 const initialState = {
   dialogOpen: false,
@@ -15,23 +8,23 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case LOAD:
+    case ActionTypes.START_PROCESS_DATA:
       return {
         ...state,
         processing: true,
       };
-    case OPEN_UPLOAD_DIALOG:
+    case ActionTypes.OPEN_UPLOAD_DIALOG:
       return {
         ...state,
         dialogOpen: true,
       };
-    case ADD_PLAYERS_SUCCESS:
-    case CLOSE_UPLOAD_DIALOG:
+    case ActionTypes.ADD_PLAYERS_SUCCESS:
+    case ActionTypes.CLOSE_UPLOAD_DIALOG:
       return {
         dialogOpen: false,
         processing: false,
       };
-    case STOP_LOAD:
+    case ActionTypes.END_PROCESS_DATA:
       return {
         ...state,
         processing: false,
@@ -41,38 +34,57 @@ export default (state = initialState, action) => {
   }
 };
 
-export const openUpload = () => {
+export function openUpload() {
   return {
-    type: OPEN_UPLOAD_DIALOG,
+    type: ActionTypes.OPEN_UPLOAD_DIALOG,
   };
-};
+}
 
-export const closeUpload = () => {
+export function closeUpload() {
   return {
-    type: CLOSE_UPLOAD_DIALOG,
+    type: ActionTypes.CLOSE_UPLOAD_DIALOG,
   };
-};
+}
 
-export const startLoading = () => {
-  return { type: LOAD };
-};
+export function startLoading() {
+  return { type: ActionTypes.START_PROCESS_DATA };
+}
 
-export const stopLoading = () => {
-  return { type: STOP_LOAD };
-};
+export function stopLoading() {
+  return { type: ActionTypes.END_PROCESS_DATA };
+}
 
-export const upload = (data) => {
-  const promise = axios({
-    url: '/api/upload/players',
-    method: 'POST',
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-    data,
-  });
-
+function uploadRequest() {
   return {
-    types: [LOAD, ADD_PLAYERS_SUCCESS, FAIL],
-    promise,
+    type: ActionTypes.ADD_PLAYERS_REQUEST,
   };
-};
+}
+
+function uploadSuccess(players) {
+  return {
+    type: ActionTypes.ADD_PLAYERS_SUCCESS,
+    payload: { players },
+  };
+}
+
+function uploadFailure(error) {
+  return {
+    type: ActionTypes.ADD_PLAYERS_FAILURE,
+    payload: { error },
+  };
+}
+
+export function upload(data) {
+  return (dispatch) => {
+    dispatch(uploadRequest());
+    return request('/api/upload/players', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }).then(
+      (res) => {
+        dispatch(uploadSuccess(res.players));
+      },
+      (err) => dispatch(uploadFailure(err))
+    );
+  };
+}

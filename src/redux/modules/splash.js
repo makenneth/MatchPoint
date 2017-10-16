@@ -1,30 +1,29 @@
-const SET_PAGE = 'mp/splash/SET_PAGE';
-export const OPEN_LOGIN = 'mp/splash/OPEN_LOGIN';
+import ActionTypes from 'redux/actionTypes';
 
 export default (state = { page: 0 }, action) => {
   switch (action.type) {
-    case OPEN_LOGIN:
+    case ActionTypes.OPEN_LOGIN:
       return {
         page: 1,
       };
-    case SET_PAGE:
+    case ActionTypes.SET_PAGE:
       return {
         page: action.payload,
       };
     default:
       return state;
   }
-};
+}
 
-export const setPage = (page) => {
+export function setPage(page) {
   return {
-    type: SET_PAGE,
+    type:ActionTypes. SET_PAGE,
     payload: page,
   };
-};
+}
 
-export const openLogin = () => {
+export function openLogin() {
   return {
-    type: OPEN_LOGIN,
+    type: ActionTypes.OPEN_LOGIN,
   };
-};
+}

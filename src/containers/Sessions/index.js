@@ -38,7 +38,7 @@ export default class RoundRobinSessions extends Component {
   render() {
     const finalized = [];
     const notFinalized = [];
-    const sessions = this.props.sessions;
+    const sessions = this.props.sessions || [];
 
     for (let i = 0; i < sessions.length; i++) {
       const curSession = sessions[i];

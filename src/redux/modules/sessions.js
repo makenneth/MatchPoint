@@ -1,6 +1,6 @@
 import axios from 'axios';
+import ActionTypes from 'redux/actionTypes';
 import { getCSRF } from 'helpers';
-import { SAVE_SESSION_SUCCESS } from 'redux/modules/newSession';
 import { LOAD, MESSAGE } from 'redux/modules/main';
 
 export const DELETE_SESSION_SUCCESS = 'mp/sessions/DELETE_SESSION_SUCCESS';
@@ -41,11 +41,11 @@ export default (state = initialState, action) => {
         sessions,
       };
     }
-    case SAVE_SESSION_SUCCESS: {
+    case ActionTypes.CREATE_SESSION_SUCCESS: {
       return {
         ...state,
         loading: false,
-        sessions: [...state.sessions, action.payload],
+        sessions: [...state.sessions, action.payload.session],
       };
     }
     case DELETE_SESSION_SUCCESS: {

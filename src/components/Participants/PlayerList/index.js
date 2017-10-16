@@ -35,8 +35,6 @@ class PlayerList extends Component {
   }
 
   playerRow(player) {
-    console.log(player.id)
-    console.log(this.props.addedPlayers.find(player.id));
     return (
       <TableRow key={player.id} selected={!!this.props.addedPlayers.find(player.id)}>
         <TableRowColumn className="col-name">{player.name}</TableRowColumn>
@@ -73,7 +71,7 @@ class PlayerList extends Component {
     const { input } = this.state;
     const filteredPlayers = [];
     const playerList = [];
-    console.log(this.props.addedPlayers);
+
     for (const id in players) {
       if (players.hasOwnProperty(id)) {
         if (input === '' || playerList.length >= 15) {

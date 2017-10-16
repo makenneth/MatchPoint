@@ -40,6 +40,35 @@ const actionTypes = keymirror({
   OPEN_NEW_MODAL: null,
   CLOSE_EDIT_MODAL: null,
   CLOSE_NEW_MODAL: null,
+
+  SET_MIN_AND_MAX: null,
+  SET_DATE: null,
+  RESTORE_SESSION: null,
+  REGISTER_PLAYER: null,
+  UNREGISTER_PLAYER: null,
+  ADD_PLAYERS_REQUEST: null,
+  ADD_PLAYERS_SUCCESS: null,
+  ADD_PLAYERS_FAILURE: null,
+  CREATE_SESSION_REQUEST: null,
+  CREATE_SESSION_SUCCESS: null,
+  CREATE_SESSION_FAILURE: null,
+
+  OPEN_UPLOAD_DIALOG: null,
+  CLOSE_UPLOAD_DIALOG: null,
+  START_PROCESS_DATA: null,
+  END_PROCESS_DATA: null,
+
+  OPEN_NAV: null,
+  CLOSE_NAV: null,
+  SET_TAB: null,
+  PRE_SET_TAB: null,
+  SET_PAGE: null,
+  OPEN_LOGIN: null,
+
+  CHANGE_SCHEMA: null,
+  MOVE_PLAYER_UP: null,
+  MOVE_PLAYER_DOWN: null,
+  FOUND_SCHEMATA: null,
 });
 
 export default actionTypes;

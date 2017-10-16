@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import CircularProgress from 'material-ui/CircularProgress';
 import RaisedButton from 'material-ui/RaisedButton';
+import Checkbox from 'material-ui/Checkbox';
 import IconButton from 'material-ui/IconButton/IconButton';
 import Close from 'react-icons/lib/md/close';
 
@@ -20,6 +21,7 @@ class PlayerForm extends Component {
     }
     this.state = {
       ...def,
+      checked: false,
       errors: {
         name: '',
         rating: '',
@@ -83,6 +85,10 @@ class PlayerForm extends Component {
     this.setState({ name: e.target.value });
   }
 
+  updateCheck = () => {
+    this.setState({ checked: !this.state.checked });
+  }
+
   handleSubmit = () => {
     if (this.validateFields()) {
       this.props.callback(this.state);
@@ -134,14 +140,18 @@ class PlayerForm extends Component {
             color="#aaa"
           />
         }
-        {
-          !isLoading && <RaisedButton
-            fullWidth={Boolean(true)}
-            label={this.props.title}
-            style={{ marginTop: '20px' }}
-            onTouchTap={this.handleSubmit}
-          />
-        }
+        {!isLoading && <Checkbox
+          label="Add Player afterward"
+          checked={this.state.checked}
+          onCheck={this.updateCheck}
+          style={{ marginTop: '20px', fontSize: '13px' }}
+        />}
+        {!isLoading && <RaisedButton
+          fullWidth={Boolean(true)}
+          label={this.props.title}
+          style={{ marginTop: '20px' }}
+          onTouchTap={this.handleSubmit}
+        />}
       </form>
     </div>);
   }

@@ -29,8 +29,8 @@ export default class Navbar extends Component {
       this.props.navbar !== nextProps.navbar || this.state !== nextState) {
       return true;
     }
-    if ((!this.props.club._id && nextProps.club._id) ||
-      (!nextProps.club._id && this.props.club._id)) {
+    if ((!this.props.club && nextProps.club) ||
+      (!nextProps.club.id && this.props.club.id)) {
       return true;
     }
     return false;
@@ -72,7 +72,7 @@ export default class Navbar extends Component {
   slideNav() {
     const { tab, opened } = this.props.navbar;
 
-    if (this.props.club._id) {
+    if (this.props.club.id) {
       return (<Drawer
         open={opened}
         openSecondary={Boolean(true)}
@@ -152,7 +152,7 @@ export default class Navbar extends Component {
 
   normalNav() {
     const tab = this.props.navbar.tab;
-    if (this.props.club._id) {
+    if (this.props.club.id) {
       return (<ul className="nav">
         <li
           onClick={() => this.handleLink('/club/profile', 4)}
@@ -198,7 +198,7 @@ export default class Navbar extends Component {
       }
     >
       <div>
-        <div className="logo" onClick={() => this.handleLink(this.props.club._id ? '/club' : '/', 0)}>
+        <div className="logo" onClick={() => this.handleLink(this.props.club.id ? '/club' : '/', 0)}>
           MatchPoints
         </div>
         {!expanded && <div className="collapsed-icon" onClick={this.props.open}>&#9776;</div>}

@@ -232,9 +232,9 @@ export function activateClub() {
   return (dispatch) => {
     dispatch(startLoad());
     setTimeout(() => {
+      browserHistory.push('/club');
       dispatch(stopLoad());
       dispatch(setPage(0));
-      browserHistory.push('/club');
     });
   };
 }

@@ -15,7 +15,6 @@ import Participants from './Participants';
 @connect(
   ({ newSession, activePlayers }) => ({
     date: newSession.date,
-    numJoined: newSession.numJoined,
     allPlayers: newSession.allPlayers,
     addedPlayers: newSession.addedPlayers,
     activePlayers: activePlayers.players,
@@ -63,7 +62,7 @@ export default class TabContainer extends Component {
     if (tab.target) return;
     if (tab === 1) {
       this.props.startTutorial('grouping');
-      this.props.updateSchemata(this.props.numJoined);
+      this.props.updateSchemata(this.props.addedPlayers.length());
     }
     if (tab === 0) this.props.startTutorial('registration');
     this.setState({ tab });
