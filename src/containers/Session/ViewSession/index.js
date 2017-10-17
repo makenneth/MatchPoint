@@ -26,7 +26,9 @@ export default class ViewSession extends Component {
     browserHistory.push('/club/sessions');
   }
   render() {
-    const { session: { date, selectedSchema, players }, scoreChange } = this.props;
+    const {
+      session: { date, selected_schema: selectedSchema, players }, scoreChange
+    } = this.props;
 
     let countedPlayers = 0;
     return (<div className="session-container">
@@ -38,14 +40,21 @@ export default class ViewSession extends Component {
       <div className="session-container-body">
         {
           selectedSchema.map((sizeOfGroup, i) => {
+            const joinedPlayers = players.slice(
+              countedPlayers,
+              countedPlayers + sizeOfGroup
+            );
+            console.log(players, joinedPlayers);
             countedPlayers += +sizeOfGroup;
             return (<ViewRecordTable
               key={i}
               groupNum={i + 1}
-              start={countedPlayers - sizeOfGroup}
-              joinedPlayers={players}
+              joinedPlayers={joinedPlayers}
               sizeOfGroup={+sizeOfGroup}
-              scoreChange={scoreChange[i] || []}
+              results={this.props.results}
+              sortedPlayerList={this.props.sortedPlayerList[i]}
+              ratingChange={this.props.ratingChange}
+              ratingChangeDetail={this.props.ratingChangeDetail}
             />);
           })
         }

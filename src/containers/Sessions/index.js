@@ -27,13 +27,8 @@ import moment from 'moment';
 }])
 @connect(({ sessions }) => ({ sessions: sessions.sessions }), { setSession })
 export default class RoundRobinSessions extends Component {
-  handleClick = (id) => {
-    const session = this.props.sessions.find(s => s.id === id);
-    new Promise((resolve) => {
-      return resolve(this.props.setSession(session));
-    }).then(() => {
-      browserHistory.push(`/club/sessions/${id}`);
-    });
+  handleClick = (shortid) => {
+    browserHistory.push(`/club/sessions/${shortid}`);
   }
   render() {
     const finalized = [];
@@ -45,7 +40,7 @@ export default class RoundRobinSessions extends Component {
       if (curSession.finalized) {
         const session = (<ListItem
           key={curSession.id}
-          onClick={() => this.handleClick(curSession.id)}
+          onClick={() => this.handleClick(curSession.short_id)}
           leftAvatar={<Avatar icon={<Event />} />}
           primaryText={moment(curSession.date).utc().format('MMMM DD, YYYY')}
           rightIcon={<View />}
@@ -54,7 +49,7 @@ export default class RoundRobinSessions extends Component {
       } else {
         const session = (<ListItem
           key={curSession.id}
-          onClick={() => this.handleClick(curSession.id)}
+          onClick={() => this.handleClick(curSession.short_id)}
           leftAvatar={<Avatar icon={<Event />} />}
           primaryText={moment(curSession.date).utc().format('MMMM DD, YYYY')}
           rightIcon={<Edit />}

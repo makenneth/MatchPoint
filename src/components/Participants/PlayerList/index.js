@@ -55,7 +55,7 @@ class PlayerList extends Component {
           <IconButton
             onClick={(ev) => {
               ev.stopPropagation();
-              this.props.deletePlayer(player.id)
+              this.props.deletePlayer(player.id);
             }}
             iconClassName="material-icons"
             tooltip="Remove Player"

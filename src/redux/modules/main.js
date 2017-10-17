@@ -1,5 +1,4 @@
-import { LOAD_SESSIONS, LOAD_SESSIONS_ERROR, LOAD_SESSIONS_SUCCESS } from 'redux/modules/sessions';
-
+// import ActionTypes from 'redux/actionTypes';
 export const LOAD = 'mp/main/LOAD';
 export const STOP_LOAD = 'mp/main/STOP_LOAD';
 export const MESSAGE = 'mp/main/MESSAGE';
@@ -12,19 +11,16 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case LOAD_SESSIONS_SUCCESS:
     case STOP_LOAD:
       return {
         ...state,
         loading: false,
       };
-    case LOAD_SESSIONS:
     case LOAD:
       return {
         ...state,
         loading: true,
       };
-    case LOAD_SESSIONS_ERROR:
     case MESSAGE:
       return {
         ...state,

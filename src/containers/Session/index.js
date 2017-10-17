@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { asyncConnect } from 'redux-async-connect';
 import { fetchSession, isLoaded, updateScore, updateResult } from 'redux/modules/selectedSession';
@@ -21,7 +21,7 @@ import ViewSession from './ViewSession';
     return ({ session, sortedPlayerList, ratingChange, ratingChangeDetail, results });
   },
   { deleteSession, postResult, updateScore, updateResult })
-export default class RoundrobinSession extends Component {
+export default class RoundrobinSession extends React.PureComponent {
   render() {
     if (!this.props.session) {
       return null;
@@ -29,7 +29,10 @@ export default class RoundrobinSession extends Component {
     if (this.props.session.finalized) {
       return (<ViewSession
         session={this.props.session}
-        scoreChange={this.props.scoreChange}
+        sortedPlayerList={this.props.sortedPlayerList}
+        ratingChangeDetail={this.props.ratingChangeDetail}
+        results={this.props.results}
+        ratingChange={this.props.ratingChange}
       />);
     }
     console.log(' +--', this.props.ratingChangeDetail);

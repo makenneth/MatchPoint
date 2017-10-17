@@ -13,11 +13,11 @@ export default (state = { page: 0 }, action) => {
     default:
       return state;
   }
-}
+};
 
 export function setPage(page) {
   return {
-    type:ActionTypes. SET_PAGE,
+    type: ActionTypes.SET_PAGE,
     payload: page,
   };
 }

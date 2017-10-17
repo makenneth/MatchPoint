@@ -14,7 +14,7 @@ const RecordTableView = (props) => {
   } = props;
   const playerRef = {};
   joinedPlayers.forEach(p => {
-    playerRef[p._id] = p;
+    playerRef[p.id] = p;
   });
   return (<Table
     selectable={false}

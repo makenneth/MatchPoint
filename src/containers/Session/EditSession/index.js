@@ -27,10 +27,7 @@ export default class EditSession extends Component {
   saveSession = () => {
     const session = this.props.session;
     if (!session.finalized) {
-      this.props.postResult(session._id, session.date, this.props.results)
-        .then(() => {
-          return browserHistory.push('/club/sessions');
-        });
+      this.props.postResult(session.short_id, session.date, this.props.results);
     }
   }
   handleClose = () => {
@@ -65,7 +62,7 @@ export default class EditSession extends Component {
         onTouchTap={this.handleDelete}
       />,
     ];
-    const { session: { date, selectedSchema, players, finalized } } = this.props;
+    const { session: { date, selected_schema: selectedSchema, players, finalized } } = this.props;
     let countedPlayers = 0;
     return (<div className="session-container">
       <AppBar

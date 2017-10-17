@@ -106,7 +106,7 @@ function loadAuthFailure(error) {
   };
 }
 
-export function loadAuth(user) {
+export function loadAuth() {
   return (dispatch) => {
     dispatch(loadAuthRequest());
     return request('/api/clubs').then(
@@ -210,7 +210,7 @@ function logOutSuccess() {
 function logOutFailure(error) {
   return {
     type: ActionTypes.LOG_OUT_FAILURE,
-    error,
+    payload: { error },
   };
 }
 

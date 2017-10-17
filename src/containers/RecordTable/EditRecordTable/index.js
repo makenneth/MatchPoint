@@ -14,9 +14,9 @@ export default class EditRecordTable extends Component {
     const { joinedPlayers } = this.props;
     const results = {};
     joinedPlayers.forEach((player, i) => {
-      results[player._id] = {};
+      results[player.id] = {};
       [...joinedPlayers.slice(0, i), ...joinedPlayers.slice(i + 1)].forEach((other) => {
-        results[player._id][other._id] = [0, 0];
+        results[player.id][other.id] = [0, 0];
       });
     });
     // separating out results is a performance
@@ -48,9 +48,9 @@ export default class EditRecordTable extends Component {
     const rc = {};
     const players = {};
     joinedPlayers.forEach((player) => {
-      players[player._id] = player;
-      rc[player._id] = 0;
-      scoreChange[player._id] = {};
+      players[player.id] = player;
+      rc[player.id] = 0;
+      scoreChange[player.id] = {};
     });
     for (const curPlayerId of Object.keys(results)) {
       const personalResult = results[curPlayerId];

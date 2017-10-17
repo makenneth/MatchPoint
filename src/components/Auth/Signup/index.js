@@ -106,6 +106,7 @@ export default class SignUpForm extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     if (this.validate()) {
+      // eslint-disable-next-line no-unused-vars
       const { errors, ...rest } = this.state;
       this.props.signUp(rest);
     }

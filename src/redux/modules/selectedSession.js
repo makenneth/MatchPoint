@@ -1,11 +1,9 @@
-import axios from 'axios';
-import { LOAD, MESSAGE } from 'redux/modules/main';
+import request from 'utils/request';
+import { ScoreCalculation } from 'helpers';
+import ActionTypes from 'redux/actionTypes';
+// import { LOAD, MESSAGE } from 'redux/modules/main';
 import { DELETE_SESSION_SUCCESS } from 'redux/modules/sessions';
 
-const FETCH_SESSION_SUCCESS = 'mp/selectedSession/FETCH_SESSION_SUCCESS';
-const SELECT_SESSION = 'mp/selectedSession/SELECT_SESSION';
-const UPDATE_SCORE = 'mp/selectedSession/UPDATE_SCORE';
-const UPDATE_RESULT = 'mp/selectedSession/UPDATE_RESULT';
 const initialState = {
   loading: false,
   loaded: false,
@@ -20,7 +18,7 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case DELETE_SESSION_SUCCESS:
       return initialState;
-    case UPDATE_SCORE: {
+    case ActionTypes.UPDATE_SCORE: {
       const { idx, ratingChangeDetail, ratingChange, results } = action.payload;
       const playerRecords = Object.keys(results).map((playerId) => {
         const versusRecords = results[playerId];
@@ -45,10 +43,9 @@ export default (state = initialState, action) => {
           return 1;
         } else if (p1.losses < p2.losses) {
           return -1;
-        } else {
-          const [player1GameWon, player2GameWon] = state.results[p1.id][p2.id];
-          return player1GameWon - player2GameWon;
         }
+        const [player1GameWon, player2GameWon] = state.results[p1.id][p2.id];
+        return player1GameWon - player2GameWon;
       });
 
       return {
@@ -63,28 +60,28 @@ export default (state = initialState, action) => {
         ratingChange: Object.assign({}, state.ratingChange, ratingChange),
       };
     }
-    case FETCH_SESSION_SUCCESS:
-    case SELECT_SESSION: {
-      const session = action.payload;
+    case ActionTypes.FETCH_SESSION_SUCCESS:
+    case ActionTypes.SELECT_SESSION: {
+      const { session } = action.payload;
       if (!session.finalized) {
         const { players } = session;
         const ratingChange = {};
         for (const player of players) {
-          ratingChange[player._id] = 0;
+          ratingChange[player.id] = 0;
         }
         const sortedPlayerList = [];
         const results = {};
-        session.selectedSchema.reduce((acc, numInGroup) => {
+        session.selected_schema.reduce((acc, numInGroup) => {
           const playersInGroup = players.slice(acc, acc + numInGroup);
           sortedPlayerList.push(playersInGroup.map(p => ({
-            id: p._id,
+            id: p.id,
             wins: 0,
             losses: 0,
           })));
           playersInGroup.forEach((player, i) => {
-            results[player._id] = {};
+            results[player.id] = {};
             [...playersInGroup.slice(0, i), ...playersInGroup.slice(i + 1)].forEach((other) => {
-              results[player._id][other._id] = [0, 0];
+              results[player.id][other.id] = [0, 0];
             });
           });
           return acc + numInGroup;
@@ -99,16 +96,25 @@ export default (state = initialState, action) => {
           ratingChange,
         };
       }
+      const scoreCalculation = new ScoreCalculation(
+        session.players, session.selected_schema, session.results
+      );
+      const sortedPlayerList = scoreCalculation.sortPlayers();
+      console.log(sortedPlayerList);
+      const [ratingChangeDetail, ratingChange] = scoreCalculation.calculateScoreChange();
       return {
         ...state,
         loaded: true,
         loading: false,
         session,
-        ratingChange: session.ratingChange,
+        ratingChange,
+        sortedPlayerList,
+        results: session.results,
+        ratingChangeDetail,
       };
     }
 
-    case UPDATE_RESULT:
+    case ActionTypes.UPDATE_RESULT:
       return {
         ...state,
         results: Object.assign({}, state.results, action.payload.results),
@@ -131,23 +137,46 @@ export const isLoaded = (state, id) => {
   return true;
 };
 
-export const setSession = (session) => {
+export function setSession(session) {
   return {
-    type: SELECT_SESSION,
+    type: ActionTypes.SELECT_SESSION,
     payload: session,
   };
-};
+}
 
-export const fetchSession = (id) => {
+export function fetchSessionRequest() {
   return {
-    types: [LOAD, FETCH_SESSION_SUCCESS, MESSAGE],
-    promise: axios.get(`/api/my/sessions/${id}`),
+    type: ActionTypes.FETCH_SESSION_REQUEST,
   };
-};
-
-export const updateScore = (ratingChangeDetail, ratingChange, results, idx) => {
+}
+export function fetchSessionSuccess(session) {
   return {
-    type: UPDATE_SCORE,
+    type: ActionTypes.FETCH_SESSION_SUCCESS,
+    payload: { session },
+  };
+}
+
+export function fetchSessionFailure(error) {
+  return {
+    type: ActionTypes.FETCH_SESSION_FAILURE,
+    payload: { error },
+  };
+}
+
+export function fetchSession(id) {
+  return (dispatch) => {
+    dispatch(fetchSessionRequest());
+    return request(`/api/my/sessions/${id}`)
+      .then(
+        res => dispatch(fetchSessionSuccess(res.roundrobin)),
+        err => dispatch(fetchSessionFailure(err)),
+      );
+  };
+}
+
+export function updateScore(ratingChangeDetail, ratingChange, results, idx) {
+  return {
+    type: ActionTypes.UPDATE_SCORE,
     payload: {
       ratingChangeDetail,
       ratingChange,
@@ -155,13 +184,11 @@ export const updateScore = (ratingChangeDetail, ratingChange, results, idx) => {
       idx,
     },
   };
-};
+}
 
-export const updateResult = (results) => {
+export function updateResult(results) {
   return {
-    type: UPDATE_RESULT,
-    payload: {
-      results
-    },
+    type: ActionTypes.UPDATE_RESULT,
+    payload: { results },
   };
-};
+}

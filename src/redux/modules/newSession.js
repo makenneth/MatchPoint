@@ -4,8 +4,8 @@ import { browserHistory } from 'react-router';
 import { Heap } from 'helpers';
 import { UPDATE_SESSION_SUCCESS } from 'redux/modules/sessions';
 import { preSetTab } from 'redux/modules/navbar';
-import { MESSAGE, LOAD } from 'redux/modules/main';
-import { RESTORE_TEMP_SESSION } from 'redux/modules/tempSession';
+// import { MESSAGE, LOAD } from 'redux/modules/main';
+// import { RESTORE_TEMP_SESSION } from 'redux/modules/tempSession';
 
 const initialState = {
   // prevState: null,
@@ -101,7 +101,7 @@ export default (state = initialState, action) => {
       allPlayers[player.id] = player;
       if (addedPlayers.find(player.id)) {
         addedPlayers = addedPlayers.replace(player);
-      } else {
+      } else if (checked) {
         addedPlayers = addedPlayers.insert(player);
       }
       return {
@@ -141,7 +141,7 @@ export default (state = initialState, action) => {
         date: new Date(date),
       };
     }
-    case ActionTypes.UPDATE_SESSION_SUCCESS:
+    case UPDATE_SESSION_SUCCESS:
       return {
         ...state,
         loaded: false,
@@ -171,7 +171,7 @@ export default (state = initialState, action) => {
 
 export function setMinAndMax(min, max) {
   return {
-    type:ActionTypes.SET_MIN_AND_MAX,
+    type: ActionTypes.SET_MIN_AND_MAX,
     payload: {
       min, max,
     },
@@ -205,25 +205,6 @@ export function unregisterPlayer(id) {
 //     payload: data,
 //   };
 // };
-
-export function createSession(data) {
-  return (dispatch) => {
-    dispatch(createSessionRequest());
-
-    return request('/api/my/sessions', {
-      method: 'POST',
-      body: JSON.stringify({ session: data }),
-    }).then(
-      (res) => {
-        dispatch(createSessionSuccess(res.roundrobin));
-        dispatch(preSetTab('/club/sessions'));
-        browserHistory.push('/club/sessions');
-      },
-      (err) => dispatch(createSessionFailure(err))
-    );
-  };
-};
-
 function createSessionRequest() {
   return {
     type: ActionTypes.CREATE_SESSION_REQUEST,
@@ -241,5 +222,23 @@ function createSessionFailure(error) {
   return {
     type: ActionTypes.CREATE_SESSION_FAILURE,
     payload: { error },
+  };
+}
+
+export function createSession(data) {
+  return (dispatch) => {
+    dispatch(createSessionRequest());
+
+    return request('/api/my/sessions', {
+      method: 'POST',
+      body: JSON.stringify({ session: data }),
+    }).then(
+      (res) => {
+        dispatch(createSessionSuccess(res.roundrobin));
+        dispatch(preSetTab('/club/sessions'));
+        browserHistory.push('/club/sessions');
+      },
+      (err) => dispatch(createSessionFailure(err))
+    );
   };
 }

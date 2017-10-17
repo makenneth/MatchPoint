@@ -1,13 +1,7 @@
-import axios from 'axios';
+import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
-import { getCSRF } from 'helpers';
-import { LOAD, MESSAGE } from 'redux/modules/main';
-
-export const DELETE_SESSION_SUCCESS = 'mp/sessions/DELETE_SESSION_SUCCESS';
-export const UPDATE_SESSION_SUCCESS = 'mp/sessions/UPDATE_SESSION_SUCCESS';
-export const LOAD_SESSIONS = 'mp/sessions/LOAD_SESSIONS';
-export const LOAD_SESSIONS_ERROR = 'mp/sessions/LOAD_SESSIONS_ERROR';
-export const LOAD_SESSIONS_SUCCESS = 'mp/sessions/LOAD_SESSIONS_SUCCESS';
+import { startLoad, stopLoad } from 'redux/modules/main';
+import browserHistory from 'react-router';
 
 const initialState = {
   loading: false,
@@ -17,21 +11,40 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case LOAD_SESSIONS_SUCCESS: {
+    case ActionTypes.LOAD_SESSIONS_SUCCESS: {
       return {
         ...state,
         loading: false,
         loaded: true,
-        sessions: action.payload,
+        sessions: action.payload.sessions,
       };
     }
-    case UPDATE_SESSION_SUCCESS: {
+    case ActionTypes.POST_SESSION_SUCCESS: {
       const sessions = [];
-      for (let i = 0; i < state.sessions.length; i++) {
-        if (state.sessions[i]._id === action.payload._id) {
-          sessions.push(action.payload);
+      for (const session of state.sessions) {
+        if (session.short_id === action.payload.id) {
+          sessions.push({
+            ...session,
+            finalized: 1,
+          });
         } else {
-          sessions.push(state.sessions[i]);
+          sessions.push(session);
+        }
+      }
+
+      return {
+        ...state,
+        loading: false,
+        sessions,
+      };
+    }
+    case ActionTypes.UPDATE_SESSION_SUCCESS: {
+      const sessions = [];
+      for (const session of state.sessions) {
+        if (session.id === action.payload.session.id) {
+          sessions.push(action.payload.session);
+        } else {
+          sessions.push(session);
         }
       }
 
@@ -48,21 +61,14 @@ export default (state = initialState, action) => {
         sessions: [...state.sessions, action.payload.session],
       };
     }
-    case DELETE_SESSION_SUCCESS: {
-      const sessions = [];
-      for (let i = 0; i < state.sessions.length; i++) {
-        if (state.sessions[i].id !== action.payload) {
-          sessions.push(state.sessions[i]);
-        }
-      }
-
+    case ActionTypes.DELETE_SESSION_SUCCESS:
       return {
         ...state,
         loading: false,
-        sessions,
+        sessions: state.sessions.filter(s => s.id !== action.payload.id),
       };
-    }
-    case LOAD_SESSIONS_ERROR:
+
+    case ActionTypes.LOAD_SESSIONS_FAILURE:
       return {
         ...state,
         loading: false,
@@ -73,60 +79,141 @@ export default (state = initialState, action) => {
   }
 };
 
-
-export const postResult = (id, date, results) => {
-  const promise = axios({
-    url: `/api/my/sessions/${id}`,
-    method: 'POST',
-    data: {
-      result: { results, date },
-    },
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
-
+function postResultRequest() {
   return {
-    types: [LOAD, UPDATE_SESSION_SUCCESS, MESSAGE],
-    promise,
+    type: ActionTypes.POST_SESSION_REQUEST,
   };
-};
-export const updateResult = (data, ratingUpdateList, id, date) => {
-  const promise = axios({
-    url: `/api/my/sessions/${id}`,
-    method: 'PATCH',
-    data: {
-      result: { date, data, ratingUpdateList },
-    },
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
+}
 
+function postResultSuccess(id) {
   return {
-    types: [LOAD, UPDATE_SESSION_SUCCESS, MESSAGE],
-    promise,
+    type: ActionTypes.POST_SESSION_SUCCESS,
+    payload: { id },
   };
-};
+}
 
-export const deleteSession = (id) => {
-  const promise = axios({
-    url: `/api/my/sessions/${id}`,
-    method: 'DELETE',
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
-
+function postResultFailure(error) {
   return {
-    types: [LOAD, DELETE_SESSION_SUCCESS, MESSAGE],
-    promise,
+    type: ActionTypes.POST_SESSION_FAILURE,
+    payload: { error },
   };
-};
+}
 
-export const fetchUserRRSessions = () => {
-  return {
-    types: [LOAD_SESSIONS_SUCCESS, LOAD_SESSIONS_SUCCESS, LOAD_SESSIONS_ERROR],
-    promise: axios('/api/my/sessions'),
+export function postResult(id, date, results) {
+  return (dispatch) => {
+    dispatch(postResultRequest());
+    return request(`/api/my/sessions/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({ results, date }),
+    }).then(
+      res => {
+        browserHistory.push('/club/sessions');
+        dispatch(postResultSuccess(id));
+      },
+      err => dispatch(postResultFailure(err)),
+    );
   };
-};
+}
+
+function updateResultRequest() {
+  return {
+    type: ActionTypes.UPDATE_SESSION_REQUEST,
+  };
+}
+
+function updateResultSuccess(session) {
+  return {
+    type: ActionTypes.UPDATE_SESSION_SUCCESS,
+    payload: { session },
+  };
+}
+
+function updateResultFailure(error) {
+  return {
+    type: ActionTypes.UPDATE_SESSION_FAILURE,
+    payload: { error },
+  };
+}
+
+export function updateResult(id, date, results) {
+  return (dispatch) => {
+    dispatch(updateResultRequest());
+    return request(`/api/my/sessions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ results, date }),
+    }).then(
+      res => dispatch(updateResultSuccess(res.roundrobin)),
+      err => dispatch(updateResultFailure(err)),
+    );
+  };
+}
+
+function deleteSessionRequest() {
+  return {
+    type: ActionTypes.DELETE_SESSION_REQUEST,
+  };
+}
+
+function deleteSessionSuccess(id) {
+  return {
+    type: ActionTypes.DELETE_SESSION_SUCCESS,
+    payload: { id },
+  };
+}
+
+function deleteSessionFailure(error) {
+  return {
+    type: ActionTypes.DELETE_SESSION_FAILURE,
+    payload: { error },
+  };
+}
+
+export function deleteSession(id) {
+  return (dispatch) => {
+    dispatch(deleteSessionRequest());
+    return request(`/api/my/sessions/${id}`, {
+      method: 'DELETE',
+    }).then(
+      () => dispatch(deleteSessionSuccess(id)),
+      err => dispatch(deleteSessionFailure(err)),
+    );
+  };
+}
+
+function fetchUserRRSessionsRequest() {
+  return {
+    type: ActionTypes.LOAD_SESSIONS_REQUEST,
+  };
+}
+
+function fetchUserRRSessionsSuccess(sessions) {
+  return {
+    type: ActionTypes.LOAD_SESSIONS_SUCCESS,
+    payload: { sessions },
+  };
+}
+
+function fetchUserRRSessionsFailure(error) {
+  return {
+    type: ActionTypes.LOAD_SESSIONS_FAILURE,
+    payload: { error },
+  };
+}
+
+export function fetchUserRRSessions() {
+  return (dispatch) => {
+    dispatch(fetchUserRRSessionsRequest());
+    dispatch(startLoad());
+    return request('/api/my/sessions')
+      .then(
+        (res) => {
+          dispatch(stopLoad());
+          dispatch(fetchUserRRSessionsSuccess(res.roundrobins));
+        },
+        (err) => {
+          dispatch(stopLoad());
+          dispatch(fetchUserRRSessionsFailure(err));
+        }
+      );
+  };
+}

@@ -59,7 +59,7 @@ const RecordTableEnter = (props) => {
                   </h3>);
                   cellStyle = style;
                   break;
-                default:
+                default: {
                   cellStyle = { paddingLeft: '10px', paddingRight: '10px' };
                   const other = joinedPlayers[i - 2];
                   // we only want uni-directional change
@@ -70,9 +70,9 @@ const RecordTableEnter = (props) => {
                         style={{ marginRight: '5px', width: '50%' }}
                         key={`row${j}:${i}-1`}
                         onChange={(e, idx, val) =>
-                          props.updateResult(curPlayer._id, other._id, 0, val)
+                          props.updateResult(curPlayer.id, other.id, 0, val)
                         }
-                        value={results[curPlayer._id][other._id][0]}
+                        value={results[curPlayer.id][other.id][0]}
                       >
                         <MenuItem value={0} primaryText="0" />
                         <MenuItem value={1} primaryText="1" />
@@ -80,16 +80,16 @@ const RecordTableEnter = (props) => {
                         <MenuItem
                           value={3}
                           primaryText="3"
-                          disabled={results[curPlayer._id][other._id][1] === 3}
+                          disabled={results[curPlayer.id][other.id][1] === 3}
                         />
                       </SelectField>
                       <SelectField
                         style={{ width: '50%' }}
                         key={`row${j}:${i}-2`}
                         onChange={
-                          (e, idx, val) => props.updateResult(curPlayer._id, other._id, 1, val)
+                          (e, idx, val) => props.updateResult(curPlayer.id, other.id, 1, val)
                         }
-                        value={results[curPlayer._id][other._id][1]}
+                        value={results[curPlayer.id][other.id][1]}
                       >
                         <MenuItem value={0} primaryText="0" />
                         <MenuItem value={1} primaryText="1" />
@@ -97,7 +97,7 @@ const RecordTableEnter = (props) => {
                         <MenuItem
                           value={3}
                           primaryText="3"
-                          disabled={results[curPlayer._id][other._id][0] === 3}
+                          disabled={results[curPlayer.id][other.id][0] === 3}
                         />
                       </SelectField>
                     </div>);
@@ -106,7 +106,7 @@ const RecordTableEnter = (props) => {
                       <SelectField
                         style={{ marginRight: '5px', width: '50%' }}
                         key={`row${j}:${i}-1`}
-                        value={results[other._id][curPlayer._id][1]}
+                        value={results[other.id][curPlayer.id][1]}
                         disabled
                       >
                         <MenuItem value={0} primaryText="0" />
@@ -117,7 +117,7 @@ const RecordTableEnter = (props) => {
                       <SelectField
                         style={{ width: '50%' }}
                         key={`row${j}:${i}-2`}
-                        value={results[other._id][curPlayer._id][0]}
+                        value={results[other.id][curPlayer.id][0]}
                         disabled
                       >
                         <MenuItem value={0} primaryText="0" />
@@ -128,6 +128,7 @@ const RecordTableEnter = (props) => {
                     </div>);
                   }
                   break;
+                }
               }
             }(n, m));
             return (
