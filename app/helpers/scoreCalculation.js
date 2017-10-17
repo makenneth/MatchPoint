@@ -5,22 +5,52 @@ export default class ScoreCalculation {
     this.schema = schema;
   }
 
-  calculateRatingChange() {
+  sortPlayers() {
     let start = 0;
-    const ratingChange = this.schema.reduce((acc, playerPerGroup) => ({
-      ...acc,
-      ...this.calculateRatingChange(this.players.slice(start, start + playerPerGroup)),
-    }), {});
-    const sortedPlayerList = this.schema.players
-    return ratingChange;
+    return this.schema.map((playerInGroup) => {
+      const players = this.players.slice(start, start + playerInGroup);
+      return this.sortPlayerWithinGroup(players);
+    });
   }
 
-  calculateRatingChangePerGroup(players) {
-    const playerRef = {};
-    const ratingChange = {};
-    joinedPlayers.forEach((player) => {
-      players[player._id] = player;
-      ratingChange[player._id] = 0;
+  sortPlayerWithinGroup(players) {
+    const playerRecords = players.map((player) => {
+      const versusRecords = this.results[player.id];
+      const record = {
+        id: player.id,
+        wins: 0,
+        losses: 0,
+      };
+      Object.keys(versusRecords).forEach((otherPlayer) => {
+        const [wins, losses] = versusRecords[otherPlayer];
+        record.wins += wins;
+        record.losses += losses;
+      });
+
+      return record;
+    });
+
+    const sortedPlayerList = playerRecords.sort((p1, p2) => {
+      if (p1.wins > p2.wins) {
+        return -1;
+      } else if (p1.wins < p2.wins) {
+        return 1;
+      } else if (p1.losses < p2.losses) {
+        return -1;
+      }
+      const [player1GameWon, player2GameWon] = this.results[p1.id][p2.id];
+      return player1GameWon - player2GameWon;
+    });
+  }
+
+  calculateScoreChange() {
+    const scoreChange = {};
+    const rc = {};
+    const players = {};
+    this.players.forEach((player) => {
+      players[player.id] = player;
+      rc[player.id] = 0;
+      scoreChange[player.id] = {};
     });
     for (const curPlayerId of Object.keys(this.results)) {
       const personalResult = this.results[curPlayerId];
@@ -45,43 +75,11 @@ export default class ScoreCalculation {
           if (sign === 1 && scoreAdjust < 0) {
             scoreAdjust = 0 - (record[1] * 2);
           }
-          ratingChange[curPlayerId] += scoreAdjust;
+          rc[curPlayerId] += scoreAdjust;
+          scoreChange[curPlayerId][otherId] = scoreAdjust;
         }
       }
     }
-  }
-
-  sortPlayersInGroup() {
-    // this cannot do
-    const playerRecords = Object.keys(this.results).map((playerId) => {
-      const versusRecords = this.results[playerId];
-      const record = {
-        id: playerId,
-        wins: 0,
-        losses: 0,
-      };
-      Object.keys(versusRecords).forEach((otherPlayer) => {
-        const [wins, losses] = versusRecords[otherPlayer];
-        record.wins += wins;
-        record.losses += losses;
-      });
-
-      return record;
-    });
-
-    const sortedPlayerList = playerRecords.sort((p1, p2) => {
-      if (p1.wins > p2.wins) {
-        return -1;
-      } else if (p1.wins < p2.wins) {
-        return 1;
-      } else if (p1.losses < p2.losses) {
-        return -1;
-      } else {
-        const [player1GameWon, player2GameWon] = state.results[p1.id][p2.id];
-        return player1GameWon - player2GameWon;
-      }
-    });
-
-    return sortedPlayerList;
+    return [scoreChange, rc];
   }
 }

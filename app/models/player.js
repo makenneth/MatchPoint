@@ -16,7 +16,7 @@ class Player {
     return player;
   }
 
-  async getMostActivePlayers(id) {
+  static async getMostActivePlayers(id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -43,7 +43,7 @@ class Player {
       });
     });
   }
-  async removePlayer(clubId, id) {
+  static async removePlayer(clubId, id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -67,12 +67,13 @@ class Player {
     });
   }
 
-  async updatePlayer(clubId, id, player) {
+  static async updatePlayer(clubId, id, player) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        UPDATE players
-        SET name = ?, rating = ?
+        UPDATE players AS p
+        INNER JOIN club_players As cp
+        SET p.name = ?, cp.rating = ?
         WHERE id = ? AND EXISTS (
           SELECT * FROM (SELECT * FROM players) AS p
           INNER JOIN club_players AS cp
@@ -93,16 +94,16 @@ class Player {
     });
   }
 
-  async createPlayer(clubId, player, conn) {
+  static async createPlayer(clubId, player, conn) {
     const shortId = shortid.generate();
     const connection = conn || await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.beginTransaction((tError) => {
         if (tError) throw tError;
         connection.query(`
-          INSERT INTO players (short_id, name, rating)
+          INSERT INTO players (short_id, name)
           VALUES (?, ?, ?)
-        `, [shortId, player.name, player.rating], (err, results, field) => {
+        `, [shortId, player.name], (err, results, field) => {
           if (err) {
             connection.rollback();
             connection.release();
@@ -111,15 +112,15 @@ class Player {
           resolve(results.insertId);
         });
       });
-    }).then((id) => this.createClubPlayer(connection, clubId, id));
+    }).then((id) => Player.createClubPlayer(connection, clubId, id, rating));
   }
 
   createClubPlayer(connection, clubId, id) {
     return new Promise((resolve, reject) => {
       connection.query(`
-        INSERT INTO club_players (club_id, player_id)
-        VALUES (?, ?)
-      `, [clubId, id], (err, results, field) => {
+        INSERT INTO club_players (club_id, player_id, rating)
+        VALUES (?, ?, ?)
+      `, [clubId, id, rating], (err, results, field) => {
         if (err) {
           connection.rollback();
           connection.release();
@@ -132,9 +133,9 @@ class Player {
     });
   }
 
-  async createPlayers(clubId, players) {
+  static async createPlayers(clubId, players) {
     const connection = await db.getConnection();
-    const promises = players.map(player => this.createPlayer(clubId, player));
+    const promises = players.map(player => Player.createPlayer(clubId, player));
     return new Promise((resolve, reject) => {
       connection.beginTransaction((tError) => {
         if (tError) throw tError;
@@ -155,11 +156,11 @@ class Player {
     });
   }
 
-  async findPlayers(clubId) {
+  static async findPlayers(clubId) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT p.id, short_id, rating, name, created_on, updated_at
+        SELECT p.id, p.short_id, cp.rating, p.name, p.created_on, p.updated_at
         FROM players AS p
         INNER JOIN club_players AS cp
         ON cp.player_id = p.id
@@ -173,13 +174,15 @@ class Player {
     });
   }
 
-  async find(id) {
+  static async find(id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT id, short_id, rating, name, created_on, updated_at
-        FROM players
-        WHERE id = ?
+        SELECT p.id, p.short_id, cp.rating, p.name, p.created_on, p.updated_at
+        FROM players AS p
+        INNER JOIN club_players AS cp
+        ON cp.player_id = p.id
+        WHERE p.id = ?
       `, [id], (err, results, field) => {
         connection.release();
         if (err) throw(err);
@@ -193,5 +196,4 @@ class Player {
   }
 }
 
-const model = new Player();
-export default model;
+export default Player;

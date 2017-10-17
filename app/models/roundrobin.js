@@ -1,9 +1,10 @@
 import Raven from 'raven';
 import shortid from "shortid";
+import ScoreCalculation from '../helpers/scoreCalculation';
 import db from '../utils/connection';
 import Player from '../models/player';
 
-class Roundrobin {
+class RoundRobin {
   static format(row) {
     const fields = [
       'id', 'short_id',
@@ -14,7 +15,7 @@ class Roundrobin {
     ];
     const roundrobin = {};
     fields.forEach(field => {
-      if (field === 'results' || field === 'selectedSchema') {
+      if (field === 'results' || field === 'selected_schema') {
         try {
           roundrobin[field] = JSON.parse(row[field]);
         } catch (e) {
@@ -28,7 +29,7 @@ class Roundrobin {
     return roundrobin;
   }
 
-  async findAllByClub(clubId) {
+  static async findAllByClub(clubId) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`SELECT r.* FROM roundrobins AS r
@@ -40,13 +41,13 @@ class Roundrobin {
         connection.release();
         if (err) throw err;
 
-        const data = results.map(r => Roundrobin.format(r));
+        const data = results.map(r => RoundRobin.format(r));
         resolve(data);
       });
     });
   }
 
-  async findByClub(clubId, id) {
+  static async findByClub(clubId, id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`SELECT r.* FROM roundrobins AS r
@@ -57,34 +58,57 @@ class Roundrobin {
         connection.release();
         if (err) throw err;
 
-        const data = Roundrobin.format(results[0]);
+        const data = RoundRobin.format(results[0]);
         resolve(data);
       });
     });
   }
 
-  async findPlayers(clubId) {
-    const connection = await db.getConnection();
+  static async findByClubAndShortId(clubId, id, conn) {
+    const connection = conn || await db.getConnection();
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT p.*, rp.group_id, rp.pos
-        FROM players AS p
-        INNER JOIN roundrobin_players AS rp
-        ON p.id = rp.player_id
-        INNER JOIN roundrobin AS r
-        ON r.id = rp.roundrobin_id
-        WHERE c.id = ?
-        ORDER BY rp.group_id ASC, rp.pos ASC
-      `, [clubId], (err, results, fields) => {
+      connection.query(`SELECT r.* FROM roundrobins AS r
+        INNER JOIN clubs AS c
+        ON c.id = r.club_id
+        WHERE c.id = ? AND r.short_id = ?
+      `, [clubId, id], (err, results, fields) => {
         connection.release();
         if (err) throw err;
 
-        const data = results.map(row => Player.format(row));
+        const data = RoundRobin.format(results[0]);
         resolve(data);
       });
     });
   }
 
-  async create(clubId, players, date, selectedSchema) {
+  static async findDetail(clubId, id) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT p.*, cp.rating, rp.group_id, rp.pos
+        FROM players AS p
+        INNER JOIN club_players AS cp
+        ON cp.player_id = p.id
+        INNER JOIN roundrobin_players AS rp
+        ON p.id = rp.player_id
+        INNER JOIN roundrobins AS r
+        ON r.id = rp.roundrobin_id
+        WHERE r.club_id = ? AND r.short_id = ?
+        ORDER BY rp.group_id ASC, rp.pos ASC
+      `, [clubId, id], async (err, results, fields) => {
+        if (err) throw err;
+        const players = results.map(row => Player.formatPlayer(row));
+        try {
+          const roundrobin = await RoundRobin.findByClubAndShortId(clubId, id, connection);
+          roundrobin.players = players;
+          resolve(roundrobin);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    });
+  }
+
+  static async create(clubId, players, date, selectedSchema) {
     const connection = await db.getConnection();
 
     let schema;
@@ -113,15 +137,15 @@ class Roundrobin {
           resolve(results.insertId);
         });
       });
-    }).then((id) => this.createRoundrobinPlayers(connection, id, players, selectedSchema));
+    }).then((id) => RoundRobin.createRoundrobinPlayers(connection, id, players, selectedSchema));
   }
 
-  createRoundrobinPlayers(connection, id, players, schema) {
+  static createRoundrobinPlayers(connection, id, players, schema) {
     let count = 0;
     const promises = [];
     schema.forEach((playerPerGroup, i) => {
       players.slice(count, count + playerPerGroup).forEach((player, j) => {
-        promises.push(this.createRoundrobinPlayer(connection, id, player.id, i, j));
+        promises.push(Round.createRoundrobinPlayer(connection, id, player.id, i, j));
       });
     });
 
@@ -140,7 +164,7 @@ class Roundrobin {
     )
   }
 
-  createRoundrobinPlayer(connection, id, playerId, group, pos) {
+  static createRoundrobinPlayer(connection, id, playerId, group, pos) {
     return new Promise((resolve, reject) => {
       connection.query(`INSERT INTO roundrobin_players
         (player_id, roundrobin_id, group_id, pos)
@@ -156,20 +180,15 @@ class Roundrobin {
       });
     });
   }
-// roundRobinSchema.statics.saveResult = function(id, ratingChangeDetail) {
-//   return this.findOneAndUpdate(
-//     { _id: id },
-//     { $set: { finalized: true, ratingChangeDetail } },
-//     { new: true });
-// };
 
-  async remove(clubId, id) {
+  static async remove(clubId, id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`DELETE r1.* FROM roundrobins AS r1
         INNER JOIN (
           SELECT id, max(date) AS max_date
           FROM roundrobins
+          WHERE finalized = 1
           GROUP BY id
         ) AS md
         ON r1.id = md.id
@@ -192,6 +211,110 @@ class Roundrobin {
     });
   }
 
+  static async postResult(clubId, id, roundrobin, result) {
+    const connection = await db.getConnection();
+    let resultJSON;
+    try {
+      resultJSON = JSON.stringify(result);
+    } catch (e) {
+      return Promise.reject({ result: 'Failed to stringify result.' });
+    }
+    return new Promise((resolve, reject) => {
+      connection.beginTransaction((tError) => {
+        if (tError) {
+          connection.release();
+          throw tError;
+        }
+        connection.query(`
+          UPDATE roundrobins AS r1
+          INNER JOIN (
+            SELECT id, max(date) AS max_date
+            FROM roundrobins
+            WHERE finalized = 1
+            GROUP BY id
+          ) AS md
+          ON r1.id = md.id
+          SET r1.finalized = 1, r1.results = ?
+          WHERE r1.id = ? AND EXISTS (
+            SELECT * FROM (SELECT * FROM roundrobins) AS r
+            INNER JOIN clubs
+            ON clubs.id = r.club_id
+            WHERE r.id = ? AND clubs.id = ?
+          ) AND (r1.finalized = 0 OR r1.date = md.max_date)
+        `, [resultJSON, id, id, clubId], (err, results, fields) => {
+          if (err) {
+            connection.rollback();
+            connection.release();
+            throw err;
+          }
+
+          if (results.affectedRows === 0) {
+            reject({ roundrobin: 'Not able to find the roundrobin or not allowed to edit.' });
+          } else {
+            resolve(true);
+          }
+        });
+      });
+    }).then(() => Roundrobin.updatePlayers(connection, clubId, id, roundrobin, result));
+  }
+
+  static updatePlayers(connection, clubId, id, roundrobin, results) {
+    const calculation = new ScoreCalculation(roundrobin.players, roundrobin.schema, results);
+    const sortedPlayers = calculation.sortPlayers();
+    const [scoreChange, ratingChange] = calculation.calculateScoreChange();
+
+    const promises = sortedPlayers.map((player) => {
+      const change = ratingChange[player.id];
+      const rating = player.rating + change;
+      return RoundRobin.updatePlayer(connection, clubId, id, player.id, change, rating, results[player.id]);
+    });
+
+    return Promise.all(promises).then(
+      () => {
+        connection.commit();
+        connection.release();
+        throw err;
+      },
+      (err) => {
+        connection.rollback();
+        connection.release();
+        throw err;
+      }
+    );
+  }
+
+  static async updatePlayer(connection, clubId, id, playerId, change, newRating, result) {
+    const updateClubPlayer = await new Promise((resolve, reject) => {
+      connection.query(`UPDATE club_players
+        SET rating = ?
+        WHERE player_id = ? AND club_id = ?
+      `, [rating, playerId, clubId], (err, results, field) => {
+        if (err) throw err;
+
+        if (results.affectedRows === 0) {
+          console.log('player', playerId, 'was not updated');
+        }
+        resolve(true);
+      })
+    });
+    const resultJSON = JSON.stringify(result);
+    return new Promise((resolve, reject) => {
+      connection.query(`INSERT INTO
+        player_histories
+        (player_id, rating_change, new_rating, club_id, roundrobin_id, result)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE rating_change = ?, new_rating = ?, result = ?
+      `, [playerId, change, newRating, clubId, id, resultJSON], (err, results, field) => {
+        if (err) throw err;
+
+        if (results.affectedRows === 0) {
+          console.log('player', playerId, 'was not updated');
+        }
+        resolve(true);
+      });
+    });
+
+  }
 // roundRobinSchema.statics.updateResult = function(id, result, ratingChangeDetail) {
 //   return this.update(
 //     { _id: id },
@@ -201,4 +324,4 @@ class Roundrobin {
 
 }
 
-export default new Roundrobin();
+export default RoundRobin;

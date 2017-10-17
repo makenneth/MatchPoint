@@ -24,11 +24,11 @@ router.post("/", jsonParser, csrfProtection, (req, res, next) => {
 }).delete("/", (req, res, next) => {
   Club.resetSessionTokenWithOldToken(req.cookies.matchpoint_session)
     .then(() => {
-      res.clearCookie("matchpoint_session").send("");
+      res.status(204).clearCookie("matchpoint_session");
       res.end();
     }).catch((err) => {
       res.clearCookie("matchpoint_session");
-      next({ code: 404, message: err });
+      next({ code: err.token ? 404 : 500, message: err });
     });
 });
 

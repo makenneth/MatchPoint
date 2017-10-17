@@ -49,7 +49,7 @@ class Club {
     return club;
   }
 
-  async detail(id) {
+  static async detail(id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -69,7 +69,7 @@ class Club {
     });
   }
 
-  async find(id) {
+  static async find(id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -88,7 +88,7 @@ class Club {
     });
   }
 
-  async all() {
+  static async all() {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -103,7 +103,7 @@ class Club {
     });
   }
 
-  async confirm(token) {
+  static async confirm(token) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -122,7 +122,7 @@ class Club {
     });
   }
 
-  async resetSessionTokenWithOldToken(token) {
+  static async resetSessionTokenWithOldToken(token) {
     const connection = await db.getConnection();
     const newToken = Club.generateToken();
     return new Promise((resolve, reject) => {
@@ -142,7 +142,7 @@ class Club {
   }
 
 
-  async changeInfo(club, data) {
+  static async changeInfo(club, data) {
     const info = data.info;
     {
       const error = ClubValidation.validateInfo(info);
@@ -181,7 +181,7 @@ class Club {
     });
   }
 
-  async changePassword(id, info) {
+  static async changePassword(id, info) {
     const { oldPassword, newPassword } = info;
     if (newPassword.length < 8) {
       throw ({ newPassword: "Password must have at least 8 characters." });
@@ -197,7 +197,7 @@ class Club {
     } catch (_e) {
       return Promise.reject({ oldPassword: "Old password is incorrect." });
     }
-    const digest = await this.generatePasswordDigest(newPassword);
+    const digest = await Club.generatePasswordDigest(newPassword);
     return new Promise((resolve, reject) => {
       connection.query(`
         UPDATE clubs
@@ -218,7 +218,7 @@ class Club {
     });
   }
 
-  async create(user) {
+  static async create(user) {
     const connection = await db.getConnection();
     const digest = await Club.generatePasswordDigest(user.password);
     const isPassword = await Club.isPassword(user.password, digest);
@@ -248,10 +248,10 @@ class Club {
             resolve(results.insertId);
           });
       });
-    }).then(clubId => this.insertGeolocations(connection, user, clubId));
+    }).then(clubId => Club.insertGeolocations(connection, user, clubId));
   }
 
-  insertGeolocations(connection, user, clubId) {
+  static insertGeolocations(connection, user, clubId) {
     return new Promise((resolve, reject) => {
       connection.query(`
         INSERT INTO club_geolocations
@@ -271,7 +271,7 @@ class Club {
     });
   }
 
-  async resetSessionToken(id) {
+  static async resetSessionToken(id) {
     const token = Club.generateToken();
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
@@ -290,7 +290,7 @@ class Club {
     });
   }
 
-  async findBySessionToken(sessionToken) {
+  static async findBySessionToken(sessionToken) {
     // check if I need all the fields
     if (!sessionToken) {
       return Promise.reject({ token: 'Auth token is required.' });
@@ -316,7 +316,7 @@ class Club {
     });
   }
 
-  async resetPasswordWithToken(token, newPassword) {
+  static async resetPasswordWithToken(token, newPassword) {
     const connection = await db.getConnection();
     return Club.generatePasswordDigest(newPassword)
       .then((digest) => {
@@ -338,7 +338,7 @@ class Club {
       });
   }
 
-  async findByUsernameAndPassword(username, password) {
+  static async findByUsernameAndPassword(username, password) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -370,5 +370,4 @@ class Club {
   }
 }
 
-const model = new Club();
-export default model;
+export default Club;
