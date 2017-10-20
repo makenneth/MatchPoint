@@ -69,24 +69,20 @@ router.post("/accounts/resend", (req, res, next) => {
     console.log(e);
     next({ code: 500, message: e });
   }
-
-    const calculation = new ScoreCalculation(roundrobin.players, roundrobin.schema, results);
-    const sortedPlayers = calculation.sortPlayers();
-    const [scoreChange, ratingChange] = calculation.calculateScoreChange();
-    console.log(sortedPlayers);
-    console.log(scoreChange);
-    console.log(ratingChange);
-    res.status(200);
-  // RoundRobin.postResult(req.club.id, id, roundrobin, results)
-  //   .then(() => {
-  //     // client.del(`players:${req.club.id}`);
-  //     // client.del(`sessions:${req.club.id}`);
-  //     return res.status(200).send(session);
-  //   }).catch((err) => {
-  //     console.log(err);
-  //     next({ code: 500, message: err });
-  //     // res.status(422).send(err);
-  //   });
+  // console.log(roundrobin, date, results);
+  // const calculation = new ScoreCalculation(roundrobin.players, roundrobin.selected_schema, results);
+  // const sortedPlayers = calculation.sortPlayers();
+  // const [scoreChange, ratingChange] = calculation.calculateScoreChange();
+  RoundRobin.postResult(req.club.id, roundrobin, results)
+    .then(() => {
+      // client.del(`players:${req.club.id}`);
+      // client.del(`sessions:${req.club.id}`);
+      return res.status(204);
+    }).catch((err) => {
+      console.log(err);
+      next({ code: 500, message: err });
+      // res.status(422).send(err);
+    });
 })
 .post("/sessions", jsonParser, csrfProtection, (req, res, next) => {
   const clubId = req.club.id;

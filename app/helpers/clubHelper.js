@@ -16,10 +16,12 @@ export default class ClubHelper {
 
   static logIn(club, res) {
     if (!club) return Promise.reject();
-    const sessionToken = club.session_token;
-    delete club.session_token;
-    delete club.password_digest;
-    delete club.confirm_token;
+    const {
+      session_token: sessionToken,
+      password_digest: passwordDigest,
+      confirm_token: confirmToken,
+      ...rest,
+    } = club;
 
     res.status(200).cookie(
       "matchpoint_session",

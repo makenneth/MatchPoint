@@ -32,7 +32,9 @@ class RoundRobin {
   static async findAllByClub(clubId) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT r.* FROM roundrobins AS r
+      connection.query(`SELECT
+        r.id, r.club_id, r.date, r.short_id, r.finalized, r.num_players, r.created_on
+        FROM roundrobins AS r
         INNER JOIN clubs AS c
         ON c.id = r.club_id
         WHERE c.id = ?
@@ -75,8 +77,12 @@ class RoundRobin {
         connection.release();
         if (err) throw err;
 
-        const data = RoundRobin.format(results[0]);
-        resolve(data);
+        if (results.length === 0) {
+          reject({ roundrobin: 'Roundrobin not found.' });
+        } else {
+          const data = RoundRobin.format(results[0]);
+          resolve(data);
+        }
       });
     });
   }
@@ -84,7 +90,8 @@ class RoundRobin {
   static async findDetail(clubId, id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
-      connection.query(`SELECT p.*, cp.rating, rp.group_id, rp.pos
+      connection.query(`SELECT
+        p.*, COALESCE(ph1.rating, ph2.rating) AS rating, rp.group_id, rp.pos
         FROM players AS p
         INNER JOIN club_players AS cp
         ON cp.player_id = p.id
@@ -92,9 +99,21 @@ class RoundRobin {
         ON p.id = rp.player_id
         INNER JOIN roundrobins AS r
         ON r.id = rp.roundrobin_id
+        INNER JOIN (
+          SELECT rating, club_id, player_id, MAX(change_date)
+          FROM player_histories
+          GROUP BY player_id, club_id
+        ) AS ph1
+        ON p.id = ph1.player_id AND r.finalized = 0
+        INNER JOIN (
+          SELECT rating, club_id, player_id
+          FROM player_histories
+          WHERE short_id = ?
+        ) AS ph2
+        ON p.id = ph2.player_id AND r.finalized = 1
         WHERE r.club_id = ? AND r.short_id = ?
         ORDER BY rp.group_id ASC, rp.pos ASC
-      `, [clubId, id], async (err, results, fields) => {
+      `, [clubId, id, id], async (err, results, fields) => {
         if (err) throw err;
         const players = results.map(row => Player.formatPlayer(row));
         try {
@@ -145,7 +164,7 @@ class RoundRobin {
     const promises = [];
     schema.forEach((playerPerGroup, i) => {
       players.slice(count, count + playerPerGroup).forEach((player, j) => {
-        promises.push(Round.createRoundrobinPlayer(connection, id, player.id, i, j));
+        promises.push(RoundRobin.createRoundrobinPlayer(connection, id, player.id, i, j));
       });
     });
 
@@ -211,7 +230,7 @@ class RoundRobin {
     });
   }
 
-  static async postResult(clubId, id, roundrobin, result) {
+  static async postResult(clubId, roundrobin, result) {
     const connection = await db.getConnection();
     let resultJSON;
     try {
@@ -227,7 +246,7 @@ class RoundRobin {
         }
         connection.query(`
           UPDATE roundrobins AS r1
-          INNER JOIN (
+          LEFT OUTER JOIN (
             SELECT id, max(date) AS max_date
             FROM roundrobins
             WHERE finalized = 1
@@ -241,7 +260,7 @@ class RoundRobin {
             ON clubs.id = r.club_id
             WHERE r.id = ? AND clubs.id = ?
           ) AND (r1.finalized = 0 OR r1.date = md.max_date)
-        `, [resultJSON, id, id, clubId], (err, results, fields) => {
+        `, [resultJSON, roundrobin.id, roundrobin.id, clubId], (err, results, fields) => {
           if (err) {
             connection.rollback();
             connection.release();
@@ -255,25 +274,22 @@ class RoundRobin {
           }
         });
       });
-    }).then(() => Roundrobin.updatePlayers(connection, clubId, id, roundrobin, result));
+    }).then(() => RoundRobin.updatePlayers(connection, clubId, roundrobin, result));
   }
 
-  static updatePlayers(connection, clubId, id, roundrobin, results) {
-    const calculation = new ScoreCalculation(roundrobin.players, roundrobin.schema, results);
+  static updatePlayers(connection, clubId, roundrobin, results) {
+    const calculation = new ScoreCalculation(roundrobin.players, roundrobin.selected_schema, results);
     const sortedPlayers = calculation.sortPlayers();
     const [scoreChange, ratingChange] = calculation.calculateScoreChange();
-
     const promises = sortedPlayers.map((player) => {
-      const change = ratingChange[player.id];
-      const rating = player.rating + change;
-      return RoundRobin.updatePlayer(connection, clubId, id, player.id, change, rating, results[player.id]);
+      const rc = ratingChange[player.id.toString()];
+      const change = rc + (rc > 24 ? rc - 24 : 0);
+      return RoundRobin.updatePlayer(connection, clubId, roundrobin.id, roundrobin.date, player.id, player.rating, change, results[player.id]);
     });
-
     return Promise.all(promises).then(
-      () => {
+      (results) => {
         connection.commit();
         connection.release();
-        throw err;
       },
       (err) => {
         connection.rollback();
@@ -283,28 +299,22 @@ class RoundRobin {
     );
   }
 
-  static async updatePlayer(connection, clubId, id, playerId, change, newRating, result) {
-    const updateClubPlayer = await new Promise((resolve, reject) => {
-      connection.query(`UPDATE club_players
-        SET rating = ?
-        WHERE player_id = ? AND club_id = ?
-      `, [rating, playerId, clubId], (err, results, field) => {
-        if (err) throw err;
-
-        if (results.affectedRows === 0) {
-          console.log('player', playerId, 'was not updated');
-        }
-        resolve(true);
-      })
-    });
+  static async updatePlayer(
+    connection, clubId, id, date, playerId, oldRating, change, result
+  ) {
     const resultJSON = JSON.stringify(result);
     return new Promise((resolve, reject) => {
       connection.query(`INSERT INTO
         player_histories
-        (player_id, rating_change, new_rating, club_id, roundrobin_id, result)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (player_id, old_rating, rating_change, new_rating, club_id, roundrobin_id, result, change_date)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE rating_change = ?, new_rating = ?, result = ?
-      `, [playerId, change, newRating, clubId, id, resultJSON], (err, results, field) => {
+      `, [
+        playerId, oldRating, change, oldRating + change,
+        clubId, id, resultJSON, date,
+        change, oldRating + change, resultJSON
+      ],
+      (err, results, field) => {
         if (err) throw err;
 
         if (results.affectedRows === 0) {

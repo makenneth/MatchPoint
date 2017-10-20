@@ -7,10 +7,10 @@ export default class ScoreCalculation {
 
   sortPlayers() {
     let start = 0;
-    return this.schema.map((playerInGroup) => {
+    return this.schema.reduce((arr, playerInGroup) => {
       const players = this.players.slice(start, start + playerInGroup);
-      return this.sortPlayerWithinGroup(players);
-    });
+      return [...arr, ...this.sortPlayerWithinGroup(players)];
+    }, []);
   }
 
   sortPlayerWithinGroup(players) {
@@ -18,6 +18,7 @@ export default class ScoreCalculation {
       const versusRecords = this.results[player.id];
       const record = {
         id: player.id,
+        rating: player.rating,
         wins: 0,
         losses: 0,
       };
@@ -30,7 +31,7 @@ export default class ScoreCalculation {
       return record;
     });
 
-    const sortedPlayerList = playerRecords.sort((p1, p2) => {
+    return playerRecords.sort((p1, p2) => {
       if (p1.wins > p2.wins) {
         return -1;
       } else if (p1.wins < p2.wins) {

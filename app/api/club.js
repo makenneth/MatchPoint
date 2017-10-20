@@ -68,7 +68,7 @@ router.get("/", (req, res, next) => {
   }
   try {
     const club = await ClubModel.detail(userId);
-    new Mailer(userId).sendConfirmationEmail();
+    new Mailer(club).sendConfirmationEmail();
     ClubHelper.logIn(club, res);
   } catch (e) {
     return next({ code: 500, message: e });

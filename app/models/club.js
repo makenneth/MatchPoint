@@ -53,7 +53,7 @@ class Club {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT id, short_id, username, club_name, email, verified, session_token
+        SELECT id, short_id, username, club_name, email, verified, session_token, confirm_token
         FROM clubs WHERE id = ?
       `, [id], (err, results, field) => {
         connection.release();

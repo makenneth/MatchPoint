@@ -38,9 +38,10 @@ router.route("/players").get((req, res, next) => {
     .then(
       async (playerId) => {
         try {
-          const player = await Player.find(playerId);
+          const player = await Player.find(clubId, playerId);
           res.status(200).send({ player });
         } catch (e) {
+          console.log(e);
           next({ code: 500, message: e });
         }
         // client.del(`players:${clubId}`);
@@ -88,9 +89,10 @@ router.route("/players/:id")
         async () => {
           // client.del(`players:${clubId}`);
           try {
-            const player = await Player.find(id);
+            const player = await Player.find(clubId, id);
             res.status(200).send({ player });
           } catch (e) {
+            console.log(e);
             next({ code: 500, message: e });
           }
         },
