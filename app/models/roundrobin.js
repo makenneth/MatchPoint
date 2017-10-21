@@ -93,27 +93,35 @@ class RoundRobin {
       connection.query(`SELECT
         p.*, COALESCE(ph1.rating, ph2.rating) AS rating, rp.group_id, rp.pos
         FROM players AS p
-        INNER JOIN club_players AS cp
-        ON cp.player_id = p.id
         INNER JOIN roundrobin_players AS rp
         ON p.id = rp.player_id
         INNER JOIN roundrobins AS r
         ON r.id = rp.roundrobin_id
-        INNER JOIN (
-          SELECT rating, club_id, player_id, MAX(change_date)
-          FROM player_histories
-          GROUP BY player_id, club_id
+        LEFT JOIN (
+          SELECT phs1.rating, phs1.player_id
+          FROM player_histories AS phs1
+          INNER JOIN (
+            SELECT club_id, player_id, MAX(change_date) AS max_date
+            FROM player_histories
+            WHERE club_id = ?
+            GROUP BY player_id, club_id
+          ) AS phs2
+          ON phs1.player_id = phs2.player_id AND
+             phs1.change_date = phs2.max_date AND
+             phs1.club_id = phs2.club_id
         ) AS ph1
         ON p.id = ph1.player_id AND r.finalized = 0
-        INNER JOIN (
-          SELECT rating, club_id, player_id
-          FROM player_histories
-          WHERE short_id = ?
+        LEFT JOIN (
+          SELECT old_rating AS rating, player_id
+          FROM player_histories AS ph
+          INNER JOIN roundrobins AS r
+          ON r.id = ph.roundrobin_id
+          WHERE r.short_id = ?
         ) AS ph2
         ON p.id = ph2.player_id AND r.finalized = 1
         WHERE r.club_id = ? AND r.short_id = ?
         ORDER BY rp.group_id ASC, rp.pos ASC
-      `, [clubId, id, id], async (err, results, fields) => {
+      `, [clubId, id, clubId, id], async (err, results, fields) => {
         if (err) throw err;
         const players = results.map(row => Player.formatPlayer(row));
         try {
@@ -290,6 +298,7 @@ class RoundRobin {
       (results) => {
         connection.commit();
         connection.release();
+        return Promise.resolve(true);
       },
       (err) => {
         connection.rollback();
@@ -306,9 +315,9 @@ class RoundRobin {
     return new Promise((resolve, reject) => {
       connection.query(`INSERT INTO
         player_histories
-        (player_id, old_rating, rating_change, new_rating, club_id, roundrobin_id, result, change_date)
+        (player_id, old_rating, rating_change, rating, club_id, roundrobin_id, result, change_date)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE rating_change = ?, new_rating = ?, result = ?
+        ON DUPLICATE KEY UPDATE rating_change = ?, rating = ?, result = ?
       `, [
         playerId, oldRating, change, oldRating + change,
         clubId, id, resultJSON, date,
@@ -323,15 +332,54 @@ class RoundRobin {
         resolve(true);
       });
     });
-
   }
-// roundRobinSchema.statics.updateResult = function(id, result, ratingChangeDetail) {
-//   return this.update(
-//     { _id: id },
-//     { $set: { results: result, ratingChangeDetail } }
-//   );
-// };
 
+  static async findLatestDate(clubId) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT club_id, max(Date) AS date
+        FROM roundrobins
+        WHERE club_id = ?
+        GROUP BY club_id
+      `, [clubId], (err, results, field) => {
+        if (err) throw err;
+
+        if (results.length === 0) {
+          reject({ roundrobin: 'No roundrobin found for the club.' });
+        } else {
+          resolve(results[0].date);
+        }
+      })
+    });
+  }
+
+  static async deleteRoundrobin(clubId, id) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`DELETE FROM roundrobins AS r
+        INNER JOIN (
+          SELECT id, max(date) AS max_date
+          FROM roundrobins
+          WHERE finalized = 1
+          GROUP BY id
+        ) AS md
+        ON md.id = r.id
+        WHERE r.id = ? AND r.club_id = ? AND (
+          finalized = 0 OR md.max_date = r.date
+        )
+      `, [id, clubId], (err, results, field) => {
+        connection.release();
+        if (err) throw err;
+
+        if (results.affectedRows === 0) {
+          reject({ roundrobin: 'Round robin not found or cannot be deleted.' });
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
 }
 
 export default RoundRobin;
