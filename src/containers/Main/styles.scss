@@ -401,6 +401,19 @@ form {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+
+  &.view {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 24px;
+    span {
+      font-size: 15px;
+    }
+
+    span:first-child {
+      /*margin-right: 10px;*/
+    }
+  }
 }
 
 .player-form {

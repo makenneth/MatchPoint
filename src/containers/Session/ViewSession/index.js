@@ -44,7 +44,6 @@ export default class ViewSession extends Component {
               countedPlayers,
               countedPlayers + sizeOfGroup
             );
-            console.log(players, joinedPlayers);
             countedPlayers += +sizeOfGroup;
             return (<ViewRecordTable
               key={i}

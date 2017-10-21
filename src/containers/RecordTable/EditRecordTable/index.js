@@ -11,16 +11,19 @@ export default class EditRecordTable extends Component {
   };
 
   componentWillMount() {
-    const { joinedPlayers } = this.props;
-    const results = {};
+    const { joinedPlayers, editable, results } = this.props;
+    const newResults = {};
     joinedPlayers.forEach((player, i) => {
-      results[player.id] = {};
-      [...joinedPlayers.slice(0, i), ...joinedPlayers.slice(i + 1)].forEach((other) => {
-        results[player.id][other.id] = [0, 0];
-      });
+      if (results[player.id]) {
+        newResults[player.id] = results[player.id]
+      } else {
+        newResults[player.id] = {};
+        [...joinedPlayers.slice(0, i), ...joinedPlayers.slice(i + 1)].forEach((other) => {
+          results[player.id][other.id] = [0, 0];
+        });
+      }
     });
-    // separating out results is a performance
-    this.setState({ results });
+    this.setState({ results: newResults });
   }
 
   componentWillUnmount() {
@@ -28,13 +31,15 @@ export default class EditRecordTable extends Component {
   }
 
   handleCalculate = () => {
-    const [scoreChange, playerRatingChange] = this.calculateScore();
-    this.props.updateScore(
-      scoreChange,
-      playerRatingChange,
-      this.state.results,
-      this.props.groupNum - 1
-    );
+    if (this.props.editable) {
+      const [scoreChange, playerRatingChange] = this.calculateScore();
+      this.props.updateScore(
+        scoreChange,
+        playerRatingChange,
+        this.state.results,
+        this.props.groupNum - 1
+      );
+    }
   }
 
   changeTab = (tab) => {
@@ -84,33 +89,36 @@ export default class EditRecordTable extends Component {
   }
 
   updateResult = (self, other, idx, val) => {
-    const { results } = this.state;
-    const selfResult = results[self];
-    const otherResult = results[other];
-    const opponentResult = {
-      ...otherResult,
-      [self]: [
-        idx === 1 ? val : otherResult[self][0],
-        idx === 0 ? val : otherResult[self][1],
-      ],
-    };
-    const personalResult = {
-      ...selfResult,
-      [other]: [
-        idx === 0 ? val : selfResult[other][0],
-        idx === 1 ? val : selfResult[other][1],
-      ],
-    };
-    this.setState({
-      results: {
-        ...results,
-        [self]: personalResult,
-        [other]: opponentResult,
-      },
-    });
+    if (this.props.editable) {
+      const { results } = this.state;
+      const selfResult = results[self];
+      const otherResult = results[other];
+      const opponentResult = {
+        ...otherResult,
+        [self]: [
+          idx === 1 ? val : otherResult[self][0],
+          idx === 0 ? val : otherResult[self][1],
+        ],
+      };
+      const personalResult = {
+        ...selfResult,
+        [other]: [
+          idx === 0 ? val : selfResult[other][0],
+          idx === 1 ? val : selfResult[other][1],
+        ],
+      };
+      this.setState({
+        results: {
+          ...results,
+          [self]: personalResult,
+          [other]: opponentResult,
+        },
+      });
+    }
   }
 
   render() {
+    const { editable } = this.props;
     return (<div className="tab-container" style={{ width: '100%' }}>
       <Tabs
         value={this.state.tab}
@@ -122,12 +130,12 @@ export default class EditRecordTable extends Component {
         }}
       >
         <Tab label="Enter Result" value={0} className="tab-menu-tab">
-          <RaisedButton
+          {editable && <RaisedButton
             backgroundColor="#E64A19"
             labelColor="white"
             label="Calculate Score"
             onTouchTap={this.handleCalculate}
-          />
+          />}
           <RecordTableEnter
             {...this.props}
             results={this.state.results}

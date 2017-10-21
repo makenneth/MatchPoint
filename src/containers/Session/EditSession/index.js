@@ -26,7 +26,7 @@ export default class EditSession extends Component {
 
   saveSession = () => {
     const session = this.props.session;
-    if (!session.finalized) {
+    if (this.props.editable) {
       this.props.postResult(session.short_id, session.date, this.props.results);
     }
   }
@@ -62,7 +62,10 @@ export default class EditSession extends Component {
         onTouchTap={this.handleDelete}
       />,
     ];
-    const { session: { date, selected_schema: selectedSchema, players, finalized } } = this.props;
+    const {
+     session: { date, selected_schema: selectedSchema, players, finalized },
+     editable
+    } = this.props;
     let countedPlayers = 0;
     return (<div className="session-container">
       <AppBar
@@ -76,7 +79,7 @@ export default class EditSession extends Component {
             <NavigationClose />
           </IconButton>
         }
-        iconElementRight={this.iconMenu()}
+        iconElementRight={editable && this.iconMenu()}
       />
       <div className="session-container-body">
         {
@@ -88,6 +91,7 @@ export default class EditSession extends Component {
             countedPlayers += +sizeOfGroup;
             return (<EditRecordTable
               key={i}
+              editable={editable}
               groupNum={i + 1}
               finalized={finalized}
               joinedPlayers={joinedPlayers}
