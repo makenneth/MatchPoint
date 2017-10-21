@@ -5,5 +5,5 @@ export Club from './Club';
 export Profile from './Profile';
 export Sessions from './Sessions';
 export Session from './Session';
-export * from './RecordTable';
+export RecordTableContainer from './RecordTableContainer';
 export Query from './Query';

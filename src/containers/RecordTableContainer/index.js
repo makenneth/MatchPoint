@@ -3,7 +3,7 @@ import { Tabs, Tab } from 'material-ui/Tabs';
 import RaisedButton from 'material-ui/RaisedButton';
 import { RecordTableEnter, RecordTableView } from 'components';
 
-export default class EditRecordTable extends Component {
+export default class RecordTableContainer extends Component {
   state = {
     tab: 0,
     // storing results in state due to poor performance to update in reducer
@@ -11,11 +11,11 @@ export default class EditRecordTable extends Component {
   };
 
   componentWillMount() {
-    const { joinedPlayers, editable, results } = this.props;
+    const { joinedPlayers, results } = this.props;
     const newResults = {};
     joinedPlayers.forEach((player, i) => {
       if (results[player.id]) {
-        newResults[player.id] = results[player.id]
+        newResults[player.id] = results[player.id];
       } else {
         newResults[player.id] = {};
         [...joinedPlayers.slice(0, i), ...joinedPlayers.slice(i + 1)].forEach((other) => {

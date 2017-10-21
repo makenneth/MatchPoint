@@ -1,15 +1,13 @@
 import React from 'react';
-import { maxBy } from 'lodash';
 import { connect } from 'react-redux';
 import { asyncConnect } from 'redux-async-connect';
 import {
   fetchSession, isLoaded,
   updateScore, updateResult,
-  determinSessionEditStatus
+  determinSessionEditStatus,
 } from 'redux/modules/selectedSession';
 import { deleteSession, postResult } from 'redux/modules/sessions';
 import EditSession from './EditSession';
-import ViewSession from './ViewSession';
 
 @asyncConnect([{
   promise: ({ store: { dispatch, getState }, params }) => {
@@ -32,9 +30,8 @@ export default class RoundrobinSession extends React.PureComponent {
     const {
       session, sortedPlayerList,
       ratingChange, ratingChangeDetail,
-      results, editable
+      results, editable,
     } = this.props.selectedSession;
-    console.log(editable);
     if (!session || editable === null) {
       return null;
     }

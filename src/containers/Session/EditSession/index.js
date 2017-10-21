@@ -9,7 +9,7 @@ import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
-import { EditRecordTable } from 'containers';
+import { RecordTableContainer } from 'containers';
 
 export default class EditSession extends Component {
   constructor(props) {
@@ -64,7 +64,7 @@ export default class EditSession extends Component {
     ];
     const {
      session: { date, selected_schema: selectedSchema, players, finalized },
-     editable
+     editable,
     } = this.props;
     let countedPlayers = 0;
     return (<div className="session-container">
@@ -89,7 +89,7 @@ export default class EditSession extends Component {
               countedPlayers + sizeOfGroup
             );
             countedPlayers += +sizeOfGroup;
-            return (<EditRecordTable
+            return (<RecordTableContainer
               key={i}
               editable={editable}
               groupNum={i + 1}
