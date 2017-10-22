@@ -4,14 +4,23 @@ import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import { changePassword, changeInfo } from 'redux/modules/profile';
+import { addressAutoComplete, clearPredictions } from 'redux/modules/autocomplete';
 import { setMessage } from 'redux/modules/main';
 import { PasswordChange, InfoChange } from 'components';
 import { enableTutorial, disableTutorial, isTutorialEnabled } from 'redux/modules/tutorial';
 import './styles.scss';
 
 @connect(
-  ({ auth: { club } }) => ({ club }),
-  { changePassword, changeInfo, setMessage, enableTutorial, disableTutorial }
+  ({ auth: { club }, autocomplete }) => ({ club, autocomplete }),
+  {
+    changePassword,
+    changeInfo,
+    setMessage,
+    enableTutorial,
+    disableTutorial,
+    addressAutoComplete,
+    clearPredictions,
+  }
 )
 export default class Profile extends Component {
   constructor(props) {
@@ -66,9 +75,12 @@ export default class Profile extends Component {
         </CardText>
         <CardText style={{ display: this.state.tab === 1 ? 'block' : 'none' }}>
           <InfoChange
+            autocomplete={this.props.autocomplete}
             club={this.props.club}
             submitChange={this.props.changeInfo}
             setMessage={this.props.setMessage}
+            addressAutoComplete={this.props.addressAutoComplete}
+            clearPredictions={this.props.clearPredictions}
           />
         </CardText>
         <CardText style={{ display: this.state.tab === 2 ? 'block' : 'none' }}>

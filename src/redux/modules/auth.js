@@ -10,6 +10,7 @@ const initialState = {
   error: null,
   loading: false,
   loaded: false,
+  geolocationKey: null,
 };
 
 export default (state = initialState, action) => {

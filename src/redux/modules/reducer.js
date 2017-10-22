@@ -15,6 +15,7 @@ import modals from './modals';
 import tutorial from './tutorial';
 import players from './players';
 import activePlayers from './activePlayers';
+import autocomplete from './autocomplete';
 
 export default combineReducers({
   reduxAsyncConnect,
@@ -33,4 +34,5 @@ export default combineReducers({
   tutorial,
   players,
   activePlayers,
+  autocomplete,
 });

@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import AutoComplete from './AutoComplete';
+
+import './styles.scss';
 
 export default class InfoChange extends Component {
   constructor(props) {
@@ -8,11 +11,58 @@ export default class InfoChange extends Component {
 
     const club = props.club;
     this.state = {
-      email: club.email,
-      ...club.location,
+      email: club.email || '',
+      address: club.address || '',
+      city: club.city || '',
+      state: club.state || '',
+      country: club.country || '',
       oldPassword: '',
       error: {},
+      predictionUsed: null,
+      addressFocused: false,
     };
+  }
+
+  componentWillUnmount() {
+    if (this.acTimeout) clearTimeout(this.acTimeout);
+  }
+
+  focusAddress = () => {
+    this.setState({ addressFocused: true });
+  }
+
+  handleAddressClickOutisde = () => {
+    console.log('blurred');
+    this.setState({ addressFocused: false });
+  }
+
+  selectPrediction = (prediction) => {
+    this.props.clearPredictions();
+    const { description, terms } = prediction;
+    if (terms.length === 4) {
+      const [, city, state, country] = terms;
+      this.setState({
+        predictionUsed: prediction,
+        address: prediction.description,
+        city: city.value,
+        state: state.value,
+        country: country.value,
+      });
+    } else if (terms.length === 5) {
+      const [, , city, state, country] = terms;
+      this.setState({
+        predictionUsed: prediction,
+        address: prediction.description,
+        city: city.value,
+        state: state.value,
+        country: country.value,
+      });
+    } else {
+      this.setState({
+        predictionUsed: prediction,
+        address: prediction.description,
+      });
+    }
   }
 
   handleSubmit = (event) => {
@@ -26,9 +76,9 @@ export default class InfoChange extends Component {
           this.props.setMessage('Info has been changed successfully.');
           this.setState({
             email: club.email,
-            location: {
-              ...club.location,
-            },
+            address: club.address || '',
+            city: club.city || '',
+            state: club.state || '',
             oldPassword: '',
             error: {},
           });
@@ -55,6 +105,16 @@ export default class InfoChange extends Component {
       [field]: val,
       error: {},
     });
+  }
+
+  handleAddressChange = (ev) => {
+    const address = ev.target.value;
+    this.props.clearPredictions();
+    if (this.acTimeout) clearTimeout(this.acTimeout);
+    this.acTimeout = setTimeout(() => {
+      this.props.addressAutoComplete(address);
+    }, 300);
+    this.setState({ address });
   }
 
   validate() {
@@ -90,6 +150,8 @@ export default class InfoChange extends Component {
     return true;
   }
   render() {
+    const { predictions } = this.props.autocomplete;
+    const { addressFocused } = this.state;
     return (<form onSubmit={this.handleSubmit}>
       <TextField
         hintText="Old Password"
@@ -108,6 +170,16 @@ export default class InfoChange extends Component {
         type="email"
         fullWidth={Boolean(true)}
       />
+      <AutoComplete
+        selectPrediction={this.selectPrediction}
+        onClickOutside={this.handleAddressClickOutisde}
+        onFocus={this.focusAddress}
+        value={this.state.address}
+        onChange={this.handleAddressChange}
+        errorText={this.state.error.address}
+        addressFocused={addressFocused}
+        predictions={predictions}
+      />
       <TextField
         floatingLabelText="City"
         value={this.state.city}
@@ -121,6 +193,14 @@ export default class InfoChange extends Component {
         value={this.state.state}
         onChange={e => this.handleChange('state', e.target.value)}
         errorText={this.state.error.state}
+        type="text"
+        fullWidth={Boolean(true)}
+      />
+      <TextField
+        floatingLabelText="Country"
+        value={this.state.country}
+        onChange={e => this.handleChange('country', e.target.value)}
+        errorText={this.state.error.country}
         type="text"
         fullWidth={Boolean(true)}
       />

@@ -102,7 +102,6 @@ export default function request(url, options = {}) {
     ...options.headers,
   };
   options.credentials = 'include';
-  console.log(options);
   return fetch(requestUrl, options)
     .then(checkStatus, checkRequestError)
     .then(parseJSON);

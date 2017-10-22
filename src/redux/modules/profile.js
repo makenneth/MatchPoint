@@ -7,11 +7,32 @@ import { setMessage } from 'redux/modules/main';
 export const USER_CHANGED = 'mp/infoChange/USER_CHANGED';
 
 // const initialState = {
-//   error: null
+//   isLoading: false,
+//   error: null,
+//   predictions: [],
 // };
 
 // export default (state = initialState, action) => {
 //   switch (action.type) {
+//     case ActionTypes.ADDRESS_AUTO_COMPLETE_REQUEST:
+//       return {
+//         ...state,
+//         isLoading: true,
+//       };
+
+//     case ActionTypes.ADDRESS_AUTO_COMPLETE_SUCCESS:
+//       return {
+//         ...state,
+//         isLoading: false,
+//         predictions: action.payload.predictions,
+//       };
+
+//     case ActionTypes.ADDRESS_AUTO_COMPLETE_FAILURE:
+//       return {
+//         ...state,
+//         isLoading: false,
+//       };
+
 //     default:
 //       return state;
 //   }
