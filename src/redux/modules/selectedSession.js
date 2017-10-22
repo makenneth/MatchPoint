@@ -2,7 +2,6 @@ import request from 'utils/request';
 import { ScoreCalculation } from 'helpers';
 import ActionTypes from 'redux/actionTypes';
 // import { LOAD, MESSAGE } from 'redux/modules/main';
-import { DELETE_SESSION_SUCCESS } from 'redux/modules/sessions';
 
 const initialState = {
   loading: false,
@@ -12,11 +11,12 @@ const initialState = {
   ratingChange: {},
   ratingChangeDetail: {},
   results: {},
+  editable: null,
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case DELETE_SESSION_SUCCESS:
+    case ActionTypes.DELETE_SESSION_SUCCESS:
       return initialState;
     case ActionTypes.UPDATE_SCORE: {
       const { idx, ratingChangeDetail, ratingChange, results } = action.payload;
@@ -60,6 +60,10 @@ export default (state = initialState, action) => {
         ratingChange: Object.assign({}, state.ratingChange, ratingChange),
       };
     }
+    case ActionTypes.FETCH_SESSION_REQUEST:
+      return {
+        ...initialState,
+      };
     case ActionTypes.FETCH_SESSION_SUCCESS:
     case ActionTypes.SELECT_SESSION: {
       const { session } = action.payload;
@@ -100,7 +104,6 @@ export default (state = initialState, action) => {
         session.players, session.selected_schema, session.results
       );
       const sortedPlayerList = scoreCalculation.sortPlayers();
-      console.log(sortedPlayerList);
       const [ratingChangeDetail, ratingChange] = scoreCalculation.calculateScoreChange();
       return {
         ...state,
@@ -118,6 +121,18 @@ export default (state = initialState, action) => {
       return {
         ...state,
         results: Object.assign({}, state.results, action.payload.results),
+      };
+
+    case ActionTypes.DETERMINE_SESSION_EDIT_STATUS_REQUEST:
+      return {
+        ...state,
+        editable: null,
+      };
+
+    case ActionTypes.DETERMINE_SESSION_EDIT_STATUS_SUCCESS:
+      return {
+        ...state,
+        editable: action.payload.editable,
       };
 
     default:
@@ -190,5 +205,35 @@ export function updateResult(results) {
   return {
     type: ActionTypes.UPDATE_RESULT,
     payload: { results },
+  };
+}
+
+function determinSessionEditStatusRequest() {
+  return {
+    type: ActionTypes.DETERMINE_SESSION_EDIT_STATUS_REQUEST,
+  };
+}
+
+function determinSessionEditStatusSuccess(editable) {
+  return {
+    type: ActionTypes.DETERMINE_SESSION_EDIT_STATUS_SUCCESS,
+    payload: { editable },
+  };
+}
+
+function determinSessionEditStatusFailure(err) {
+  return {
+    type: ActionTypes.DETERMINE_SESSION_EDIT_STATUS_FAILURE,
+    err,
+  };
+}
+export function determinSessionEditStatus(id) {
+  return (dispatch) => {
+    dispatch(determinSessionEditStatusRequest());
+    return request(`/api/my/sessions/edit-status/${id}`)
+      .then(
+        res => dispatch(determinSessionEditStatusSuccess(res.editable)),
+        err => dispatch(determinSessionEditStatusFailure(err)),
+      );
   };
 }

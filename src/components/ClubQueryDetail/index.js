@@ -1,5 +1,5 @@
 import React from 'react';
-import { RecordTableView } from 'components';
+import { RecordTableContainer } from 'containers';
 
 const ClubQueryDetail = (props) => {
   let err;
@@ -7,10 +7,8 @@ const ClubQueryDetail = (props) => {
     err = 'Please select a club...';
   } else if (!props.resultsAvailable) {
     err = 'The club has never posted any results.';
-  } else if (!props._id) {
+  } else if (!props.roundrobin) {
     err = 'Please select a date...';
-  } else if (!props.finalized) {
-    err = 'The results have not been posted yet...';
   }
 
   if (err) {
@@ -18,22 +16,33 @@ const ClubQueryDetail = (props) => {
       {err}
     </div>);
   }
+  const {
+    players, results, ratingChange,
+    ratingChangeDetail, finalized,
+    selected_schema: selectedSchema,
+    sortedPlayerList,
+  } = props.roundrobin;
   let countedPlayers = 0;
   return (<div style={{ overflow: 'scroll', marginTop: '40px' }}>
     {
-      props.selectedSchema.map((sizeOfGroup, i) => {
-        countedPlayers += +sizeOfGroup;
-        return (
-          <RecordTableView
-            key={i}
-            groupNum={i + 1}
-            start={countedPlayers - sizeOfGroup}
-            finalized={props.finalized}
-            scoreChange={props.scoreChange[i] || []}
-            joinedPlayers={props.players}
-            sizeOfGroup={+sizeOfGroup}
-          />
+      selectedSchema.map((sizeOfGroup, i) => {
+        const joinedPlayers = players.slice(
+          countedPlayers,
+          countedPlayers + sizeOfGroup
         );
+        countedPlayers += +sizeOfGroup;
+        return (<RecordTableContainer
+          key={i}
+          editable={Boolean(false)}
+          groupNum={i + 1}
+          finalized={finalized}
+          joinedPlayers={joinedPlayers}
+          sizeOfGroup={+sizeOfGroup}
+          results={results}
+          ratingChange={ratingChange}
+          ratingChangeDetail={ratingChangeDetail}
+          sortedPlayerList={sortedPlayerList[i]}
+        />);
       })
     }
   </div>);

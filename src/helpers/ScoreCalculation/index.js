@@ -9,6 +9,7 @@ export default class ScoreCalculation {
     let start = 0;
     return this.schema.map((playerInGroup) => {
       const players = this.players.slice(start, start + playerInGroup);
+      start += playerInGroup;
       return this.sortPlayerWithinGroup(players);
     });
   }

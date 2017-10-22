@@ -32,15 +32,24 @@
       @include container-box-shadow;
     }
   }
+
+  &.loading {
+    cursor: progress;
+  }
 }
 
 .name-select-div {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  position: relative;
 
   > *:first-child {
     margin-right: 20px;
+  }
+
+  hr {
+    height: 1px;
   }
 }
 
@@ -52,6 +61,17 @@
 
   > div {
     margin-top: 10px;
+  }
+}
+
+.club-result-top-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.club-result-container .club-result-body {
+  .overlay {
+    background-color: transparent;
   }
 }
 

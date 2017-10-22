@@ -1,7 +1,7 @@
 import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
 import { startLoad, stopLoad } from 'redux/modules/main';
-import browserHistory from 'react-router';
+import { browserHistory } from 'react-router';
 
 const initialState = {
   loading: false,
@@ -65,7 +65,7 @@ export default (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        sessions: state.sessions.filter(s => s.id !== action.payload.id),
+        sessions: state.sessions.filter(s => s.short_id !== action.payload.id),
       };
 
     case ActionTypes.LOAD_SESSIONS_FAILURE:

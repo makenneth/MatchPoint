@@ -1,50 +1,103 @@
-import axios from 'axios';
-import { UPDATE_SESSION_SUCCESS } from 'redux/modules/sessions';
-import { LOAD, MESSAGE } from './main';
-
-const FETCH_ALL_SUCCESS = 'mp/clubs/FETCH_ALL_SUCCESS';
-const FETCH_SESSIONS_SUCCESS = 'mp/clubs/FETCH_SESSIONS_SUCCESS';
-const SET_CLUB = 'mp/clubs/SET_CLUB';
-const SET_DATE = 'mp/clubs/SET_DATE';
+import ActionTypes from 'redux/actionTypes';
+import request from 'utils/request';
+import { ScoreCalculation } from 'helpers';
+import { setMessage } from './main';
 
 const initialState = {
   loaded: false,
+  loading: false,
   clubs: {},
   selectedClub: null,
   roundrobins: {},
-  selectedDate: null,
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case UPDATE_SESSION_SUCCESS:
+    case ActionTypes.FETCH_ROUNDROBIN_DETAIL_REQUEST:
       return {
-        selectedClub: null,
-        roundrobins: {},
-        selectedDate: null,
+        ...state,
+        loading: true,
       };
-    case FETCH_ALL_SUCCESS: {
+
+    case ActionTypes.FETCH_ROUNDROBIN_DETAIL_SUCCESS: {
+      const { clubId, session } = action.payload;
+      let roundrobin;
+      if (!session.finalized) {
+        const { players } = session;
+        const ratingChange = {};
+        for (const player of players) {
+          ratingChange[player.id] = 0;
+        }
+        const sortedPlayerList = [];
+        const results = {};
+        session.selected_schema.reduce((acc, numInGroup) => {
+          const playersInGroup = players.slice(acc, acc + numInGroup);
+          sortedPlayerList.push(playersInGroup.map(p => ({
+            id: p.id,
+            wins: 0,
+            losses: 0,
+          })));
+          playersInGroup.forEach((player, i) => {
+            results[player.id] = {};
+            [...playersInGroup.slice(0, i), ...playersInGroup.slice(i + 1)].forEach((other) => {
+              results[player.id][other.id] = [0, 0];
+            });
+          });
+          return acc + numInGroup;
+        }, 0);
+
+        roundrobin = {
+          ...session,
+          sortedPlayerList,
+          results,
+          ratingChange,
+          ratingChangeDetail: {},
+        };
+      } else {
+        const scoreCalculation = new ScoreCalculation(
+          session.players, session.selected_schema, session.results
+        );
+        const sortedPlayerList = scoreCalculation.sortPlayers();
+        const [ratingChangeDetail, ratingChange] = scoreCalculation.calculateScoreChange();
+        roundrobin = {
+          ...session,
+          sortedPlayerList,
+          ratingChangeDetail,
+          ratingChange,
+        };
+      }
+      return {
+        ...state,
+        loading: false,
+        roundrobins: {
+          ...state.roundrobins,
+          [session.short_id]: roundrobin,
+        },
+      };
+    }
+    case ActionTypes.FETCH_ALL_CLUBS_REQUEST:
+      return {
+        ...state,
+        loaded: false,
+        loading: true,
+      };
+
+    case ActionTypes.FETCH_ALL_CLUBS_SUCCESS: {
       const clubs = {};
-      const data = action.payload;
+      const data = action.payload.clubs;
 
       data.forEach((club) => {
-        clubs[club._id] = club;
+        clubs[club.id] = club;
       });
       return {
         ...state,
+        loading: false,
         loaded: true,
         clubs,
       };
     }
-    case FETCH_SESSIONS_SUCCESS: {
-      const roundrobins = Object.assign({}, state.roundrobins);
-      roundrobins[state.selectedClub._id] = action.payload;
-      return {
-        ...state,
-        roundrobins,
-      };
-    }
-    case SET_CLUB: {
+
+    case ActionTypes.SET_QUERY_CLUB: {
       const selectedClub = action.payload && state.clubs[action.payload];
       return {
         ...state,
@@ -52,46 +105,102 @@ export default (state = initialState, action) => {
         selectedDate: null,
       };
     }
-    case SET_DATE: {
-      const roundrobins = state.roundrobins[state.selectedClub._id];
-      const selectedDate = roundrobins.find(rr => rr._id === action.payload);
+    case ActionTypes.SET_QUERY_DATE:
       return {
         ...state,
-        selectedDate,
+        selectedDate: action.payload.id,
       };
-    }
+
+    case ActionTypes.FETCH_ROUNDROBIN_DETAIL_FAILURE:
+    case ActionTypes.FETCH_ALL_CLUBS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+      };
     default:
       return state;
   }
 };
 
-export const setClub = (id) => {
+export function setClub(id) {
   return {
-    type: SET_CLUB,
+    type: ActionTypes.SET_QUERY_CLUB,
     payload: id,
   };
-};
+}
 
-export const setDate = (date) => {
+export function setDate(id) {
+  console.log('setdate', id);
   return {
-    type: SET_DATE,
-    payload: date,
+    type: ActionTypes.SET_QUERY_DATE,
+    payload: { id },
   };
-};
+}
 
-export const fetchRoundrobins = (clubId) => {
+function fetchRoundRobinDetailRequest() {
   return {
-    types: [LOAD, FETCH_SESSIONS_SUCCESS, MESSAGE],
-    promise: axios.get(`/api/clubs/${clubId}/sessions`),
+    type: ActionTypes.FETCH_ROUNDROBIN_DETAIL_REQUEST,
   };
-};
+}
 
-export const fetchAllClubs = () => {
+function fetchRoundRobinDetailSuccess(clubId, session) {
   return {
-    types: [LOAD, FETCH_ALL_SUCCESS, MESSAGE],
-    promise: axios.get('/api/clubs/all'),
+    type: ActionTypes.FETCH_ROUNDROBIN_DETAIL_SUCCESS,
+    payload: { clubId, session },
   };
-};
+}
+
+function fetchRoundRobinDetailFailure(error) {
+  return {
+    type: ActionTypes.FETCH_ROUNDROBIN_DETAIL_FAILURE,
+    payload: { error },
+  };
+}
+
+export function fetchRoundRobinDetail(clubId, id) {
+  return (dispatch) => {
+    dispatch(fetchRoundRobinDetailRequest());
+    return request(`/api/clubs/${clubId}/sessions/${id}`)
+      .then(
+        (res) => dispatch(fetchRoundRobinDetailSuccess(clubId, res.roundrobin)),
+        (err) => {
+          dispatch(setMessage('Cannot get the detail for this session. Please try again later.'));
+          dispatch(fetchRoundRobinDetailFailure(err));
+        }
+      );
+  };
+}
+
+function fetchAllClubsRequest() {
+  return {
+    type: ActionTypes.FETCH_ALL_CLUBS_REQUEST,
+  };
+}
+
+function fetchAllClubsSuccess(clubs) {
+  return {
+    type: ActionTypes.FETCH_ALL_CLUBS_SUCCESS,
+    payload: { clubs },
+  };
+}
+
+function fetchAllClubsFailure(error) {
+  return {
+    type: ActionTypes.FETCH_ALL_CLUBS_FAILURE,
+    payload: { error },
+  };
+}
+
+export function fetchAllClubs() {
+  return (dispatch) => {
+    dispatch(fetchAllClubsRequest());
+    return request('/api/clubs/all')
+      .then(
+        res => dispatch(fetchAllClubsSuccess(res.clubs)),
+        err => dispatch(fetchAllClubsFailure(err))
+      );
+  };
+}
 
 export const hasLoaded = (state) => {
   return state.query.loaded;

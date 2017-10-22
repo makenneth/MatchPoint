@@ -27,7 +27,9 @@ export default class RecordTableContainer extends Component {
   }
 
   componentWillUnmount() {
-    this.props.updateResult(this.state.results);
+    if (this.props.updateResult) {
+      this.props.updateResult(this.state.results);
+    }
   }
 
   handleCalculate = () => {

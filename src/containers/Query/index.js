@@ -1,28 +1,22 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Tabs, Tab } from 'material-ui/Tabs';
-import { fetchAllClubs, hasLoaded } from 'redux/modules/query';
-import { asyncConnect } from 'redux-async-connect';
+import { fetchAllClubs } from 'redux/modules/query';
 import ClubQuery from './ClubQuery';
 
 import './styles.scss';
 
-@asyncConnect([{
-  promise: ({ store }) => {
-    let promise;
-
-    if (!hasLoaded(store.getState())) {
-      promise = store.dispatch(fetchAllClubs());
-    }
-
-    return promise;
-  },
-}])
+@connect(({ query }) => ({ loading: query.loading }), { fetchAllClubs })
 export default class Query extends Component {
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     this.state = {
       tab: 0,
     };
+  }
+
+  componentWillMount() {
+    this.props.fetchAllClubs();
   }
 
   handleTabChange = (tab) => {
@@ -30,7 +24,7 @@ export default class Query extends Component {
   }
 
   render() {
-    return (<div className="result-query-container">
+    return (<div className={`result-query-container${this.props.loading ? ' loading' : ''}`}>
       <Tabs
         value={this.state.tab}
         onChange={this.handleTabChange}
