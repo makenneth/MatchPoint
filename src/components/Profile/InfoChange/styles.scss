@@ -35,3 +35,32 @@
     }
   }
 }
+
+.email-input-container {
+  width: 100%;
+  position: relative;
+
+  .tooltip {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 5px);
+    padding: 10px;
+    background: rgb(97, 97, 97);
+    color: white;
+    font-size: 12px;
+    z-index: 10;
+  }
+
+  svg {
+    height: 1.5em;
+    width: 1.5em;
+    position: absolute;
+    right: 5px;
+    bottom: 15px;
+
+    &:hover ~ .tooltip {
+      display: block;
+    }
+  }
+}

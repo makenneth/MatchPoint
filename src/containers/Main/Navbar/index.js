@@ -30,7 +30,7 @@ export default class Navbar extends Component {
       return true;
     }
     if ((!this.props.club && nextProps.club) ||
-      (!nextProps.club.id && this.props.club.id)) {
+      (!nextProps.club.id && this.props.club && this.props.club.id)) {
       return true;
     }
     return false;

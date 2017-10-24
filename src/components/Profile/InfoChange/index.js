@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import MdInfoOutline from 'react-icons/lib/md/info-outline';
 import AutoComplete from './AutoComplete';
-
 import './styles.scss';
 
 export default class InfoChange extends Component {
@@ -16,8 +16,8 @@ export default class InfoChange extends Component {
       city: club.city || '',
       state: club.state || '',
       country: club.country || '',
-      oldPassword: '',
-      error: {},
+      password: '',
+      errors: {},
       predictionUsed: null,
       addressFocused: false,
     };
@@ -32,7 +32,6 @@ export default class InfoChange extends Component {
   }
 
   handleAddressClickOutisde = () => {
-    console.log('blurred');
     this.setState({ addressFocused: false });
   }
 
@@ -43,7 +42,7 @@ export default class InfoChange extends Component {
       const [, city, state, country] = terms;
       this.setState({
         predictionUsed: prediction,
-        address: prediction.description,
+        address: description,
         city: city.value,
         state: state.value,
         country: country.value,
@@ -52,7 +51,7 @@ export default class InfoChange extends Component {
       const [, , city, state, country] = terms;
       this.setState({
         predictionUsed: prediction,
-        address: prediction.description,
+        address: description,
         city: city.value,
         state: state.value,
         country: country.value,
@@ -60,7 +59,7 @@ export default class InfoChange extends Component {
     } else {
       this.setState({
         predictionUsed: prediction,
-        address: prediction.description,
+        address: description,
       });
     }
   }
@@ -68,10 +67,10 @@ export default class InfoChange extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     // eslint-disable-next-line no-unused-vars
-    const { error, oldPassword, ...others } = this.state;
+    const { errors, password, ...others } = this.state;
 
     if (this.validate()) {
-      this.props.submitChange(others, oldPassword)
+      this.props.submitChange(others, password)
         .then((club) => {
           this.props.setMessage('Info has been changed successfully.');
           this.setState({
@@ -79,8 +78,9 @@ export default class InfoChange extends Component {
             address: club.address || '',
             city: club.city || '',
             state: club.state || '',
-            oldPassword: '',
-            error: {},
+            country: club.country || '',
+            password: '',
+            errors: {},
           });
         }).catch((err) => {
           if (err.response) {
@@ -88,7 +88,7 @@ export default class InfoChange extends Component {
             const message = err.response.data;
             if (typeof message === 'object') {
               this.setState({
-                error: {
+                errors: {
                   ...message,
                 },
               });
@@ -101,10 +101,11 @@ export default class InfoChange extends Component {
   }
 
   handleChange(field, val) {
-    this.setState({
-      [field]: val,
-      error: {},
-    });
+    const { [field]: error, ...rest } = this.state.errors;
+    if (error) {
+      this.setState({ errors: rest });
+    }
+    this.setState({ [field]: val });
   }
 
   handleAddressChange = (ev) => {
@@ -114,69 +115,79 @@ export default class InfoChange extends Component {
     this.acTimeout = setTimeout(() => {
       this.props.addressAutoComplete(address);
     }, 300);
-    this.setState({ address });
+    this.setState({ address, descriptionUsed: null });
   }
 
   validate() {
+    const errors = {};
+    let isValid = true;
     if (this.state.state.length === 0) {
-      this.setState({
-        error: { state: 'State cannot be empty.' },
-      });
-      return false;
+      errors.state = 'State cannot be empty.';
+      isValid = false;
     }
 
     if (this.state.city.length === 0) {
-      this.setState({ error: {
-        state: 'City cannot be empty.',
-      } });
-      return false;
+      errors.city = 'City cannot be empty.';
+      isValid = false;
     }
 
-    if (this.state.oldPassword.length === 0) {
-      this.setState({ error: {
-        password: 'Please fill in your old password.',
-      } });
-      return false;
+    if (this.state.country.length === 0) {
+      errors.country = 'Country cannot be empty.';
+      isValid = false;
     }
+
+    if (this.state.password.length === 0) {
+      errors.password = 'Password is required';
+      isValid = false;
+    }
+
     const emailRegex = new RegExp('.+@.+..+', 'i');
     if (!emailRegex.test(this.state.email)) {
-      this.setState({ error: {
-        email: 'Not a valid email',
-      } });
-
-      return false;
+      errors.email = 'Not a valid email';
+      isValid = false;
     }
 
-    return true;
+    if (!isValid) {
+      this.setState({ errors });
+    }
+    return isValid;
   }
   render() {
     const { predictions } = this.props.autocomplete;
     const { addressFocused } = this.state;
     return (<form onSubmit={this.handleSubmit}>
       <TextField
-        hintText="Old Password"
-        floatingLabelText="Old Password"
-        value={this.state.oldPassword}
-        onChange={e => this.handleChange('oldPassword', e.target.value)}
-        errorText={this.state.error.password}
+        hintText="Password"
+        floatingLabelText="Password"
+        value={this.state.password}
+        onChange={e => this.handleChange('password', e.target.value)}
+        errorText={this.state.errors.password}
         type="password"
         fullWidth={Boolean(true)}
       />
-      <TextField
-        floatingLabelText="Email"
-        value={this.state.email}
-        onChange={e => this.handleChange('email', e.target.value)}
-        errorText={this.state.error.email}
-        type="email"
-        fullWidth={Boolean(true)}
-      />
+      <div className="email-input-container">
+        <TextField
+          floatingLabelText="Email"
+          value={this.state.email}
+          onChange={e => this.handleChange('email', e.target.value)}
+          errorText={this.state.errors.email}
+          type="email"
+          fullWidth={Boolean(true)}
+        />
+        <div className="hint-text">
+          <MdInfoOutline />
+          <div className="tooltip">
+            You will be required to re-verify your email address.
+          </div>
+        </div>
+      </div>
       <AutoComplete
         selectPrediction={this.selectPrediction}
         onClickOutside={this.handleAddressClickOutisde}
         onFocus={this.focusAddress}
         value={this.state.address}
         onChange={this.handleAddressChange}
-        errorText={this.state.error.address}
+        errorText={this.state.errors.address}
         addressFocused={addressFocused}
         predictions={predictions}
       />
@@ -184,7 +195,7 @@ export default class InfoChange extends Component {
         floatingLabelText="City"
         value={this.state.city}
         onChange={e => this.handleChange('city', e.target.value)}
-        errorText={this.state.error.city}
+        errorText={this.state.errors.city}
         type="text"
         fullWidth={Boolean(true)}
       />
@@ -192,7 +203,7 @@ export default class InfoChange extends Component {
         floatingLabelText="State"
         value={this.state.state}
         onChange={e => this.handleChange('state', e.target.value)}
-        errorText={this.state.error.state}
+        errorText={this.state.errors.state}
         type="text"
         fullWidth={Boolean(true)}
       />
@@ -200,7 +211,7 @@ export default class InfoChange extends Component {
         floatingLabelText="Country"
         value={this.state.country}
         onChange={e => this.handleChange('country', e.target.value)}
-        errorText={this.state.error.country}
+        errorText={this.state.errors.country}
         type="text"
         fullWidth={Boolean(true)}
       />

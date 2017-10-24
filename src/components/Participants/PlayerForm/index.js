@@ -29,6 +29,10 @@ class PlayerForm extends Component {
     };
   }
 
+  componentDidMount() {
+    this.nameInput.focus();
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.error !== this.props.error) {
       if (nextProps.error) {
@@ -42,12 +46,6 @@ class PlayerForm extends Component {
           },
         });
       }
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (!prevProps.modalOpen && this.props.modalOpen) {
-      document.querySelector('#name input').focus();
     }
   }
 
@@ -113,6 +111,7 @@ class PlayerForm extends Component {
         <h3>Player Form</h3>
         <div>
           <TextField
+            ref={(input) => { this.nameInput = input; }}
             type="text"
             floatingLabelText="Name"
             id="name"

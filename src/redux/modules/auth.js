@@ -3,7 +3,6 @@ import { browserHistory } from 'react-router';
 import { setPage, SET_PAGE } from 'redux/modules/splash';
 import ActionTypes from 'redux/actionTypes';
 import { startLoad, stopLoad } from 'redux/modules/main';
-import { USER_CHANGED } from 'redux/modules/profile';
 
 const initialState = {
   club: {},
@@ -32,11 +31,6 @@ export default (state = initialState, action) => {
     //     };
     //   }
     //   return state;
-    case USER_CHANGED:
-      return {
-        ...state,
-        club: action.payload,
-      };
 
     case SET_PAGE:
       return {
@@ -154,7 +148,11 @@ export function logIn(user) {
         browserHistory.push('/club');
         dispatch(logInSuccess(res.club));
       },
-      err => dispatch(logInFailure(err))
+      err => {
+        setTimeout(() => {
+          dispatch(logInFailure(err));
+        }, 2000);
+      }
     );
   };
 }

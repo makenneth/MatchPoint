@@ -68,7 +68,7 @@ function addressAutoCompleteFailure(err) {
 
 export function addressAutoComplete(query) {
   return (dispatch) => {
-    if (query.length === 0) {
+    if (query.length < 3) {
       dispatch(addressAutoCompleteSuccess([]));
     } else {
       dispatch(addressAutoCompleteRequest());

@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import CircularProgress from 'material-ui/CircularProgress';
 import { signUp } from 'redux/modules/auth';
 
-@connect(({ auth: { error } }) => ({ error }), { signUp })
+@connect(({ auth: { error, loading } }) => ({ error, loading }), { signUp })
 export default class SignUpForm extends Component {
   constructor(props) {
     super(props);
@@ -14,19 +15,16 @@ export default class SignUpForm extends Component {
       password: 'password',
       passwordRepeat: '',
       clubName: 'Test Club',
-      stateName: 'CA',
+      state: 'CA',
       city: 'San Francisco',
       errors: {},
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.error !== this.props.error && nextProps.error && nextProps.error.username) {
+    if (nextProps.error !== this.props.error && nextProps.error) {
       this.setState({
-        errors: {
-          ...this.state.errors,
-          username: nextProps.error.username,
-        },
+        errors: nextProps.error
       });
     }
   }
@@ -43,8 +41,8 @@ export default class SignUpForm extends Component {
       errors.city = 'City cannot be empty';
       isValid = false;
     }
-    if (this.state.stateName.length === 0) {
-      errors.stateName = 'State cannot be empty';
+    if (this.state.state.length === 0) {
+      errors.state = 'State cannot be empty';
       isValid = false;
     }
 
@@ -113,6 +111,7 @@ export default class SignUpForm extends Component {
   }
   render() {
     const { errors } = this.state;
+    const { loading } = this.props;
     return (<div className="forms">
       <form onSubmit={this.handleSubmit}>
         <h3>Sign Up</h3>
@@ -139,10 +138,10 @@ export default class SignUpForm extends Component {
         <div>
           <TextField
             type="text"
-            value={this.state.stateName}
+            value={this.state.state}
             floatingLabelText="State"
-            onChange={e => this.updateField('stateName', e)}
-            errorText={errors.stateName}
+            onChange={e => this.updateField('state', e)}
+            errorText={errors.state}
             required
           />
         </div>
@@ -186,18 +185,24 @@ export default class SignUpForm extends Component {
             required
           />
         </div>
-        <div className="button-div">
+        {loading && <CircularProgress
+          size={0.5}
+          color="#aaa"
+          style={{ marginTop: '10px' }}
+          className="circular-progress"
+        />}
+        {!loading && <div className="button-div">
           <RaisedButton
             backgroundColor="#00796B"
             labelColor="white"
             onClick={this.handleSubmit}
             label="Sign Up"
           />
-        </div>
-        <div className="redirect-signup">
+        </div>}
+        {!loading && <div className="redirect-signup">
           Already have an account yet?&nbsp;&nbsp;
           <a onClick={() => this.props.setPage(1)}>Log In</a>
-        </div>
+        </div>}
       </form>
     </div>);
   }

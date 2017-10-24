@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import CircularProgress from 'material-ui/CircularProgress';
 import { logIn, clearError } from 'redux/modules/auth';
 import Divider from 'material-ui/Divider';
 import { setPage } from 'redux/modules/splash';
 
 const style = { position: 'relative' };
 
-@connect(({ auth: { error } }) => ({ error }), { logIn, setPage, clearError })
+@connect(({ auth: { error, loading } }) => ({ error, loading }), { logIn, setPage, clearError })
 export default class LogInForm extends Component {
   constructor(props) {
     super(props);
@@ -119,7 +120,7 @@ export default class LogInForm extends Component {
             errorText={errors.password}
           />
         </div>
-        <div className="button-div">
+        {!this.props.loading && <div className="button-div">
           <RaisedButton
             label="Log In"
             backgroundColor="#1565C0"
@@ -129,19 +130,25 @@ export default class LogInForm extends Component {
           />
           <RaisedButton label="Guest" backgroundColor="#EF6C00" labelColor="white" onClick={this.guestLogIn} />
           <input type="submit" style={{ display: 'none' }} />
-        </div>
-        <div className="forgot-password">
+        </div>}
+        {!this.props.loading && <div className="forgot-password">
           <a onClick={() => this.props.setPage(3)}>
             Forgot password?
           </a>
-        </div>
+        </div>}
         <Divider style={style} />
-        <div className="redirect-signup">
-          {"Don't have an account yet?"}&nbsp;&nbsp;
+        {!this.props.loading && <div className="redirect-signup">
+          Don't have an account yet?&nbsp;&nbsp;
           <a onClick={() => this.props.setPage(2)}>
             Sign Up
           </a>
-        </div>
+        </div>}
+        {this.props.loading && <CircularProgress
+          size={0.5}
+          color="#aaa"
+          style={{ marginTop: '10px' }}
+          className="circular-progress"
+        />}
       </form>
     </div>);
   }

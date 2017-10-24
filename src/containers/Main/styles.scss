@@ -485,6 +485,15 @@ form {
   }
 }
 
+.circular-progress {
+  animation: fadeIn 0.3s ease-in-out;
+
+  @keyframes fadeIn {
+    0% { opactiy: 0; }
+    100% { opacity: 1; }
+  }
+}
+
 @media (min-width: 944px) and (min-device-width: 944px){
   .forms {
     top: 50%;

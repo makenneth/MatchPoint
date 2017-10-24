@@ -108,6 +108,10 @@ const actionTypes = keymirror({
   ADDRESS_AUTO_COMPLETE_FAILURE: null,
 
   CLEAR_PREDICTIONS: null,
+
+  CHANGE_PASSWORD_REQUEST: null,
+  CHANGE_PASSWORD_SUCCESS: null,
+  CHANGE_PASSWORD_FAILURE: null,
 });
 
 export default actionTypes;
