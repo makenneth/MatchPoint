@@ -56,7 +56,8 @@ class Club {
     return new Promise((resolve, reject) => {
       connection.query(`
         SELECT
-        c.id, short_id, username, club_name, email, verified, session_token, confirm_token, cg.*
+        c.id, short_id, username, club_name, email, verified, session_token, confirm_token,
+        city, state, address, geolat, geolng, country
         FROM clubs AS c
         INNER JOIN club_geolocations AS cg
         ON cg.club_id = c.id
@@ -79,7 +80,8 @@ class Club {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT c.id, short_id, username, club_name, email, verified, cg.*
+        SELECT c.id, short_id, username, club_name, email, verified,
+        city, state, address, geolat, geolng, country
         FROM clubs As c
         INNER JOIN club_geolocations AS cg
         ON cg.club_id = c.id
@@ -101,7 +103,8 @@ class Club {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT c.id, short_id, username, club_name, email, cg.*
+        SELECT c.id, short_id, username, club_name, email,
+        city, state, address, geolat, geolng, country
         FROM clubs AS c
         INNER JOIN club_geolocations AS cg
         ON cg.club_id = c.id
@@ -369,7 +372,8 @@ class Club {
       connection.query(`
         SELECT c.id, short_id, username, club_name,
           email, verified, token, confirm_token, password_digest,
-          updated_at, created_on, cg.*
+          updated_at, created_on, city, state, address,
+          geolat, geolng, country
         FROM clubs AS c
         INNER JOIN club_geolocations AS cg
         ON cg.club_id = c.id
@@ -436,6 +440,44 @@ class Club {
         const club = Club.formatClubRow(results[0]);
         delete club.password_digest;
         return resolve(club);
+      });
+    });
+  }
+
+  static async resetPassword({ email, username }) {
+    const connection = await db.getConnection();
+    const token = Club.generateToken();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        UPDATE clubs
+        SET token = ?
+        WHERE email = ? OR username = ?;
+      `, [token, email, username], async (err, results, field) => {
+        if (err) {
+          connection.release();
+          throw(err);
+        }
+        if (results.affectedRows === 0) {
+          connection.release();
+          return reject({ user: 'User does not exist.' });
+        } else {
+          const club = await new Promise((resolve, reject) => {
+            connection.query(`
+              SELECT * FROM clubs
+              WHERE token = ? AND (email = ? OR username = ?)
+            `, [token, email, username], (err, results, field) => {
+              connection.release();
+              if (err) throw(err);
+
+              if (results.length > 0) {
+                resolve(Club.formatClubRow(results[0]));
+              } else {
+                reject({ internal: 'Internal Server Error. Something went wrong.' });
+              }
+            })
+          });
+          resolve(club);
+        }
       });
     });
   }

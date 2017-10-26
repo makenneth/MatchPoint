@@ -33,7 +33,7 @@ router.route("/players").get((req, res, next) => {
   if (hasError) {
     return next({ code: 422, message: err });
   }
-
+  console.log(req.club);
   Player.createPlayer(clubId, data)
     .then(
       async (playerId) => {

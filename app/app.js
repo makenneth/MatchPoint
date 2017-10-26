@@ -13,9 +13,8 @@ import sessionRoutes from "./api/session";
 import accountRoutes from "./api/account";
 import uploadRoutes from "./api/upload";
 import currentUserRoutes from "./api/currentUser";
-
-const port = process.env.PORT || 3000;
-Raven.config("https://66966ed896744b44b5e33998522c1d77:cd526570e2b545609d8cb53f944960f2@sentry.io/228973").install();
+const port = process.env.APP_PORT || 3000;
+Raven.config(process.env.RAVEN_URL).install();
 // db.connect();
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "public", "views"));

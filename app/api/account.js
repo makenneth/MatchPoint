@@ -17,33 +17,24 @@ router.get("/activate", (req, res, next) => {
       }
     ).catch(err => next({ status: 500, message: err }));
 })
-.post("/reset/request", csrfProtection, (req, res, next) => {
+.post("/reset/request", csrfProtection, async (req, res, next) => {
   const email = req.query.email;
   const username = req.query.username;
-  let promise;
-  if (email) {
-    promise = Club.findOneAndUpdate(
-      { email: email },
-      { $set: { token: URLSafeBase64.encode(crypto.randomBytes(32)) } },
-      { new: true }
-    );
-  } else if (username) {
-    promise = Club.findOneAndUpdate(
-      { username: username },
-      { $set: { token: URLSafeBase64.encode(crypto.randomBytes(32)) } },
-      { new: true }
-    );
-  } else {
+  if (!email && !username) {
     return next({ code: 400 })
   }
-
-  return promise.then(club => new Mailer(club).sendResetEmail())
-    .then(
-      () => res.status(202).send("Confirmation Email sent"),
-      (err) => {
-        next({ code: 404, message: { user: 'User not found.' } });
-      }
-    );
+  try {
+    const club = await Club.resetPassword({ email, username });
+    const ok2 = new Mailer(club).sendResetEmail();
+    res.status(204).send();
+  } catch (e) {
+    console.log(e);
+    if (e.user) {
+      next({ code: 404, message: e });
+    } else {
+      next({ code: 500, message: e });
+    }
+  }
 })
 .post("/reset", jsonParser, csrfProtection, (req, res, next) => {
   const { token, newPassword } = req.body;
@@ -51,7 +42,7 @@ router.get("/activate", (req, res, next) => {
     .then(
       (club) => {
         Club.resetSessionToken(club.sessionToken);
-        return res.status(200).send({ success: true });
+        res.status(200).send({ success: true });
       },
       (err) => {
         next({ code: 404, message: err });

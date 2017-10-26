@@ -295,9 +295,8 @@ class RoundRobin {
       const change = rc + (rc > 24 ? rc - 24 : 0);
       return RoundRobin.updatePlayer(
         connection, clubId,
-        roundrobin.id, roundrobin.date,
-        player.id, player.rating,
-        change, results[player.id]
+        roundrobin.id, player.id,
+        player.rating, change, results[player.id]
       );
     });
     return Promise.all(promises).then(
@@ -315,9 +314,10 @@ class RoundRobin {
   }
 
   static async updatePlayer(
-    connection, clubId, id, date, playerId, oldRating, change, result
+    connection, clubId, id, playerId, oldRating, change, result
   ) {
     const resultJSON = JSON.stringify(result);
+    const date = new Date();
     return new Promise((resolve, reject) => {
       connection.query(`INSERT INTO
         player_histories
@@ -392,7 +392,7 @@ class RoundRobin {
     return new Promise((resolve, reject) => {
       connection.query(`SELECT COUNT(*) > 0 AS bool
         FROM roundrobins AS r
-        INNER JOIN (
+        LEFT OUTER JOIN (
           SELECT club_id, max(date) AS max_date
           FROM roundrobins
           WHERE finalized = 1
