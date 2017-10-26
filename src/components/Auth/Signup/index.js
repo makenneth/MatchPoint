@@ -11,9 +11,9 @@ export default class SignUpForm extends Component {
     super(props);
     this.state = {
       email: 'kxmingg@gmail.com',
-      username: 'test user',
+      username: 'testuser',
       password: 'password',
-      passwordRepeat: '',
+      passwordRepeat: 'password',
       clubName: 'Test Club',
       state: 'CA',
       city: 'San Francisco',

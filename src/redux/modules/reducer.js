@@ -16,7 +16,7 @@ import tutorial from './tutorial';
 import players from './players';
 import activePlayers from './activePlayers';
 import autocomplete from './autocomplete';
-import { passwordChange } from './profile';
+import { passwordChange, infoChange } from './profile';
 
 export default combineReducers({
   reduxAsyncConnect,
@@ -37,4 +37,5 @@ export default combineReducers({
   activePlayers,
   autocomplete,
   passwordChange,
+  infoChange,
 });

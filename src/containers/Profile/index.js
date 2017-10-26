@@ -11,7 +11,8 @@ import { enableTutorial, disableTutorial, isTutorialEnabled } from 'redux/module
 import './styles.scss';
 
 @connect(
-  ({ auth: { club }, autocomplete, passwordChange }) => ({ club, autocomplete, passwordChange }),
+  ({ auth: { club }, autocomplete, passwordChange, infoChange }) =>
+    ({ club, autocomplete, passwordChange, infoChange }),
   {
     changePassword,
     changeInfo,
@@ -76,6 +77,7 @@ export default class Profile extends Component {
         </CardText>
         <CardText style={{ display: this.state.tab === 1 ? 'block' : 'none' }}>
           <InfoChange
+            infoChange={this.props.infoChange}
             autocomplete={this.props.autocomplete}
             club={this.props.club}
             submitChange={this.props.changeInfo}

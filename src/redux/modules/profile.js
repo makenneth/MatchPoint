@@ -2,38 +2,6 @@ import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
 import { setMessage } from 'redux/modules/main';
 
-// const initialState = {
-//   isLoading: false,
-//   error: null,
-//   predictions: [],
-// };
-
-// export default (state = initialState, action) => {
-//   switch (action.type) {
-//     case ActionTypes.ADDRESS_AUTO_COMPLETE_REQUEST:
-//       return {
-//         ...state,
-//         isLoading: true,
-//       };
-
-//     case ActionTypes.ADDRESS_AUTO_COMPLETE_SUCCESS:
-//       return {
-//         ...state,
-//         isLoading: false,
-//         predictions: action.payload.predictions,
-//       };
-
-//     case ActionTypes.ADDRESS_AUTO_COMPLETE_FAILURE:
-//       return {
-//         ...state,
-//         isLoading: false,
-//       };
-
-//     default:
-//       return state;
-//   }
-// };
-
 export function passwordChange(state = {
   error: null,
   isLoading: false,
@@ -62,6 +30,41 @@ export function passwordChange(state = {
         isLoading: false,
         error: action.payload.error,
         success: false,
+      };
+
+    default:
+      return state;
+  }
+}
+
+export function infoChange(state = {
+  error: null,
+  isLoading: false,
+  success: null,
+}, action) {
+  switch (action.type) {
+    case ActionTypes.CHANGE_INFO_REQUEST:
+      return {
+        ...state,
+        error: null,
+        isLoading: true,
+        success: null,
+      };
+
+    case ActionTypes.CHANGE_INFO_SUCCESS:
+      return {
+        ...state,
+        error: null,
+        isLoading: false,
+        success: action.payload.club,
+      };
+
+    case ActionTypes.CHANGE_INFO_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload.error,
+        success: null,
       };
 
     default:
@@ -102,23 +105,38 @@ export function changePassword(oldPassword, newPassword) {
   };
 }
 
-// export const changeInfo = (info, password) => {
-//   const promise = axios({
-//     method: 'PATCH',
-//     url: '/api/my?type=info',
-//     data: {
-//       data: { password, info },
-//     },
-//     headers: {
-//       'X-CSRF-TOKEN': getCSRF(),
-//     },
-//   });
+function changeInfoRequest() {
+  return {
+    type: ActionTypes.CHANGE_INFO_REQUEST,
+  };
+}
 
-//   return {
-//     types: ['NOT NEEDED', 'NOT_NEEDED', USER_CHANGED],
-//     promise,
-//   };
-// };
+function changeInfoSuccess(club) {
+  return {
+    type: ActionTypes.CHANGE_INFO_SUCCESS,
+    payload: { club },
+  };
+}
+
+function changeInfoFailure(error) {
+  return {
+    type: ActionTypes.CHANGE_INFO_FAILURE,
+    payload: { error },
+  };
+}
+
+export function changeInfo(info, password) {
+  return (dispatch) => {
+    dispatch(changeInfoRequest());
+    return request('/api/my?type=info', {
+      method: 'PATCH',
+      body: JSON.stringify({ data: { password, info } }),
+    }).then(
+      res => dispatch(changeInfoSuccess(res.club)),
+      err => dispatch(changeInfoFailure(err))
+    );
+  };
+}
 
 function resendEmailRequest() {
   return {

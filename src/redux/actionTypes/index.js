@@ -112,6 +112,9 @@ const actionTypes = keymirror({
   CHANGE_PASSWORD_REQUEST: null,
   CHANGE_PASSWORD_SUCCESS: null,
   CHANGE_PASSWORD_FAILURE: null,
+  CHANGE_INFO_REQUEST: null,
+  CHANGE_INFO_SUCCESS: null,
+  CHANGE_INFO_FAILURE: null,
 });
 
 export default actionTypes;

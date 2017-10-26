@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
+import { browserHistory } from 'react-router';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import AutoComplete from 'material-ui/AutoComplete';
+import CircularProgress from 'material-ui/CircularProgress';
 import MdInfoOutline from 'react-icons/lib/md/info-outline';
-import AutoComplete from './AutoComplete';
+import countries from 'constants/countries';
+import AddressAutoComplete from './AutoComplete';
 import './styles.scss';
 
 export default class InfoChange extends Component {
@@ -21,6 +25,38 @@ export default class InfoChange extends Component {
       predictionUsed: null,
       addressFocused: false,
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { error, success, isLoading } = nextProps.infoChange;
+    if (this.props.infoChange.isLoading && !isLoading) {
+      if (success) {
+        this.props.setMessage('Info has been changed successfully.');
+        this.setState({
+          password: '',
+          email: success.email || '',
+          address: success.address || '',
+          city: success.city || '',
+          state: success.state || '',
+          country: success.country || '',
+          predictionUsed: null,
+          addressFocused: false,
+          errors: {},
+        });
+        if (!success.verified && this.props.club.verified) {
+          browserHistory.push('/club/confirm');
+        }
+      } else {
+        if (error.password || error.email ||
+          error.address || error.state ||
+          error.city || error.country
+        ) {
+          this.setState({ errors: error });
+        } else {
+          this.props.setMessage('Please try again later.');
+        }
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -70,33 +106,7 @@ export default class InfoChange extends Component {
     const { errors, password, ...others } = this.state;
 
     if (this.validate()) {
-      this.props.submitChange(others, password)
-        .then((club) => {
-          this.props.setMessage('Info has been changed successfully.');
-          this.setState({
-            email: club.email,
-            address: club.address || '',
-            city: club.city || '',
-            state: club.state || '',
-            country: club.country || '',
-            password: '',
-            errors: {},
-          });
-        }).catch((err) => {
-          if (err.response) {
-            console.log(err.response);
-            const message = err.response.data;
-            if (typeof message === 'object') {
-              this.setState({
-                errors: {
-                  ...message,
-                },
-              });
-            } else {
-              this.props.setMessage(err.response.data);
-            }
-          }
-        });
+      this.props.submitChange(others, password);
     }
   }
 
@@ -115,7 +125,7 @@ export default class InfoChange extends Component {
     this.acTimeout = setTimeout(() => {
       this.props.addressAutoComplete(address);
     }, 300);
-    this.setState({ address, descriptionUsed: null });
+    this.setState({ address, predictionUsed: null });
   }
 
   validate() {
@@ -155,33 +165,10 @@ export default class InfoChange extends Component {
   render() {
     const { predictions } = this.props.autocomplete;
     const { addressFocused } = this.state;
+    const { isLoading } = this.props.infoChange;
+
     return (<form onSubmit={this.handleSubmit}>
-      <TextField
-        hintText="Password"
-        floatingLabelText="Password"
-        value={this.state.password}
-        onChange={e => this.handleChange('password', e.target.value)}
-        errorText={this.state.errors.password}
-        type="password"
-        fullWidth={Boolean(true)}
-      />
-      <div className="email-input-container">
-        <TextField
-          floatingLabelText="Email"
-          value={this.state.email}
-          onChange={e => this.handleChange('email', e.target.value)}
-          errorText={this.state.errors.email}
-          type="email"
-          fullWidth={Boolean(true)}
-        />
-        <div className="hint-text">
-          <MdInfoOutline />
-          <div className="tooltip">
-            You will be required to re-verify your email address.
-          </div>
-        </div>
-      </div>
-      <AutoComplete
+      <AddressAutoComplete
         selectPrediction={this.selectPrediction}
         onClickOutside={this.handleAddressClickOutisde}
         onFocus={this.focusAddress}
@@ -207,22 +194,55 @@ export default class InfoChange extends Component {
         type="text"
         fullWidth={Boolean(true)}
       />
-      <TextField
+      <AutoComplete
         floatingLabelText="Country"
-        value={this.state.country}
-        onChange={e => this.handleChange('country', e.target.value)}
+        searchText={this.state.country}
+        onChange={e => this.handleUpdateInput('country', e.target.value)}
         errorText={this.state.errors.country}
-        type="text"
+        dataSource={countries}
+        fullWidth={Boolean(true)}
+        filter={AutoComplete.fuzzyFilter}
+        maxSearchResults={5}
+      />
+      <div className="email-input-container">
+        <TextField
+          floatingLabelText="Email"
+          value={this.state.email}
+          onChange={e => this.handleChange('email', e.target.value)}
+          errorText={this.state.errors.email}
+          type="email"
+          fullWidth={Boolean(true)}
+        />
+        <div className="hint-text">
+          <MdInfoOutline />
+          <div className="tooltip">
+            You will be required to re-verify your email address.
+          </div>
+        </div>
+      </div>
+      <TextField
+        hintText="Password"
+        floatingLabelText="Password"
+        value={this.state.password}
+        onChange={e => this.handleChange('password', e.target.value)}
+        errorText={this.state.errors.password}
+        type="password"
         fullWidth={Boolean(true)}
       />
-      <RaisedButton
+      {!isLoading && <RaisedButton
         type="submit"
         label="Change Information"
         backgroundColor="#1565C0"
         labelColor="white"
         style={{ marginRight: '10px', marginTop: '10px' }}
         onClick={this.handleSubmit}
-      />
+      />}
+      {
+        isLoading && <CircularProgress
+          size={0.5}
+          color="#aaa"
+        />
+      }
     </form>);
   }
 }

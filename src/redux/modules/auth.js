@@ -76,6 +76,12 @@ export default (state = initialState, action) => {
         loading: false,
       };
 
+    case ActionTypes.CHANGE_INFO_SUCCESS:
+      return {
+        ...state,
+        club: action.payload.club,
+      };
+
     default:
       return state;
   }
@@ -148,11 +154,7 @@ export function logIn(user) {
         browserHistory.push('/club');
         dispatch(logInSuccess(res.club));
       },
-      err => {
-        setTimeout(() => {
-          dispatch(logInFailure(err));
-        }, 2000);
-      }
+      err => dispatch(logInFailure(err))
     );
   };
 }
