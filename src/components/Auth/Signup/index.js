@@ -23,9 +23,7 @@ export default class SignUpForm extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.error !== this.props.error && nextProps.error) {
-      this.setState({
-        errors: nextProps.error
-      });
+      this.setState({ errors: nextProps.error });
     }
   }
 

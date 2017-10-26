@@ -5,6 +5,7 @@ import { resetPassword } from 'redux/modules/reset';
 import { setMessage } from 'redux/modules/main';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import CircularProgress from 'material-ui/CircularProgress';
 
 @connect(({ reset }) => ({ reset }), { resetPassword, setMessage })
 export default class ForgotReset extends Component {
@@ -13,60 +14,66 @@ export default class ForgotReset extends Component {
     this.state = {
       password: '',
       passwordCheck: '',
-      error: {
-        first: '',
-        second: '',
-      },
+      errors: {},
     };
   }
 
+  componentDidMount() {
+    browserHistory.push('/reset');
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.reset.isLoading &&
+      !nextProps.reset.isLoading &&
+      !nextProps.reset.error
+    ) {
+      this.timeout = setTimeout(() => {
+        browserHistory.push('/');
+        this.props.setPage(1);
+      }, 5000);
+    }
+  }
+
   componentWillUnmount() {
-    this.setState({
-      password: '',
-      passwordCheck: '',
-      error: '',
-    });
+    if (this.timeout) clearTimeout(this.timeout);
   }
 
   handleChange = (field, val) => {
-    this.setState({
-      [field]: val,
-      error: {},
-    });
+    const { [field]: errorText, ...errors } = this.state.errors;
+    if (errorText) {
+      this.setState({ errors });
+    }
+    this.setState({ [field]: val });
   }
+
+  validate() {
+    let isValid = true;
+    const errors = {};
+    if (this.state.password.length < 8) {
+      isValid = false;
+      errors.password = 'Password has to be at least 8 characters long';
+    } else if (this.state.password !== this.state.passwordCheck) {
+      isValid = false;
+      errors.passwordCheck = 'Passwords have to match.';
+    }
+
+    if (!isValid) {
+      this.setState({ errors });
+    }
+    return isValid;
+  }
+
   handleSubmit = (event) => {
     event.preventDefault();
-    if (this.state.password.length < 8) {
-      return this.setState({
-        error: {
-          first: 'Password has to be at least 8 characters long',
-        },
-      });
+
+    if (this.validate()) {
+      this.props.resetPassword(this.props.reset.token, this.state.password);
     }
-    if (this.state.password !== this.state.passwordCheck) {
-      return this.setState({
-        error: {
-          second: "Passwords don't match",
-        },
-      });
-    }
-    this.props.resetPassword(this.props.reset.token, this.state.password).then(() => {
-      this.timeout = setTimeout(() => {
-        browserHistory.push('/');
-        this.props.setPage(1);
-      }, 5000);
-    }).catch(() => {
-      this.timeout = setTimeout(() => {
-        browserHistory.push('/');
-        this.props.setPage(1);
-      }, 5000);
-    });
   }
 
   render() {
-    const { token, success } = this.props.reset;
-
-    if (!token || success) {
+    const { token, success, error, isLoading } = this.props.reset;
+    if (!token || success || error) {
       return (<div className="forms activated" style={{ top: '30%' }}>
         <form onSubmit={e => e.preventDefault()}>
           {
@@ -98,7 +105,7 @@ export default class ForgotReset extends Component {
             type="password"
             hintText="New Password"
             floatingLabelText="New Password"
-            errorText={this.state.error.first}
+            errorText={this.state.errors.password}
             value={this.state.password}
             onChange={e => this.handleChange('password', e.target.value)}
             fullWidth={Boolean(true)}
@@ -107,18 +114,25 @@ export default class ForgotReset extends Component {
             type="password"
             hintText="Type the password again"
             floatingLabelText="Type the password again"
-            errorText={this.state.error.second}
+            errorText={this.state.errors.passwordCheck}
             value={this.state.passwordCheck}
             fullWidth={Boolean(true)}
             onChange={e => this.handleChange('passwordCheck', e.target.value)}
           />
-          <RaisedButton
+          {!isLoading && <RaisedButton
             label="Reset Password"
             backgroundColor="#1565C0"
             labelColor="white"
             style={{ marginRight: '10px', marginTop: '10px' }}
             onClick={this.handleSubmit}
-          />
+          />}
+          {
+            isLoading && <CircularProgress
+              size={0.5}
+              color="#aaa"
+              style={{ marginTop: '10px' }}
+            />
+          }
         </div>
       </form>
     </div>);

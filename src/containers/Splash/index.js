@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { browserHistory } from 'react-router';
 import { setPage } from 'redux/modules/splash';
 import { setToken } from 'redux/modules/reset';
 import { LogInForm, SignUpForm, ForgotForm, ResetForm, Activated } from 'components';
@@ -11,10 +12,11 @@ import './styles.scss';
 @asyncConnect([{
   promise: ({ store, location }) => {
     if (location.pathname === '/reset') {
-      return Promise.all([
-        store.dispatch(setPage(4)),
-        store.dispatch(setToken(location.query.token)),
-      ]);
+      const promises = [store.dispatch(setPage(4))];
+      if (location.query.token) {
+        promises.push(store.dispatch(setToken(location.query.token)));
+      }
+      return Promise.all(promises);
     } else if (location.pathname === '/activate/success') {
       return Promise.resolve(store.dispatch(setPage(5)));
     } else if (location.pathname === '/activate/error') {

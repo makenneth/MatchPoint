@@ -110,6 +110,7 @@ export default class PasswordChange extends Component {
         isLoading && <CircularProgress
           size={0.5}
           color="#aaa"
+          style={{ marginTop: '20px' }}
         />
       }
       {!isLoading && <RaisedButton

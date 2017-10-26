@@ -4,7 +4,6 @@ import { browserHistory } from 'react-router';
 import { Heap } from 'helpers';
 import { UPDATE_SESSION_SUCCESS } from 'redux/modules/sessions';
 import { preSetTab } from 'redux/modules/navbar';
-// import { MESSAGE, LOAD } from 'redux/modules/main';
 // import { RESTORE_TEMP_SESSION } from 'redux/modules/tempSession';
 
 const initialState = {

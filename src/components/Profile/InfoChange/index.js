@@ -241,6 +241,7 @@ export default class InfoChange extends Component {
         isLoading && <CircularProgress
           size={0.5}
           color="#aaa"
+          style={{ marginTop: '20px' }}
         />
       }
     </form>);

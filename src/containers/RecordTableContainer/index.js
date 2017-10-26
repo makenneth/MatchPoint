@@ -131,7 +131,7 @@ export default class RecordTableContainer extends Component {
           overflow: 'auto',
         }}
       >
-        <Tab label={editable ? "Enter Result" : "Results"} value={0} className="tab-menu-tab">
+        <Tab label={editable ? 'Enter Result' : 'Results'} value={0} className="tab-menu-tab">
           {editable && <RaisedButton
             backgroundColor="#E64A19"
             labelColor="white"
@@ -144,7 +144,7 @@ export default class RecordTableContainer extends Component {
             updateResult={this.updateResult}
           />
         </Tab>
-        <Tab label={editable ? "View Result" : "Rating Changes"} value={1} className="tab-menu-tab">
+        <Tab label={editable ? 'View Result' : 'Rating Changes'} value={1} className="tab-menu-tab">
           <RecordTableView
             {...this.props}
             result={this.state.results}

@@ -42,7 +42,7 @@ export default class Grouping extends Component {
 
   schemata() {
     const { schemata, selected } = this.props;
-    if (!Array.isArray(schemata[0]) || schemata.length > 0) {
+    if (!Array.isArray(schemata[0]) || (schemata && schemata.length > 0)) {
       let errorText = selected.length > 0 ? '' : 'Select an arrangement';
       let errorColor = selected.length > 0 ? 'black' : 'orange';
       const floatingStyle = {

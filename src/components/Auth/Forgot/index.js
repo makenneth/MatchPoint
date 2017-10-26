@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
+import CircularProgress from 'material-ui/CircularProgress';
 import RaisedButton from 'material-ui/RaisedButton';
 import { connect } from 'react-redux';
-import { resetWithUsername, resetWithEmail } from 'redux/modules/reset';
+import { resetPasswordRequest } from 'redux/modules/reset';
 
-@connect(() => ({}), { resetWithEmail, resetWithUsername })
+@connect(({ reset }) => ({ reset }), { resetPasswordRequest })
 export default class Forgot extends Component {
   constructor(props) {
     super(props);
@@ -15,33 +16,41 @@ export default class Forgot extends Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.reset.isLoading && !nextProps.reset.isLoading) {
+      if (nextProps.reset.error) {
+        this.setState({ error: nextProps.reset.error });
+      } else {
+        this.setState({
+          field: '',
+          success: 'An email has been sent to your email with instructions to reset your password.',
+        });
+      }
+    }
+  }
+
+  updateField = (ev) => {
+    this.setState({ field: ev.target.value, error: null });
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     const emailRegex = new RegExp('.+@.+..+', 'i');
-    let promise;
     if (!emailRegex.test(this.state.field)) {
-      promise = this.props.resetWithUsername(this.state.field);
+      this.props.resetPasswordRequest('username', this.state.field);
     } else {
-      promise = this.props.resetWithEmail(this.state.field);
+      this.props.resetPasswordRequest('email', this.state.field);
     }
-    promise.then(() => {
-      this.setState({
-        field: '',
-        error: '',
-        success: 'An email has been sent to your email with instructions to reset your password.',
-      });
-    }).catch(() => {
-      this.setState({ error: `No account matches ${this.state.field}` });
-    });
   }
+
   render() {
+    const { isLoading } = this.props.reset;
     return (<div className="forms">
       <form onSubmit={this.handleSubmit}>
         {
           !this.state.success && <h3>Forgot Password</h3>
         }
         <h4>{this.state.success}</h4>
-        <div className="form-error">{this.state.error}</div>
         {
           this.state.success &&
             (<RaisedButton
@@ -58,17 +67,25 @@ export default class Forgot extends Component {
                 type="text"
                 hintText="Enter your username or email"
                 floatingLabelText="Enter your username or email"
+                errorText={this.state.error}
                 value={this.state.field}
                 fullWidth={Boolean(true)}
-                onChange={e => this.setState({ field: e.target.value })}
+                onChange={this.updateField}
               />
-              <RaisedButton
+              {!isLoading && <RaisedButton
                 label="Reset Password"
                 backgroundColor="#1565C0"
                 labelColor="white"
                 style={{ marginTop: '10px' }}
                 onClick={this.handleSubmit}
-              />
+              />}
+              {
+                isLoading && <CircularProgress
+                  size={0.5}
+                  color="#aaa"
+                  style={{ marginTop: '10px' }}
+                />
+              }
             </div>)
         }
       </form>

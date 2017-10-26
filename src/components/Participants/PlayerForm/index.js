@@ -139,7 +139,7 @@ class PlayerForm extends Component {
             color="#aaa"
           />
         }
-        {!isLoading && <Checkbox
+        {!isLoading && !this.props.player && <Checkbox
           label="Add Player afterward"
           checked={this.state.checked}
           onCheck={this.updateCheck}

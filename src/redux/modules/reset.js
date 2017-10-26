@@ -1,108 +1,138 @@
-import axios from 'axios';
-import { getCSRF } from 'helpers';
+import ActionTypes from 'redux/actionTypes';
+import request from 'utils/request';
 import { LOAD } from 'redux/modules/main';
 
-const LOAD_CHANGE = 'mp/reset/LOAD_CHANGE';
-const CHANGE_SUCCESS = 'mp/reset/CHANGE_SUCCESS';
-const CHANGE_ERROR = 'mp/reset/CHANGE_ERROR';
-const SET_TOKEN = 'mp/reset/SET_TOKEN';
-const SET_ERROR = 'mp/reset/SET_ERROR';
 const initialState = {
   token: null,
   success: false,
+  isLoading: false,
+  error: null,
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case CHANGE_SUCCESS:
+    case ActionTypes.RESET_PASSWORD_REQUEST:
+    case ActionTypes.RESET_PASSWORD_REQUEST_REQUEST:
       return {
-        success: true,
-      };
-    case SET_TOKEN:
-      return {
-        token: action.payload,
-      };
-    case CHANGE_ERROR:
-    case SET_ERROR:
-      return {
-        token: null,
+        ...state,
         success: false,
+        isLoading: true,
       };
+    case ActionTypes.RESET_PASSWORD_SUCCESS:
+    case ActionTypes.RESET_PASSWORD_REQUEST_SUCCESS:
+      return {
+        ...state,
+        success: true,
+        isLoading: false,
+      };
+    case ActionTypes.RESET_PASSWORD_FAILURE:
+    case ActionTypes.RESET_PASSWORD_REQUEST_FAILURE:
+      return {
+        ...state,
+        isLoading: false,
+        error: action.payload.error,
+      };
+
+    case ActionTypes.SET_PASSWORD_TOKEN:
+      return {
+        ...state,
+        token: action.payload.token,
+      };
+    // case CHANGE_ERROR:
+    // case SET_ERROR:
+    //   return {
+    //     token: null,
+    //     success: false,
+    //   };
     default:
       return state;
   }
 };
 
-export const resetWithUsername = (username) => {
-  const promise = axios({
-    method: 'POST',
-    url: `/accounts/reset/request?username=${username}`,
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
+function resetPasswordRequestRequest() {
   return {
-    types: [LOAD, 'NOT NEEDED', 'NOT NEEDED'],
-    promise,
+    type: ActionTypes.RESET_PASSWORD_REQUEST_REQUEST,
   };
-};
+}
 
-export const resetWithEmail = (email) => {
-  const promise = axios({
-    method: 'POST',
-    url: `/accounts/reset/request?email=${email}`,
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
+function resetPasswordRequestSuccess() {
   return {
-    types: [LOAD, 'NOT NEEDED', 'NOT NEEDED'],
-    promise,
+    type: ActionTypes.RESET_PASSWORD_REQUEST_SUCCESS,
   };
-};
+}
 
-export const resetPassword = (token, newPassword) => {
-  const promise = axios({
-    method: 'POST',
-    url: '/accounts/reset',
-    data: { token, newPassword },
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
+function resetPasswordRequestFailure(error) {
   return {
-    types: [LOAD_CHANGE, CHANGE_SUCCESS, CHANGE_ERROR],
-    promise,
+    type: ActionTypes.RESET_PASSWORD_REQUEST_FAILURE,
+    payload: { error },
   };
-};
+}
 
-export const changePassword = (data) => {
-  const promise = axios({
-    method: 'POST',
-    url: '/api/my/account/password',
-    data,
-    headers: {
-      'X-CSRF-TOKEN': getCSRF(),
-    },
-  });
+export function resetPasswordRequest(type, value) {
+  return (dispatch) => {
+    dispatch(resetPasswordRequestRequest());
+    return request(`/accounts/reset/request?${type}=${value}`, {
+      method: 'POST',
+      query: { [type]: value },
+    }).then(
+      (res) => dispatch(resetPasswordRequestSuccess(res)),
+      (err) => dispatch(resetPasswordRequestFailure(err))
+    );
+  };
+}
 
+function resetPasswordRequest() {
   return {
-    types: ['NOT NEEDED', 'NOT NEEDED', 'NOT NEEDED'],
-    promise,
+    type: ActionTypes.RESET_PASSWORD_REQUEST,
   };
-};
+}
 
-
-export const setToken = (token) => {
+function resetPasswordSuccess() {
   return {
-    type: SET_TOKEN,
-    payload: token,
+    type: ActionTypes.RESET_PASSWORD_SUCCESS,
   };
-};
+}
 
-export const setError = (err) => {
+function resetPasswordFailure(error) {
   return {
-    type: SET_ERROR,
-    payload: err,
+    type: ActionTypes.RESET_PASSWORD_FAILURE,
+    payload: { error },
   };
-};
+}
+
+export function resetPassword(token, newPassword) {
+  return (dispatch) => {
+    dispatch(resetPasswordRequest());
+    return request('/accounts/reset', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
+    }).then(
+      (res) => dispatch(resetPasswordSuccess()),
+      err => dispatch(resetPasswordFailure(err))
+    );
+  };
+}
+
+// export const changePassword = (data) => {
+//   const promise = axios({
+//     method: 'POST',
+//     url: '/api/my/account/password',
+//     data,
+//     headers: {
+//       'X-CSRF-TOKEN': getCSRF(),
+//     },
+//   });
+
+//   return {
+//     types: ['NOT NEEDED', 'NOT NEEDED', 'NOT NEEDED'],
+//     promise,
+//   };
+// };
+
+
+export function setToken(token) {
+  return {
+    type: ActionTypes.SET_PASSWORD_TOKEN,
+    payload: { token },
+  };
+}

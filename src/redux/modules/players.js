@@ -1,7 +1,7 @@
 import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
 import { closeEditModal, closeNewModal } from './modals';
-// import { MESSAGE } from './main';
+import { startLoad, stopLoad, setMessage } from './main';
 
 const initialState = {
   loaded: false,
@@ -64,10 +64,18 @@ function fetchCurrentPlayersFailure(error) {
 
 export function fetchCurrentPlayers() {
   return (dispatch) => {
+    dispatch(startLoad());
     dispatch(fetchCurrentPlayersRequest());
     return request('/api/my/players').then(
-      res => dispatch(fetchCurrentPlayersSuccess(res.players)),
-      err => dispatch(fetchCurrentPlayersFailure(err))
+      res => {
+        dispatch(fetchCurrentPlayersSuccess(res.players));
+        dispatch(stopLoad());
+      },
+      err => {
+        dispatch(fetchCurrentPlayersFailure(err));
+        dispatch(stopLoad());
+        dispatch(setMessage('Something went wrong... please try again.'));
+      }
     );
   };
 }
