@@ -27,6 +27,6 @@ export default class ClubHelper {
       "matchpoint_session",
       sessionToken,
       { maxAge: 14 * 24 * 60 * 60 * 1000, httpOnly: true, domain: 'localhost' }
-    ).send({ club });
+    ).send({ club: rest });
   }
 }

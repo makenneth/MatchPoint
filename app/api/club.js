@@ -1,6 +1,6 @@
 import express from "express";
-import ClubModel from "../models/club";
-// import RoundRobinModel from "../models/roundrobin";
+import Club from "../models/club";
+import RoundRobin from "../models/roundrobin";
 import { jsonParser, csrfProtection, client } from "../helpers/appModules";
 import Mailer from "../helpers/mailer";
 import ClubHelper from "../helpers/clubHelper";
@@ -9,44 +9,51 @@ import ClubValidation from "../validations/club";
 const router = express.Router();
 
 router.get("/", (req, res, next) => {
-  ClubModel.findBySessionToken(req.cookies.matchpoint_session)
+  Club.findBySessionToken(req.cookies.matchpoint_session)
     .then(
-      club => res.status(200).send({ club }),
+      club => {
+        delete club.password_digest;
+        delete club.confirm_token;
+        delete club.token;
+        res.status(200).send({ club })
+      },
       err => next({ code: 404, message: err }),
     )
     .catch(err => next({ code: 500, message: err }));
 })
 .get("/all", (req, res, next) => {
-  ClubModel.all()
+  Club.all()
     .then(clubs => res.status(200).send({ clubs }))
     .catch(err => next({ code: 500, message: err }));
 })
-.get("/:clubId/sessions", (req, res, next) => {
+.get("/:clubId/sessions/:id", (req, res, next) => {
   const clubId = req.params.clubId;
-  client.get(`sessions:${clubId}`, (err, reply) => {
-    if (!reply) {
-      RoundRobinModel.findRoundRobinsByClub(clubId)
-        .then((roundrobins) => {
-          client.set(`sessions:${clubId}`, JSON.stringify(roundrobins));
-          res.status(200).send(roundrobins);
-        }).catch(err => next({ code: 500, message: err }));
-    } else {
-      try {
-        res.status(200).send(JSON.parse(reply));
-      } catch (e) {
-        next({ code: 500, message: 'Redis session data corrupted.' });
+  // client.get(`sessions:${clubId}`, (err, reply) => {
+    // if (!reply) {
+  const id = req.params.id;
+  RoundRobin.findDetail(clubId, id)
+    .then(
+      roundrobin => res.status(200).send({ roundrobin }),
+      err => {
+        console.log(err);
+        throw err;
       }
-    }
-  })
+    )
+    .catch((err) => next({ code: 500, message: err }));
+      // RoundRobin.findRoundRobinsByClub(clubId)
+      //   .then((roundrobins) => {
+      //     client.set(`sessions:${clubId}`, JSON.stringify(roundrobins));
+      //     res.status(200).send(roundrobins);
+      //   }).catch(err => next({ code: 500, message: err }));
+    // } else {
+    //   try {
+    //     res.status(200).send(JSON.parse(reply));
+    //   } catch (e) {
+    //     next({ code: 500, message: 'Redis session data corrupted.' });
+    //   }
+    // }
+  // })
 })
-// .get("/:clubId/roundrobins", (req, res, next) => {
-//   const clubId = req.params.clubId;
-//   RoundRobinModel.findRoundRobinsByClub(clubId)
-//     .then((roundrobins) => {
-//       res.status(200).send({ clubId, roundrobins });
-//       res.end();
-//     }).catch(err => next({ code: 500, message: err }));
-// })
 .post("/", jsonParser, async (req, res, next) => {
   const user = req.body.user;
   {
@@ -58,16 +65,16 @@ router.get("/", (req, res, next) => {
   }
   let userId;
   try {
-    userId = await ClubModel.create(user);
+    userId = await Club.create(user);
   } catch (err) {
-    if (err.username) {
+    if (err.username || err.clubName || err.email) {
       return next({ code: 422, message: err });
     } else {
       return next({ code: 500, message: err });
     }
   }
   try {
-    const club = await ClubModel.detail(userId);
+    const club = await Club.detail(userId);
     new Mailer(club).sendConfirmationEmail();
     ClubHelper.logIn(club, res);
   } catch (e) {

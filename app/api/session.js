@@ -7,7 +7,6 @@ const router = express.Router();
 
 router.post("/", jsonParser, csrfProtection, (req, res, next) => {
   const data = req.body.user;
-  console.log(data);
   Club.findByUsernameAndPassword(data.username.toLowerCase(), data.password)
     .then(
       (club) => {

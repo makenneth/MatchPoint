@@ -21,7 +21,7 @@ class RoundRobin {
         } catch (e) {
           Raven.captureException(e);
         }
-      } else if (row[field]) {
+      } else if (row.hasOwnProperty(field)) {
         roundrobin[field] = row[field];
       }
     });
@@ -174,6 +174,7 @@ class RoundRobin {
       players.slice(count, count + playerPerGroup).forEach((player, j) => {
         promises.push(RoundRobin.createRoundrobinPlayer(connection, id, player.id, i, j));
       });
+      count += playerPerGroup;
     });
 
     return Promise.all(promises).then(
@@ -292,7 +293,12 @@ class RoundRobin {
     const promises = sortedPlayers.map((player) => {
       const rc = ratingChange[player.id.toString()];
       const change = rc + (rc > 24 ? rc - 24 : 0);
-      return RoundRobin.updatePlayer(connection, clubId, roundrobin.id, roundrobin.date, player.id, player.rating, change, results[player.id]);
+      return RoundRobin.updatePlayer(
+        connection, clubId,
+        roundrobin.id, roundrobin.date,
+        player.id, player.rating,
+        change, results[player.id]
+      );
     });
     return Promise.all(promises).then(
       (results) => {
@@ -354,19 +360,19 @@ class RoundRobin {
     });
   }
 
-  static async deleteRoundrobin(clubId, id) {
+  static async delete(clubId, id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
-      connection.query(`DELETE FROM roundrobins AS r
-        INNER JOIN (
+      connection.query(`DELETE r.* FROM roundrobins AS r
+        LEFT OUTER JOIN (
           SELECT id, max(date) AS max_date
           FROM roundrobins
           WHERE finalized = 1
           GROUP BY id
         ) AS md
         ON md.id = r.id
-        WHERE r.id = ? AND r.club_id = ? AND (
-          finalized = 0 OR md.max_date = r.date
+        WHERE r.short_id = ? AND r.club_id = ? AND (
+          r.finalized = 0 OR md.max_date = r.date
         )
       `, [id, clubId], (err, results, field) => {
         connection.release();
@@ -377,6 +383,51 @@ class RoundRobin {
         } else {
           resolve(true);
         }
+      });
+    });
+  }
+
+  static async findEditStatus(clubId, id) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`SELECT COUNT(*) > 0 AS bool
+        FROM roundrobins AS r
+        INNER JOIN (
+          SELECT club_id, max(date) AS max_date
+          FROM roundrobins
+          WHERE finalized = 1
+          GROUP BY club_id
+        ) AS md
+        ON md.club_id = r.club_id
+        WHERE r.short_id = ? AND r.club_id = ? AND (
+          r.finalized = 0 OR md.max_date = r.date
+        )
+      `, [id, clubId], (err, results, field) => {
+        connection.release();
+        if (err) throw err;
+
+        if (results.length === 0) {
+          reject({ roundrobin: 'Roundrobin not found or cannot be deleted.' });
+        } else {
+          resolve(!!results[0].bool);
+        }
+      });
+    });
+  }
+
+  static async findAllBriefByClub(clubIds) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT id, club_id, date, short_id, finalized, num_players
+        FROM roundrobins
+        WHERE club_id IN (?)
+        ORDER BY club_id
+      `, [clubIds], (err, results, fields) => {
+        connection.release();
+        if (err) throw err;
+
+        resolve(results.map(result => RoundRobin.format(result)));
       });
     });
   }
