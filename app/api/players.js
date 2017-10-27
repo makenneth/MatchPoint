@@ -1,6 +1,6 @@
 import express from "express";
 import Club from "../models/club";
-import Player from "../models/Player";
+import Player from "../models/player";
 import { csrfProtection, clubMethods, client } from "../helpers/appModules";
 import PlayerValidation from "../validations/player";
 

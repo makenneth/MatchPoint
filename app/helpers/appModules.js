@@ -3,9 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import redis from "redis";
 
-const client = process.env.NODE_ENV === "production" ?
-      redis.createClient(`redis://${process.env.REDIS_HOST}`) :
-      redis.createClient();
+const client = redis.createClient(`redis://${process.env.HOST}:6379`);
 
 export { client };
 export const jsonParser = bodyParser.json();

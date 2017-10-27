@@ -2,6 +2,8 @@ require('dotenv').config();
 import NodeMailer from "nodemailer";
 import smtpTransport from "nodemailer-smtp-transport";
 
+const hostname = process.env.WEB_HOST;
+
 export default class Mailer {
   constructor(recipient) {
     this.recipient = recipient;

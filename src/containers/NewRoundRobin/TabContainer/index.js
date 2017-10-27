@@ -17,7 +17,7 @@ import Participants from './Participants';
     date: newSession.date,
     allPlayers: newSession.allPlayers,
     addedPlayers: newSession.addedPlayers,
-    activePlayers: activePlayers.players,
+    activePlayers: activePlayers ? activePlayers.players : [],
   }),
   ({
     openNewModal,

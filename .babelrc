@@ -9,7 +9,8 @@
   ],
   "plugins": [
     "add-module-exports",
-    "transform-decorators-legacy"
+    "transform-decorators-legacy",
+    "transform-async-to-generator"
   ],
   "env": {
     "production": {
