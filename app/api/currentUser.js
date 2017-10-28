@@ -3,6 +3,7 @@ import Club from "../models/club";
 import RoundRobin from "../models/roundrobin";
 import { clubMethods, jsonParser, csrfProtection, client } from "../helpers/appModules";
 import ScoreCalculation from '../helpers/scoreCalculation';
+import { clearAllSessionCache } from '../helpers/redisHelpers';
 import * as GoogleApi from '../helpers/googleApi';
 import Mailer from "../helpers/mailer";
 
@@ -46,41 +47,80 @@ router.post("/accounts/resend", (req, res, next) => {
 })
 .get("/sessions", (req, res, err) => {
   const clubId = req.club.id;
-  // client.get(`sessions:${clubId}`, (err, reply) => {
-    // if (!reply) {
+  client.get(`sessions:${clubId}`, (err, reply) => {
+    if (err) throw err;
+    if (!reply) {
       RoundRobin.findAllByClub(clubId)
         .then(
           (roundrobins) => {
-          // client.set(`sessions:${clubId}`, JSON.stringify(roundrobins));
-            res.status(200).send({ roundrobins });
+            try {
+              res.status(200).send({ roundrobins });
+              const json = JSON.stringify(roundrobins);
+              client.set(`sessions:${clubId}`, json);
+            } catch (e) {
+              next({ code: 500, message: e });
+            }
           },
           (err) => {
             next({ code: 400, message: err });
           }
         ).catch(err => next({ code: 500, message: err }))
-    // } else {
-      // res.status(200).send(JSON.parse(reply));
-    // }
-  // })
+    } else {
+      try {
+        const roundrobins = JSON.parse(reply);
+        res.status(200).send({ roundrobins });
+      } catch (e) {
+        console.warn('Failed to parse roundrobin data from redi');
+        next({ code: 500, message: e });
+      }
+    }
+  });
 })
 .get("/sessions/:id", (req, res, next) => {
   const clubId = req.club.id;
   const id = req.params.id;
-  RoundRobin.findDetail(clubId, id)
-    .then(
-      roundrobin => res.status(200).send({ roundrobin }),
-      err => {
-        console.log(err);
-        throw err;
+  client.get(`sessions:${id}`, (err, reply) => {
+    if (!reply) {
+      RoundRobin.findDetail(clubId, id)
+        .then(
+          roundrobin => {
+            try {
+              res.status(200).send({ roundrobin });
+              const json = JSON.stringify(roundrobin);
+              client.set(`session:${clubId}:${roundrobin.short_id}`, json);
+            } catch (e) {
+              next({ code: 500, message: e });
+            }
+          },
+          err => {
+            console.log(err);
+            throw err;
+          }
+        )
+        .catch((err) => next({ code: 500, message: err }));
+    } else {
+      try {
+        const roundrobin = JSON.parse(reply);
+        res.status(200).send({ roundrobin });
+      } catch (e) {
+        console.warn('Failed to parse roundrobin data from redi');
+        next({ code: 500, message: e });
       }
-    )
-    .catch((err) => next({ code: 500, message: err }));
+    }
+  });
 })
 .delete("/sessions/:id", (req, res, next) => {
   const id = req.params.id;
   RoundRobin.delete(req.club.id, id)
-    .then(() => {
+    .then(async () => {
+      try {
+        const clear = await clearAllSessionCache(req.club.id);
+      } catch (e) {
+        console.warn(e);
+      }
       client.del(`sessions:${req.club.id}`);
+      client.del(`players:${req.club.id}`);
+      client.del(`session:${req.club.id}:${id}`);
       return res.status(200).send({ id });
     }).catch((err) => {
       console.log(err);
@@ -98,14 +138,19 @@ router.post("/accounts/resend", (req, res, next) => {
     next({ code: 500, message: e });
   }
   RoundRobin.postResult(req.club.id, roundrobin, results)
-    .then(() => {
-      // client.del(`players:${req.club.id}`);
-      // client.del(`sessions:${req.club.id}`);
+    .then(async () => {
+      try {
+        const clear = await clearAllSessionCache(req.club.id);
+      } catch (e) {
+        console.warn(e);
+      }
+      client.del(`players:${req.club.id}`);
+      client.del(`sessions:${req.club.id}`);
       return res.status(204).send();
     }).catch((err) => {
       console.log(err);
       next({ code: 500, message: err });
-      // res.status(422).send(err);
+      res.status(422).send(err);
     });
 })
 .post("/sessions", jsonParser, csrfProtection, (req, res, next) => {
@@ -114,7 +159,7 @@ router.post("/accounts/resend", (req, res, next) => {
   RoundRobin.create(clubId, data.players, data.date, data.selectedSchema)
     .then(
       async (id) => {
-        // client.del(`sessions:${clubId}`);
+        client.del(`sessions:${clubId}`);
         const roundrobin = await RoundRobin.findByClub(clubId, id);
         res.status(200).send({ roundrobin });
       },

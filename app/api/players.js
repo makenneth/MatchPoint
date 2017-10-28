@@ -8,23 +8,29 @@ const router = express.Router();
 router.route("/players").get((req, res, next) => {
   const clubId = req.club.id;
 
-  // client.get(`players:${clubId}`, (err, reply) => {
-    // if (!reply) {
+  client.get(`players:${clubId}`, (err, reply) => {
+    if (err) throw err;
+    if (!reply) {
       Player.findPlayers(clubId)
         .then((players) => {
-          // client.set(`players:${clubId}`, JSON.stringify(data.players));
           res.status(200).send({ players });
+          try {
+            const json = JSON.stringify(players);
+            client.set(`players:${clubId}`, json);
+          } catch (e) {
+            next({ code: 500, messgae: e });
+          }
         }).catch(err => next({ code: 500, message: err }));
-    // } else {
-    //   let players;
-    //   try {
-    //     players = JSON.parse(reply);
-    //     res.status(200).send({ players });
-    //   } catch (_e) {
-    //     next({ code: 500, message: 'Failed to parse redis data.' });
-    //   }
-    // }
-  // })
+    } else {
+      console.log('cache hit');
+      try {
+        const players = JSON.parse(reply);
+        res.status(200).send({ players });
+      } catch (_e) {
+        next({ code: 500, message: 'Failed to parse redis data.' });
+      }
+    }
+  });
 })
 .post(csrfProtection, (req, res, next) => {
   const clubId = req.club.id;
@@ -39,12 +45,12 @@ router.route("/players").get((req, res, next) => {
       async (playerId) => {
         try {
           const player = await Player.find(clubId, playerId);
+          client.del(`players:${clubId}`);
           res.status(200).send({ player });
         } catch (e) {
           console.log(e);
           next({ code: 500, message: e });
         }
-        // client.del(`players:${clubId}`);
       }
     ).catch(err => {
       console.log(err);
@@ -68,8 +74,8 @@ router.route("/players/:id")
     Player.removePlayer(clubId, playerId)
       .then(
         () => {
+          client.del(`players:${clubId}`);
           res.status(200).send({ playerId });
-          // client.del(`players:${clubId}`);
         },
         (err) => {
           if (err.player) {
@@ -87,9 +93,9 @@ router.route("/players/:id")
     Player.updatePlayer(clubId, id, player)
       .then(
         async () => {
-          // client.del(`players:${clubId}`);
           try {
             const player = await Player.find(clubId, id);
+            client.del(`players:${clubId}`);
             res.status(200).send({ player });
           } catch (e) {
             console.log(e);

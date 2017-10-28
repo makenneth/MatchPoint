@@ -28,31 +28,34 @@ router.get("/", (req, res, next) => {
 })
 .get("/:clubId/sessions/:id", (req, res, next) => {
   const clubId = req.params.clubId;
-  // client.get(`sessions:${clubId}`, (err, reply) => {
-    // if (!reply) {
-  const id = req.params.id;
-  RoundRobin.findDetail(clubId, id)
-    .then(
-      roundrobin => res.status(200).send({ roundrobin }),
-      err => {
-        console.log(err);
-        throw err;
+  client.get(`sessions:${clubId}`, (err, reply) => {
+    if (!reply) {
+      const id = req.params.id;
+      RoundRobin.findDetail(clubId, id)
+        .then(
+          roundrobin => {
+            res.status(200).send({ roundrobin });
+            try {
+              const json = JSON.stringify(roundrobin);
+              client.set(`sessions:${clubId}`, json);
+            } catch (e) {
+              next({ code: 500, message: e });
+            }
+          },
+          err => {
+            console.log(err);
+            throw err;
+          }
+        )
+        .catch((err) => next({ code: 500, message: err }));
+    } else {
+      try {
+        res.status(200).send({ roundrobin: JSON.parse(reply) });
+      } catch (e) {
+        next({ code: 500, message: 'Redis session data corrupted.' });
       }
-    )
-    .catch((err) => next({ code: 500, message: err }));
-      // RoundRobin.findRoundRobinsByClub(clubId)
-      //   .then((roundrobins) => {
-      //     client.set(`sessions:${clubId}`, JSON.stringify(roundrobins));
-      //     res.status(200).send(roundrobins);
-      //   }).catch(err => next({ code: 500, message: err }));
-    // } else {
-    //   try {
-    //     res.status(200).send(JSON.parse(reply));
-    //   } catch (e) {
-    //     next({ code: 500, message: 'Redis session data corrupted.' });
-    //   }
-    // }
-  // })
+    }
+  })
 })
 .post("/", jsonParser, async (req, res, next) => {
   const user = req.body.user;

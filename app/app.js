@@ -103,6 +103,6 @@ app.use((err, req, res, next) => {
   res.status(err.code || 500).send({ error_description: errorMessage });
 });
 
-app.listen(port, () => {
+app.listen(port, '127.0.0.1', () => {
   console.log("listening on port", port);
 });
