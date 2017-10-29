@@ -34,9 +34,9 @@ export default class NewRRSession extends Component {
 
   render() {
     const { newPlayerModal, editPlayerModal } = this.props.modals;
-    const { players } = this.props;
+    const { players, editingId } = this.props;
     return (<div className="tab-container">
-      <TabContainer />
+      <TabContainer editingId={editingId} />
       <UploadDialog />
       {
         newPlayerModal &&

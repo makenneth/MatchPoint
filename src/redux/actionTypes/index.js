@@ -123,6 +123,11 @@ const actionTypes = keymirror({
   RESET_PASSWORD_REQUEST: null,
   RESET_PASSWORD_SUCCESS: null,
   RESET_PASSWORD_FAILURE: null,
+
+  START_EDIT_SAVED_SESSION: null,
+  UPDATE_SESSION_DETAIL_REQUEST: null,
+  UPDATE_SESSION_DETAIL_SUCCESS: null,
+  UPDATE_SESSION_DETAIL_FAILURE: null,
 });
 
 export default actionTypes;

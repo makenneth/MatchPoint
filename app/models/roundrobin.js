@@ -135,6 +135,78 @@ class RoundRobin {
     });
   }
 
+static async update(clubId, id, realId, players, date, selectedSchema) {
+    const connection = await db.getConnection();
+
+    let schema;
+    try {
+      schema = JSON.stringify(selectedSchema);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+    return new Promise((resolve, reject) => {
+      connection.beginTransaction((tError) => {
+        if (tError) {
+          connection.release();
+          throw tError;
+        }
+        connection.query(`
+          UPDATE roundrobins
+          SET date = ?, num_players = ?, selected_schema = ?
+          WHERE short_id = ? AND finalized = 0
+        `, [date, players.length, schema, id],
+        (err, results, fields) => {
+          if (err) {
+            connection.rollback();
+            connection.release();
+            throw err;
+          }
+          console.log(results);
+          if (results.affectedRows > 0) {
+            resolve(id);
+          } else {
+            reject({ roundrobin: 'Not found or not allowed to edit.' });
+          }
+        });
+      });
+    })
+      .then(async (id) => {
+        console.log('edited');
+        try {
+          const del = await RoundRobin.deleteAllRoundrobinPlayers(connection, realId);
+          console.log('del success');
+        } catch (e) {
+          console.log(e);
+          return Promise.reject(e);
+        }
+        try {
+          // need id lol
+          const create = await RoundRobin.createRoundrobinPlayers(connection, realId, players, selectedSchema);
+          console.log('createSuccess');
+        } catch (e) {
+          console.log(e);
+          return Promise.reject(e);
+        }
+        return Promise.resolve(id);
+      });
+  }
+
+  static deleteAllRoundrobinPlayers(connection, id) {
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        DELETE FROM roundrobin_players
+        WHERE roundrobin_id = ?
+      `, [id], (err, results, fields) => {
+        if (err) {
+          connection.rollback();
+          connection.release();
+          throw err;
+        }
+
+        resolve(true);
+      });
+    });
+  }
   static async create(clubId, players, date, selectedSchema) {
     const connection = await db.getConnection();
 

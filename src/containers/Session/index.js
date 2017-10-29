@@ -6,6 +6,7 @@ import {
   updateScore, updateResult,
   determinSessionEditStatus,
 } from 'redux/modules/selectedSession';
+import { startEditSavedSession } from 'redux/modules/newSession';
 import { deleteSession, postResult } from 'redux/modules/sessions';
 import EditSession from './EditSession';
 
@@ -23,14 +24,14 @@ import EditSession from './EditSession';
 }])
 @connect(
   ({ selectedSession }) => ({ selectedSession }),
-  { deleteSession, postResult, updateScore, updateResult }
+  { deleteSession, postResult, updateScore, updateResult, startEditSavedSession }
 )
 export default class RoundrobinSession extends React.PureComponent {
   render() {
     const {
       session, sortedPlayerList,
       ratingChange, ratingChangeDetail,
-      results, editable,
+      results, editable, isLoading,
     } = this.props.selectedSession;
     if (!session || editable === null) {
       return null;
@@ -41,6 +42,7 @@ export default class RoundrobinSession extends React.PureComponent {
       session={session}
       deleteSession={this.props.deleteSession}
       updateScore={this.props.updateScore}
+      startEditSavedSession={this.props.startEditSavedSession}
       postResult={this.props.postResult}
       updateResult={this.props.updateResult}
       sortedPlayerList={sortedPlayerList}
@@ -48,6 +50,7 @@ export default class RoundrobinSession extends React.PureComponent {
       ratingChangeDetail={ratingChangeDetail}
       results={results}
       editable={editable}
+      isLoading={isLoading}
     />);
   }
 }

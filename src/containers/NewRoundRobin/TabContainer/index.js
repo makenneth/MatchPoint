@@ -37,8 +37,14 @@ export default class TabContainer extends Component {
     sortedPlayers: [],
   };
 
+  componentWillMount() {
+    this.setState({ sortedPlayers: this.props.addedPlayers.sort() });
+  }
+
   componentDidMount() {
-    this.props.startTutorial('registration');
+    if (!this.props.editingId) {
+      this.props.startTutorial('registration');
+    }
     // const tempSession = getTempSession();
     // if (tempSession) {
     //   this.props.restoreTempSession();
@@ -127,6 +133,7 @@ export default class TabContainer extends Component {
         <Grouping
           sortedPlayers={this.state.sortedPlayers}
           addedPlayers={this.props.addedPlayers}
+          editingId={this.props.editingId}
         />
       </Tab>
     </Tabs>);

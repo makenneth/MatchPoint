@@ -1,6 +1,6 @@
 import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
-import { startLoad, stopLoad } from 'redux/modules/main';
+import { startLoad, stopLoad, setMessage } from 'redux/modules/main';
 import { browserHistory } from 'react-router';
 
 const initialState = {
@@ -101,16 +101,22 @@ function postResultFailure(error) {
 
 export function postResult(id, date, results) {
   return (dispatch) => {
+    dispatch(startLoad('transparent'));
     dispatch(postResultRequest());
     return request(`/api/my/sessions/${id}`, {
       method: 'POST',
       body: JSON.stringify({ results, date }),
     }).then(
       res => {
+        dispatch(stopLoad());
         browserHistory.push('/club/sessions');
         dispatch(postResultSuccess(id));
       },
-      err => dispatch(postResultFailure(err)),
+      err => {
+        dispatch(stopLoad());
+        dispatch(setMessage('Unable to save. Please try again later.'));
+        dispatch(postResultFailure(err));
+      },
     );
   };
 }
@@ -137,13 +143,21 @@ function updateResultFailure(error) {
 
 export function updateResult(id, date, results) {
   return (dispatch) => {
+    dispatch(startLoad('transparent'));
     dispatch(updateResultRequest());
     return request(`/api/my/sessions/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ results, date }),
     }).then(
-      res => dispatch(updateResultSuccess(res.roundrobin)),
-      err => dispatch(updateResultFailure(err)),
+      res => {
+        dispatch(stopLoad());
+        dispatch(updateResultSuccess(res.roundrobin));
+      },
+      err => {
+        dispatch(stopLoad());
+        dispatch(setMessage('Unable to update result.'));
+        dispatch(updateResultFailure(err))
+      },
     );
   };
 }
@@ -168,14 +182,63 @@ function deleteSessionFailure(error) {
   };
 }
 
+function updateSessionDetailRequest() {
+  return {
+    type: ActionTypes.UPDATE_SESSION_DETAIL_REQUEST,
+  };
+}
+
+function updateSessionDetailSuccess(session) {
+  return {
+    type: ActionTypes.UPDATE_SESSION_DETAIL_SUCCESS,
+    payload: { session },
+  };
+}
+
+function updateSessionDetailFailure(error) {
+  return {
+    type: ActionTypes.UPDATE_SESSION_DETAIL_FAILURE,
+    payload: { error },
+  };
+}
+
+export function updateSessionDetail(id, data) {
+  return (dispatch, getState) => {
+    const { session } = getState().selectedSession;
+    dispatch(startLoad('transparent'));
+    dispatch(updateSessionDetailRequest());
+    return request(`/api/my/sessions/${id}/detail`, {
+      method: 'PATCH',
+      body: JSON.stringify({ session: { ...data, id: session.id } }),
+    }).then(
+      (res) => {
+        dispatch(stopLoad('transparent'));
+        dispatch(updateSessionDetailSuccess(res.roundrobin));
+      },
+      (err) => {
+        dispatch(stopLoad('transparent'));
+        dispatch(updateSessionDetailFailure(err));
+      }
+    );
+  };
+}
+
 export function deleteSession(id) {
   return (dispatch) => {
+    dispatch(startLoad('transparent'));
     dispatch(deleteSessionRequest());
     return request(`/api/my/sessions/${id}`, {
       method: 'DELETE',
     }).then(
-      () => dispatch(deleteSessionSuccess(id)),
-      err => dispatch(deleteSessionFailure(err)),
+      () => {
+        dispatch(stopLoad());
+        dispatch(deleteSessionSuccess(id));
+      },
+      err => {
+        dispatch(stopLoad());
+        dispatch(setMessage('Unable to delete session, please try again later.'));
+        dispatch(deleteSessionFailure(err));
+      }
     );
   };
 }
@@ -203,7 +266,7 @@ function fetchUserRRSessionsFailure(error) {
 export function fetchUserRRSessions() {
   return (dispatch) => {
     dispatch(fetchUserRRSessionsRequest());
-    dispatch(startLoad());
+    dispatch(startLoad('transparent'));
     return request('/api/my/sessions')
       .then(
         (res) => {
@@ -212,6 +275,7 @@ export function fetchUserRRSessions() {
         },
         (err) => {
           dispatch(stopLoad());
+          dispatch(setMessage('Unable to get sessions. Please contact the administrator.'));
           dispatch(fetchUserRRSessionsFailure(err));
         }
       );

@@ -1,7 +1,7 @@
 import request from 'utils/request';
 import { ScoreCalculation } from 'helpers';
 import ActionTypes from 'redux/actionTypes';
-// import { LOAD, MESSAGE } from 'redux/modules/main';
+import { startLoad, stopLoad, setMessage } from 'redux/modules/main';
 
 const initialState = {
   loading: false,
@@ -64,6 +64,7 @@ export default (state = initialState, action) => {
       return {
         ...initialState,
       };
+    case ActionTypes.UPDATE_SESSION_DETAIL_SUCCESS:
     case ActionTypes.FETCH_SESSION_SUCCESS:
     case ActionTypes.SELECT_SESSION: {
       const { session } = action.payload;
@@ -180,11 +181,19 @@ export function fetchSessionFailure(error) {
 
 export function fetchSession(id) {
   return (dispatch) => {
+    dispatch(startLoad('transparent'));
     dispatch(fetchSessionRequest());
     return request(`/api/my/sessions/${id}`)
       .then(
-        res => dispatch(fetchSessionSuccess(res.roundrobin)),
-        err => dispatch(fetchSessionFailure(err)),
+        res => {
+          dispatch(stopLoad());
+          dispatch(fetchSessionSuccess(res.roundrobin));
+        },
+        err => {
+          dispatch(stopLoad());
+          dispatch(setMessage('Something went wrong, please contact the administrator.'));
+          dispatch(fetchSessionFailure(err));
+        },
       );
   };
 }

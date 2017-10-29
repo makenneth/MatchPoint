@@ -1,15 +1,10 @@
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
-import moment from 'moment';
-import AppBar from 'material-ui/AppBar';
-import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
-import NavigationClose from 'material-ui/svg-icons/navigation/close';
-import IconButton from 'material-ui/IconButton';
-import IconMenu from 'material-ui/IconMenu';
-import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { RecordTableContainer } from 'containers';
+import MenuBar from './MenuBar';
+import EditDetailModal from './EditDetailModal';
 
 export default class EditSession extends Component {
   constructor(props) {
@@ -17,7 +12,14 @@ export default class EditSession extends Component {
     this.state = {
       currentTab: 0,
       open: false,
+      editModalOpen: false,
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.session !== nextProps.session) {
+      this.setState({ editModalOpen: false });
+    }
   }
 
   setTab = (currentTab) => {
@@ -40,13 +42,13 @@ export default class EditSession extends Component {
   handleBack = () => {
     browserHistory.push('/club/sessions');
   }
-  iconMenu() {
-    return (<IconMenu
-      iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-    >
-      <MenuItem primaryText="Save" onClick={this.saveSession} />
-      <MenuItem primaryText="Delete" onClick={() => this.setState({ open: true })} />
-    </IconMenu>);
+  handleEdit = () => {
+    if (this.props.session.date && !this.props.session.finalized) {
+      this.setState({ editModalOpen: true });
+    }
+  }
+  endEditModal = () => {
+    this.setState({ editModalOpen: false });
   }
   render() {
     const actions = [
@@ -65,21 +67,26 @@ export default class EditSession extends Component {
     const {
      session: { date, selected_schema: selectedSchema, players, finalized },
      editable,
+     isLoading,
+     session,
     } = this.props;
+
     let countedPlayers = 0;
     return (<div className="session-container">
-      <AppBar
-        className="app-bar"
-        title={`Date: ${moment(date).utc().format('MMMM DD, YYYY')}`}
-        iconElementLeft={
-          <IconButton
-            onClick={this.handleBack}
-            className="closeIcon"
-          >
-            <NavigationClose />
-          </IconButton>
-        }
-        iconElementRight={editable && this.iconMenu()}
+      {this.state.editModalOpen && <EditDetailModal
+        session={session}
+        onClose={this.endEditModal}
+        startEditSavedSession={this.props.startEditSavedSession}
+      />}
+      <MenuBar
+        handleBack={this.handleBack}
+        handleEdit={this.handleEdit}
+        saveSession={this.saveSession}
+        date={date}
+        finalized={finalized}
+        editable={editable}
+        isLoading={isLoading}
+        handleDelete={() => this.setState({ open: true })}
       />
       <div className="session-container-body">
         {

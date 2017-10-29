@@ -19,11 +19,25 @@ export default class RecordTableContainer extends Component {
       } else {
         newResults[player.id] = {};
         [...joinedPlayers.slice(0, i), ...joinedPlayers.slice(i + 1)].forEach((other) => {
-          results[player.id][other.id] = [0, 0];
+          newResults[player.id][other.id] = [0, 0];
         });
       }
     });
     this.setState({ results: newResults });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.joinedPlayers !== nextProps.joinedPlayers) {
+      const { joinedPlayers } = nextProps;
+      const newResults = {};
+      joinedPlayers.forEach((player, i) => {
+        newResults[player.id] = {};
+        [...joinedPlayers.slice(0, i), ...joinedPlayers.slice(i + 1)].forEach((other) => {
+          newResults[player.id][other.id] = [0, 0];
+        });
+      });
+      this.setState({ results: newResults });
+    }
   }
 
   componentWillUnmount() {

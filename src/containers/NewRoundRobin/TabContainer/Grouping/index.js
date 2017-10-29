@@ -12,6 +12,7 @@ import { changeSchema, movePlayerUp, movePlayerDown } from 'redux/modules/schema
 import { stopLoad } from 'redux/modules/main';
 import PDFGenerator from 'utils/PDFGenerator';
 import { setMinAndMax, temporarySave, createSession } from 'redux/modules/newSession';
+import { updateSessionDetail } from 'redux/modules/sessions';
 import moment from 'moment';
 
 @connect(
@@ -21,6 +22,7 @@ import moment from 'moment';
     setMinAndMax,
     stopLoad,
     createSession,
+    updateSessionDetail,
     temporarySave,
     movePlayerUp,
     movePlayerDown,
@@ -123,12 +125,24 @@ export default class Grouping extends Component {
         dialogOpen: true,
       });
     } else {
-      this.props.createSession({
-        date: moment(this.props.date).format('YYYY-MM-DD'),
-        numOfPlayers: this.props.addedPlayers.length(),
-        selectedSchema: this.props.selected,
-        players: this.props.addedPlayers.toPlayerList().flatten(),
-      });
+      if (this.props.editingId) {
+        this.props.updateSessionDetail(
+          this.props.editingId,
+          {
+            date: moment(this.props.date).format('YYYY-MM-DD'),
+            numOfPlayers: this.props.addedPlayers.length(),
+            selectedSchema: this.props.selected,
+            players: this.props.addedPlayers.toPlayerList().flatten(),
+          }
+        );
+      } else {
+        this.props.createSession({
+          date: moment(this.props.date).format('YYYY-MM-DD'),
+          numOfPlayers: this.props.addedPlayers.length(),
+          selectedSchema: this.props.selected,
+          players: this.props.addedPlayers.toPlayerList().flatten(),
+        });
+      }
     }
   }
 
@@ -193,7 +207,7 @@ export default class Grouping extends Component {
     }
 
     return (<div className="grouping">
-      <IconMenu
+      {!this.props.loading && <IconMenu
         className="group-menu"
         style={{
           position: 'absolute',
@@ -215,7 +229,7 @@ export default class Grouping extends Component {
           onClick={this.handleSave}
           disabled={!this.props.selected.length}
         />
-      </IconMenu>
+      </IconMenu>}
 
       {this.schemata()}
       {groupTables}

@@ -1,12 +1,13 @@
 // import ActionTypes from 'redux/actionTypes';
-export const LOAD = 'mp/main/LOAD';
-export const STOP_LOAD = 'mp/main/STOP_LOAD';
-export const MESSAGE = 'mp/main/MESSAGE';
+const LOAD = 'mp/main/LOAD';
+const STOP_LOAD = 'mp/main/STOP_LOAD';
+const MESSAGE = 'mp/main/MESSAGE';
 const CLEAR_ERROR = 'mp/main/CLEAR_ERROR';
 
 const initialState = {
   loading: false,
   message: null,
+  spinnerMode: null,
 };
 
 export default (state = initialState, action) => {
@@ -19,6 +20,7 @@ export default (state = initialState, action) => {
     case LOAD:
       return {
         ...state,
+        spinnerMode: action.payload.mode,
         loading: true,
       };
     case MESSAGE:
@@ -37,9 +39,10 @@ export default (state = initialState, action) => {
   }
 };
 
-export function startLoad() {
+export function startLoad(mode) {
   return {
     type: LOAD,
+    payload: { mode },
   };
 }
 

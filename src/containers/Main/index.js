@@ -9,7 +9,11 @@ import Navbar from './Navbar';
 
 import './styles.scss';
 
-@connect(({ main: { loading, message } }) => ({ loading, message }), { clearMessage })
+@connect(
+  ({ main: { loading, message, spinnerMode } }) =>
+    ({ loading, message, spinnerMode }),
+  { clearMessage }
+)
 export default class Main extends Component {
   static contextTypes = {
     router: React.PropTypes.any,
@@ -28,7 +32,9 @@ export default class Main extends Component {
         {this.props.children}
         {
           this.props.loading &&
-            (<div className="overlay">
+            (<div
+              className={`overlay${this.props.spinnerMode === 'transparent' ? ' transparent' : ''}`}
+            >
               <div className="loading">
                 <CircularProgress size={2} />
               </div>

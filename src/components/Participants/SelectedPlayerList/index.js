@@ -3,6 +3,7 @@ import { Table, TableBody, TableHeader,
   TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
 
 const SelectedPlayerList = (props) => {
+  console.log(props.addedPlayers);
   const idRef = {};
   const playerList = props.players.map((player, i) => {
     idRef[i] = player.id;

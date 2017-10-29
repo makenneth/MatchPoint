@@ -64,7 +64,7 @@ function fetchCurrentPlayersFailure(error) {
 
 export function fetchCurrentPlayers() {
   return (dispatch) => {
-    dispatch(startLoad());
+    dispatch(startLoad('transparent'));
     dispatch(fetchCurrentPlayersRequest());
     return request('/api/my/players').then(
       res => {

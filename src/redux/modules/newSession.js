@@ -2,7 +2,7 @@ import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
 import { browserHistory } from 'react-router';
 import { Heap } from 'helpers';
-import { UPDATE_SESSION_SUCCESS } from 'redux/modules/sessions';
+import { startLoad, stopLoad } from 'redux/modules/main';
 import { preSetTab } from 'redux/modules/navbar';
 // import { RESTORE_TEMP_SESSION } from 'redux/modules/tempSession';
 
@@ -33,6 +33,18 @@ export default (state = initialState, action) => {
     //     allPlayers: action.payload,
     //   };
     // }
+    case ActionTypes.START_EDIT_SAVED_SESSION: {
+      const { session } = action.payload;
+      const addedPlayers = session.players.reduce(
+        (acc, player) => acc.insert(player), new Heap()
+      );
+      return {
+        ...state,
+        loading: false,
+        date: new Date(session.date),
+        addedPlayers,
+      };
+    }
     case ActionTypes.SET_MIN_AND_MAX:
       return {
         ...state,
@@ -140,11 +152,19 @@ export default (state = initialState, action) => {
         date: new Date(date),
       };
     }
-    case UPDATE_SESSION_SUCCESS:
+    case ActionTypes.UPDATE_SESSION_DETAIL_REQUEST:
+    case ActionTypes.CREATE_SESSION_REQUEST:
       return {
         ...state,
-        loaded: false,
+        loading: true,
       };
+    case ActionTypes.UPDATE_SESSION_DETAIL_FAILURE:
+    case ActionTypes.CREATE_SESSION_FAILURE:
+      return {
+        ...state,
+        loading: false,
+      };
+    case ActionTypes.UPDATE_SESSION_DETAIL_SUCCESS:
     case ActionTypes.CREATE_SESSION_SUCCESS:
       return {
         loading: false,
@@ -226,6 +246,7 @@ function createSessionFailure(error) {
 
 export function createSession(data) {
   return (dispatch) => {
+    dispatch(startLoad());
     dispatch(createSessionRequest());
 
     return request('/api/my/sessions', {
@@ -233,11 +254,22 @@ export function createSession(data) {
       body: JSON.stringify({ session: data }),
     }).then(
       (res) => {
+        dispatch(stopLoad());
         dispatch(createSessionSuccess(res.roundrobin));
         dispatch(preSetTab('/club/sessions'));
         browserHistory.push('/club/sessions');
       },
-      (err) => dispatch(createSessionFailure(err))
+      (err) => {
+        dispatch(stopLoad());
+        dispatch(createSessionFailure(err));
+      }
     );
+  };
+}
+
+export function startEditSavedSession(session) {
+  return {
+    type: ActionTypes.START_EDIT_SAVED_SESSION,
+    payload: { session },
   };
 }

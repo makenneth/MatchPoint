@@ -153,6 +153,33 @@ router.post("/accounts/resend", (req, res, next) => {
       res.status(422).send(err);
     });
 })
+.patch("/sessions/:id/detail", jsonParser, csrfProtection, async (req, res, next) => {
+  const clubId = req.club.id;
+  const id = req.params.id;
+  const data = req.body.session;
+  RoundRobin.update(clubId, id, data.id, data.players, data.date, data.selectedSchema)
+    .then(
+      async (id) => {
+        client.del(`session:${clubId}:${id}`);
+        client.del(`sessions:${clubId}`);
+        const roundrobin = await RoundRobin.findDetail(clubId, id);
+        res.status(200).send({ roundrobin });
+        try {
+          const data = JSON.stringify(roundrobin);
+          client.set(`session:${clubId}:${id}`, data);
+        } catch (e) {
+          console.warn(e);
+        }
+      },
+      err => {
+        console.log(err);
+        throw err;
+      }
+    ).catch((err) => {
+      console.log(err);
+      next({ code: 500, message: err });
+    });
+})
 .post("/sessions", jsonParser, csrfProtection, (req, res, next) => {
   const clubId = req.club.id;
   const data = req.body.session;
