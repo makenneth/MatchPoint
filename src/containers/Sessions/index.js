@@ -8,6 +8,7 @@ import { setSession } from 'redux/modules/selectedSession';
 import Avatar from 'material-ui/Avatar';
 import Subheader from 'material-ui/Subheader';
 import Divider from 'material-ui/Divider';
+import MdInfoOutline from 'react-icons/lib/md/info-outline';
 import Edit from 'react-icons/lib/md/edit';
 import View from 'react-icons/lib/md/pageview';
 import Event from 'react-icons/lib/md/event';
@@ -61,13 +62,26 @@ export default class RoundRobinSessions extends Component {
     return (<div className="sessions-list">
       <List>
         <Subheader
+          className="sessions-subheader-container"
           style={{
+            position: 'relative',
             fontSize: '28px',
             textAlign: 'center',
             marginBottom: '10px',
             fontFamily: '"Ropa Sans", sans-serif',
           }}
-        >Previous Sessions</Subheader>
+        >
+          Previous Sessions
+          <div className="hint-text">
+            <MdInfoOutline />
+            <div className="tooltip">
+              <ol>
+                <li>You are only allowed to edit the detail for "pending sessions".</li>
+                <li>You are only allowed to change the posted result for last saved entry.</li>
+              </ol>
+            </div>
+          </div>
+        </Subheader>
         <Divider />
         <Subheader inset={Boolean(true)}>Pending Sessions</Subheader>
         {

@@ -15,3 +15,16 @@
 @mixin light-box-shadow {
   box-shadow: 0px 1px 5px #dcdcdc;
 }
+
+@mixin tooltip-mixin {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  padding: 10px;
+  background: rgb(97, 97, 97);
+  color: white;
+  font-size: 12px;
+  z-index: 255;
+}
+

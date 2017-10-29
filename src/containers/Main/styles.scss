@@ -543,6 +543,36 @@ form {
   }
 }
 
+.sessions-subheader-container {
+  .tooltip {
+    white-space: nowrap;
+    width: auto;
+    @include tooltip-mixin;
+
+    li {
+      line-height: 2.5;
+      text-align: left;
+    }
+  }
+
+  .hint-text {
+    position: absolute;
+    z-index: 10;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+
+    svg {
+      height: 1em;
+      width: 1em;
+
+      &:hover ~ .tooltip {
+        display: block;
+      }
+    }
+  }
+}
+
 @keyframes modalOpen {
   0% {
     opacity: 0;
