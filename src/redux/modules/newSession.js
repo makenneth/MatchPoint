@@ -19,6 +19,8 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case ActionTypes.LOG_OUT_SUCCESS:
+      return initialState;
     // case RESTORE_STATE:
     //   return {
     //     ...initialState,

@@ -9,8 +9,6 @@ export default class ScoreCalculation {
     let start = 0;
     return this.schema.reduce((arr, playerInGroup) => {
       const players = this.players.slice(start, start + playerInGroup);
-      console.log(players);
-      console.log(start);
       start += playerInGroup;
       return [...arr, ...this.sortPlayerWithinGroup(players)];
     }, []);
@@ -71,9 +69,15 @@ export default class ScoreCalculation {
           if (sign === 1) {
             scoreAdjust = parseInt(16 -
               ((player1.rating - player2.rating) * 0.04), 10) - (record[1] * 2);
+            if (record[0] - record[1] === 3 && player1.rating - player2.rating >= 400) {
+              scoreAdjust = 0;
+            }
           } else {
             scoreAdjust = -(parseInt(16 +
               ((player1.rating - player2.rating) * 0.04), 10)) + (record[0] * 2);
+            if (record[1] - record[0] === 3 && player2.rating - player1.rating >= 400) {
+              scoreAdjust = 0;
+            }
           }
 
           if (sign === 1 && scoreAdjust < 0) {

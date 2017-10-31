@@ -48,12 +48,12 @@ export default class LogInForm extends Component {
   validate() {
     let isValid = true;
     const errors = {};
-    if (this.state.username.length <= 5) {
+    if (this.state.username.length < 5) {
       errors.username = 'Username cannot be shorter than 5 characters.';
       isValid = false;
     }
 
-    if (this.state.password.length <= 5) {
+    if (this.state.password.length < 5) {
       errors.password = 'Password cannot be shorter than 5 characters.';
       isValid = false;
     }

@@ -16,7 +16,7 @@ import currentUserRoutes from "./api/currentUser";
 
 const port = process.env.APP_PORT || 3000;
 Raven.config(process.env.RAVEN_URL).install();
-// db.connect();
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "public", "views"));
 app.use((err, req, res, next) => {
