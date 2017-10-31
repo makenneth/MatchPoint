@@ -109,7 +109,7 @@ export default class Grouping extends Component {
       return;
     }
     new PDFGenerator(
-      this.props.club.clubName,
+      this.props.club.club_name,
       this.props.addedPlayers.toPlayerList(),
       this.props.selected,
       this.props.addedPlayers.length(),

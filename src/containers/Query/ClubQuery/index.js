@@ -38,7 +38,6 @@ export default class ClubQuery extends Component {
       (resultsAvailable ? 'Select a Date' : 'No results found') :
       'Select a club first';
     const selectedRoundrobin = selectedDate && roundrobins[selectedDate];
-    console.log(selected);
     return (<div className="club-result-container">
       <div className="name-select-div">
         <SelectField
