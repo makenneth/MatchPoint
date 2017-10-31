@@ -10,7 +10,7 @@ import { open, close, setTab, preSetTab } from 'redux/modules/navbar';
 import './styles.scss';
 
 @connect(
-  ({ auth: { club }, navbar }) => ({ club, navbar }),
+  ({ auth: { club, loading }, navbar }) => ({ club, navbar, loading }),
   { openLogin, logIn, logOut, open, close, setTab, preSetTab, setPage }
 )
 export default class Navbar extends Component {
@@ -192,6 +192,7 @@ export default class Navbar extends Component {
 
   render() {
     const { expanded } = this.state;
+    const { loading } = this.props;
     return (<div
       className={`nav-bar ${this.props.pathname === '/' ||
         this.props.pathname === '/activate/success' ? 'no-color' : 'color'}`
@@ -201,9 +202,9 @@ export default class Navbar extends Component {
         <div className="logo" onClick={() => this.handleLink(this.props.club.id ? '/club' : '/', 0)}>
           MatchPoints
         </div>
-        {!expanded && <div className="collapsed-icon" onClick={this.props.open}>&#9776;</div>}
-        {expanded && this.normalNav()}
-        {!expanded && this.slideNav()}
+        {!loading && !expanded && <div className="collapsed-icon" onClick={this.props.open}>&#9776;</div>}
+        {!loading && expanded && this.normalNav()}
+        {!loading && !expanded && this.slideNav()}
       </div>
     </div>);
   }
