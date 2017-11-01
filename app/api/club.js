@@ -28,7 +28,7 @@ router.get("/", (req, res, next) => {
 })
 .get("/:clubId/sessions/:id", (req, res, next) => {
   const clubId = req.params.clubId;
-  client.get(`sessions:${clubId}`, (err, reply) => {
+  client.get(`sessions:${clubId}:${req.params.id}`, (err, reply) => {
     if (!reply) {
       const id = req.params.id;
       RoundRobin.findDetail(clubId, id)
@@ -37,7 +37,7 @@ router.get("/", (req, res, next) => {
             res.status(200).send({ roundrobin });
             try {
               const json = JSON.stringify(roundrobin);
-              client.set(`sessions:${clubId}`, json);
+              client.set(`sessions:${clubId}:${req.params.id}`, json);
             } catch (e) {
               next({ code: 500, message: e });
             }

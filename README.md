@@ -41,4 +41,13 @@ Upon creation of pdfs, the filenames are stored in Redis and are set to expire a
 ### Roundrobin scheduler
 The Roundrobin scheduler is based on this algorithm ([link](http://stackoverflow.com/a/6649732)). The algorithm is created based on a structure that is similar to a ring buffer.
 
-
+Todo:
+- [ ] Finish Elixir Implementation
+- [ ] React Native iOS
+- [ ] React Native with Android
+  - [ ] Link to App
+  - [ ] Sign Up Screen (post token)
+  - [ ] Log In Screen
+  - [ ] Check In Screen (to multiple clubs)
+- [ ] User Geolocation
+- [ ] Geolocation search (look into elastisearch)

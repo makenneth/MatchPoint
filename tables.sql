@@ -10,7 +10,7 @@ CREATE TABLE clubs (
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
   password_digest VARCHAR(64) NOT NULL,
   session_token VARCHAR(50) NOT NULL,
-  short_id CHAR(10) NOT NULL,
+  short_id VARCHAR(14) NOT NULL,
   username VARCHAR(50) NOT NULL,
   club_name VARCHAR(80) NOT NULL,
   email VARCHAR(255) NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE club_geolocations (
 
 CREATE TABLE players (
   id INT NOT NULL AUTO_INCREMENT,
-  short_id CHAR(10) NOT NULL,
+  short_id VARCHAR(14) NOT NULL,
   usatt_url VARCHAR(255),
   name VARCHAR(126) NOT NULL,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -71,7 +71,7 @@ CREATE TABLE roundrobins (
   id INT NOT NULL AUTO_INCREMENT,
   club_id MEDIUMINT NOT NULL,
   date DATETIME NOT NULL,
-  short_id CHAR(10) NOT NULL,
+  short_id VARCHAR(14) NOT NULL,
   finalized TINYINT(1) DEFAULT 0,
   num_players SMALLINT NOT NULL,
   selected_schema JSON,
@@ -132,3 +132,37 @@ FOR EACH ROW BEGIN
     );
 END $$
 DELIMITER ;
+
+INSERT INTO matchpoints.clubs (
+  password_digest, session_token, short_id, username, club_name, email, verified
+) VALUES (
+  "$2a$10$HIbdZshO2lDyo6PXxvFLEe4d43087WhkssVqPt8ZfVzkjHxcWj0CK", "ABCEDEFSDFSDF",
+  "Hkz-TkHCZ",
+  "soma_ttc",
+  "SomaTTC",
+  "help.matchpoints@gmail.com",
+  1
+);
+
+INSERT INTO matchpoints.club_geolocations (
+  city, state, country, club_id
+) VALUES (
+  "San Francisco", "CA", "United States", 1
+);
+
+INSERT INTO matchpoints.clubs (
+  password_digest, session_token, short_id, username, club_name, email, verified
+) VALUES (
+  "$2a$10$HIbdZshO2lDyo6PXxvFLEe4d43087WhkssVqPt8ZfVzkjHxcWj0CK", "ABCEDEFSDFSDF",
+  "B1d8g4B0-",
+  "guest",
+  "Test Club",
+  "test@gmail.com",
+  1
+);
+
+INSERT INTO matchpoints.club_geolocations (
+  city, state, country, club_id
+) VALUES (
+  "San Francisco", "CA", "United States", 2
+);
