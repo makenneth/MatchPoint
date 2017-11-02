@@ -12,7 +12,7 @@ defmodule MatchPoints.Utils do
     HTTPoison.post!(url, Poison.encode!(params), hackney: [cookie: [{"matchpoint_session", token}]])
   end
 
-  def post_matchpoints_api(url, token, params) do
+  def patch_matchpoints_api(url, token, params) do
     HTTPoison.patch!(url, Poison.encode!(params), hackney: [cookie: [{"matchpoint_session", token}]])
   end
 
@@ -56,7 +56,11 @@ defmodule MatchPoints.Utils do
 
   def update_player(token, player) do
     HTTPoison.start
-    data = patch_matchpoints_api("http://127.0.0.1:3000/api/players/" <> Integer.toString(player.id), token, %{player: player})
+    data = patch_matchpoints_api(
+      "http://127.0.0.1:3000/api/players/" <> Integer.to_string(player.id),
+      token,
+      %{player: player}
+    )
     |> get_body
     |> Poison.decode!
     case data do
@@ -68,7 +72,11 @@ defmodule MatchPoints.Utils do
 
   def delete_player(token, player) do
     HTTPoison.start
-    data = patch_matchpoints_api("http://127.0.0.1:3000/api/players"  <> Integer.toString(player.id), token)
+    data = delete_matchpoints_api(
+      "http://127.0.0.1:3000/api/players" <> Integer.to_string(player.id),
+      token,
+      %{}
+    )
     |> get_body
     |> Poison.decode!
     case data do

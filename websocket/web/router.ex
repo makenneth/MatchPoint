@@ -8,6 +8,7 @@ defmodule MatchPoints.Router do
   scope "/api", MatchPoints do
     pipe_through :api
 
-    get "/", PageController, :index
+    post "/user", UserController, :create
+
   end
 end

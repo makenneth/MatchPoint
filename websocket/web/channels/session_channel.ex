@@ -7,7 +7,7 @@ defmodule MatchPoints.SessionChannel do
   def join("session:" <> _id, _payload, socket) do
     case Supervisor.initialize_if_havent(socket.assigns.session_name, socket.assigns.session_token) do
       {:ok, state} ->
-        send self, {:after_join, state}
+        send self(), {:after_join, state}
         {:ok, socket}
       {:error, _} ->
         {:error, %{reason: "Unable to verify user."}}
@@ -39,47 +39,37 @@ defmodule MatchPoints.SessionChannel do
 
   def handle_in("CREATE_PLAYER", %{player: player, add_after_success: should_add}, socket) do
     %{session_name: session_name, session_token: session_token} = socket.assigns
-    case MatchPoints.Utils.create_player(session_token, player)
+    case MatchPoints.Utils.create_player(session_token, player) do
       {:error, error} ->
-        broadcast! socket, "ERROR_OCCURED", %{error: error}
+        broadcast! socket, "CREATE_PLAYER_FAILURE", %{error: error}
       {:ok, data} ->
         Server.create_player(session_name, data, should_add)
-        broadcast! socket, "PLAYER_CREATED", %{player: data}
+        broadcast! socket, "CREATE_PLAYER_SUCCESS", %{player: data}
     end
     {:noreply, socket}
   end
 
   def handle_in("UPDATE_PLAYER", %{player: player}, socket) do
     %{session_name: session_name, session_token: session_token} = socket.assigns
-    case MatchPoints.Utils.update_player(socket.assigns.session_token, player)
+    case MatchPoints.Utils.update_player(session_token, player) do
       {:error, error} ->
-        broadcast! socket, "ERROR_OCCURED", %{error: error}
+        broadcast! socket, "UPDATE_PLAYER_FAILURE", %{error: error}
       {:ok, data} ->
         Server.update_player(session_name, data)
-        broadcast! socket, "PLAYER_UPDATED", %{player: data}
+        broadcast! socket, "UPDATE_PLAYER_SUCCESS", %{player: data}
     end
     {:noreply, socket}
   end
 
   def handle_in("DELETE_PLAYER", %{playerId: playerId}, socket) do
     %{session_name: session_name} = socket.assigns
-    case MatchPoints.Utils.update_player(socket.assigns.session_token, playerId)
+    case MatchPoints.Utils.update_player(socket.assigns.session_token, playerId) do
       {:error, error} ->
-        broadcast! socket, "ERROR_OCCURED", %{error: error}
+        broadcast! socket, "DELETE_PLAYER_FAILURE", %{error: error}
       {:ok, data} ->
         Server.delete_player(session_name, data)
-        broadcast! socket, "PLAYER_DELETED", %{playerId: playerId}
+        broadcast! socket, "DELETE_PLAYER_SUCCESS", %{playerId: playerId}
     end
     {:noreply, socket}
   end
-
-  # def handle_out("user_registered", data, socket) do
-  #   push socket, "user_registered", data
-  #   {:noreply, socket}
-  # end
-
-  # def handle_out("user_unregistered", data, socket) do
-  #   push socket, "user_unregistered", data
-  #   {:noreply, socket}
-  # end
 end
