@@ -9,15 +9,15 @@ defmodule MatchPoints.Utils do
   end
 
   def post_matchpoints_api(url, token, params) do
-    HTTPoison.post!(url, Poison.encode!(params), hackney: [cookie: [{"matchpoint_session", token}]])
+    HTTPoison.post!(url, Poison.encode!(params), [{"cookie", "matchpoint_session="<>token}, {"Content-Type", "application/json"}])
   end
 
   def patch_matchpoints_api(url, token, params) do
-    HTTPoison.patch!(url, Poison.encode!(params), hackney: [cookie: [{"matchpoint_session", token}]])
+    HTTPoison.patch!(url, Poison.encode!(params), [{"cookie", "matchpoint_session="<>token}, {"Content-Type", "application/json"}])
   end
 
-  def delete_matchpoints_api(url, token, params) do
-    HTTPoison.delete!(url, Poison.encode!(params), hackney: [cookie: [{"matchpoint_session", token}]])
+  def delete_matchpoints_api(url, token) do
+    HTTPoison.delete!(url, %{}, [{"cookie", "matchpoint_session="<>token}, {"Content-Type", "application/json"}])
   end
 
   def get_session_name(token) do
@@ -44,7 +44,7 @@ defmodule MatchPoints.Utils do
 
   def create_player(token, player) do
     HTTPoison.start
-    data = post_matchpoints_api("http://127.0.0.1:3000/api/players", token, %{player: player})
+    data = post_matchpoints_api("http://127.0.0.1:3000/api/my/players", token, %{player: player})
     |> get_body
     |> Poison.decode!
     case data do
@@ -57,7 +57,7 @@ defmodule MatchPoints.Utils do
   def update_player(token, player) do
     HTTPoison.start
     data = patch_matchpoints_api(
-      "http://127.0.0.1:3000/api/players/" <> Integer.to_string(player.id),
+      "http://127.0.0.1:3000/api/my/players/" <> Integer.to_string(player["id"]),
       token,
       %{player: player}
     )
@@ -70,12 +70,11 @@ defmodule MatchPoints.Utils do
     end
   end
 
-  def delete_player(token, player) do
+  def delete_player(token, id) do
     HTTPoison.start
     data = delete_matchpoints_api(
-      "http://127.0.0.1:3000/api/players" <> Integer.to_string(player.id),
-      token,
-      %{}
+      "http://127.0.0.1:3000/api/my/players" <> Integer.to_string(id),
+      token
     )
     |> get_body
     |> Poison.decode!
@@ -87,6 +86,7 @@ defmodule MatchPoints.Utils do
   end
 
   def get_body(response) do
+    IO.inspect response
     response.body
   end
 end

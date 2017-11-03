@@ -23,33 +23,33 @@ defmodule MatchPoints.SessionChannel do
     {:noreply, socket}
   end
 
-  def handle_in("UNREGISTER_PLAYER", %{id: id}, socket) do
+  def handle_in("UNREGISTER_PLAYER", %{"id" => id}, socket) do
     %{session_name: session_name} = socket.assigns
-    Server.unregister_player(session_name, id)
-    broadcast! socket, "PLAYER_UNREGISTERED", %{id: id}
+    affected = Server.unregister_player(session_name, id)
+    broadcast! socket, "PLAYER_UNREGISTERED", %{id: affected}
     {:noreply, socket}
   end
 
-  def handle_in("REGISTER_PLAYER", %{id: id}, socket) do
+  def handle_in("REGISTER_PLAYER", %{"id" => id}, socket) do
     %{session_name: session_name} = socket.assigns
-    Server.register_player(session_name, id)
-    broadcast! socket, "PLAYER_REGISTERED", %{id: id}
+    affected = Server.register_player(session_name, id)
+    broadcast! socket, "PLAYER_REGISTERED", %{id: affected}
     {:noreply, socket}
   end
 
-  def handle_in("CREATE_PLAYER", %{player: player, add_after_success: should_add}, socket) do
+  def handle_in("CREATE_PLAYER", %{"player" => player, "add_after_success" => should_add}, socket) do
     %{session_name: session_name, session_token: session_token} = socket.assigns
     case MatchPoints.Utils.create_player(session_token, player) do
       {:error, error} ->
         broadcast! socket, "CREATE_PLAYER_FAILURE", %{error: error}
       {:ok, data} ->
         Server.create_player(session_name, data, should_add)
-        broadcast! socket, "CREATE_PLAYER_SUCCESS", %{player: data}
+        broadcast! socket, "CREATE_PLAYER_SUCCESS", %{player: data, shouldAdd: should_add}
     end
     {:noreply, socket}
   end
 
-  def handle_in("UPDATE_PLAYER", %{player: player}, socket) do
+  def handle_in("UPDATE_PLAYER", %{"player" => player}, socket) do
     %{session_name: session_name, session_token: session_token} = socket.assigns
     case MatchPoints.Utils.update_player(session_token, player) do
       {:error, error} ->
@@ -61,14 +61,14 @@ defmodule MatchPoints.SessionChannel do
     {:noreply, socket}
   end
 
-  def handle_in("DELETE_PLAYER", %{playerId: playerId}, socket) do
+  def handle_in("DELETE_PLAYER", %{"id" => id}, socket) do
     %{session_name: session_name} = socket.assigns
-    case MatchPoints.Utils.update_player(socket.assigns.session_token, playerId) do
+    case MatchPoints.Utils.delete_player(socket.assigns.session_token, id) do
       {:error, error} ->
         broadcast! socket, "DELETE_PLAYER_FAILURE", %{error: error}
       {:ok, data} ->
         Server.delete_player(session_name, data)
-        broadcast! socket, "DELETE_PLAYER_SUCCESS", %{playerId: playerId}
+        broadcast! socket, "DELETE_PLAYER_SUCCESS", %{id: id}
     end
     {:noreply, socket}
   end
