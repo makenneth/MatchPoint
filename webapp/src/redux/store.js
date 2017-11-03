@@ -3,6 +3,7 @@ import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router';
 
 import middleware from './middleware';
+import { websocketMiddleware } from './socketMiddleware';
 
 let createStoreWithMiddleware;
 
@@ -19,12 +20,14 @@ if (process.env.NODE_ENV === 'development' && process.env.DEVTOOLS) {
   const logger = createLogger();
   createStoreWithMiddleware = applyMiddleware(
     middleware,
+    websocketMiddleware
     logger,
     routerMiddleware(browserHistory),
   )(createStore);
 } else {
   createStoreWithMiddleware = applyMiddleware(
     middleware,
+    websocketMiddleware
     routerMiddleware(browserHistory),
   )(createStore);
 }

@@ -1,5 +1,6 @@
 import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
+import WSActionTypes from 'redux/wsActionTypes';
 import { closeEditModal, closeNewModal } from './modals';
 import { startLoad, stopLoad, setMessage } from './main';
 
@@ -13,9 +14,9 @@ const initialState = {
 export default function Players(state = initialState, action) {
   // what are these for???
   switch (action.type) {
-    case ActionTypes.ADD_PLAYER_REQUEST:
-    case ActionTypes.UPDATE_PLAYER_REQUEST:
-    case ActionTypes.DELETE_PLAYER_REQUEST:
+    case WSActionTypes.ADD_PLAYER_REQUEST:
+    case WSActionTypes.UPDATE_PLAYER_REQUEST:
+    case WSActionTypes.DELETE_PLAYER_REQUEST:
       return {
         ...state,
         loading: true,
@@ -129,36 +130,37 @@ function addPlayerRequest() {
   };
 }
 
-function addPlayerSuccess(player, checked) {
+export function addPlayerSuccess(player, checked) {
   return {
     type: ActionTypes.ADD_PLAYER_SUCCESS,
     payload: { player, checked },
   };
 }
 
-function addPlayerFailure(error) {
+export function addPlayerFailure(error) {
   return {
     type: ActionTypes.ADD_PLAYER_FAILURE,
     payload: { error },
   };
 }
 
-export function addPlayer({ name, rating, checked }) {
-  return (dispatch) => {
-    const player = { name, rating };
-    dispatch(addPlayerRequest());
-    return request('/api/my/players', {
-      method: 'POST',
-      body: JSON.stringify({ player }),
-    }).then(
-      res => {
-        dispatch(closeNewModal());
-        dispatch(addPlayerSuccess(res.player, checked));
-      },
-      err => dispatch(addPlayerFailure(err))
-    );
-  };
-}
+// export function addPlayer({ name, rating, checked }) {
+//   return (dispatch) => {
+//     const player = { name, rating };
+//     dispatch(addPlayerRequest());
+
+//     return request('/api/my/players', {
+//       method: 'POST',
+//       body: JSON.stringify({ player }),
+//     }).then(
+//       res => {
+//         dispatch(closeNewModal());
+//         dispatch(addPlayerSuccess(res.player, checked));
+//       },
+//       err => dispatch(addPlayerFailure(err))
+//     );
+//   };
+// }
 
 function updatePlayerRequest() {
   return {
@@ -166,36 +168,36 @@ function updatePlayerRequest() {
   };
 }
 
-function updatePlayerSuccess(player, checked) {
+export function updatePlayerSuccess(player, checked) {
   return {
     type: ActionTypes.UPDATE_PLAYER_SUCCESS,
     payload: { player, checked },
   };
 }
 
-function updatePlayerFailure(error) {
+export function updatePlayerFailure(error) {
   return {
     type: ActionTypes.UPDATE_PLAYER_FAILURE,
     payload: { error },
   };
 }
 
-export function updatePlayer({ name, rating, id, checked }) {
-  return (dispatch) => {
-    dispatch(updatePlayerRequest());
-    const player = { name, rating, id };
-    return request(`/api/my/players/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ player }),
-    }).then(
-      res => {
-        dispatch(closeEditModal());
-        dispatch(updatePlayerSuccess(res.player, checked));
-      },
-      err => dispatch(updatePlayerFailure(err))
-    );
-  };
-}
+// export function updatePlayer({ name, rating, id, checked }) {
+//   return (dispatch) => {
+//     dispatch(updatePlayerRequest());
+//     const player = { name, rating, id };
+//     return request(`/api/my/players/${id}`, {
+//       method: 'PATCH',
+//       body: JSON.stringify({ player }),
+//     }).then(
+//       res => {
+//         dispatch(closeEditModal());
+//         dispatch(updatePlayerSuccess(res.player, checked));
+//       },
+//       err => dispatch(updatePlayerFailure(err))
+//     );
+//   };
+// }
 
 function deletePlayerRequest() {
   return {
@@ -203,7 +205,7 @@ function deletePlayerRequest() {
   };
 }
 
-function deletePlayerSuccess(id) {
+export function deletePlayerSuccess(id) {
   return {
     type: ActionTypes.DELETE_PLAYER_SUCCESS,
     payload: { id },

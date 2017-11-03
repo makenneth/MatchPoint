@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Table, TableBody, TableHeader,
   TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
-import { deletePlayer } from 'redux/modules/players';
+import { deletePlayer } from 'redux/modules/websocketActions';
 import { openEditModal } from 'redux/modules/modals';
 import IconButton from 'material-ui/IconButton';
 import Close from 'react-icons/lib/md/close';

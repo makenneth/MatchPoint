@@ -23,6 +23,7 @@ import clubDetailSearch from './clubDetailSearch';
 import clubSearch from './clubSearch';
 import clubNotes from './clubNotes';
 import hour from './hour';
+import websocketConnection from './websocketActions';
 import { passwordChange, infoChange } from './profile';
 
 export default combineReducers({
@@ -51,5 +52,6 @@ export default combineReducers({
   clubInformation,
   passwordChange,
   infoChange,
+  websocketConnection,
   routing: routerReducer,
 });

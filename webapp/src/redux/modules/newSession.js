@@ -1,6 +1,7 @@
 import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
 import { push } from 'react-router-redux';
+import WSActionTypes from 'redux/wsActionTypes';
 import { Heap } from 'helpers';
 import { startLoad, stopLoad } from 'redux/modules/main';
 import { preSetTab } from 'redux/modules/navbar';
@@ -8,6 +9,7 @@ import { preSetTab } from 'redux/modules/navbar';
 
 const initialState = {
   // prevState: null,
+  progress: 0,
   loading: false,
   loaded: false,
   allPlayers: {},
@@ -63,6 +65,7 @@ export default (state = initialState, action) => {
         ...action.payload,
       };
     case ActionTypes.REGISTER_PLAYER: {
+      if (!action.payload) return state;
       const addedPlayers = state.addedPlayers.insert(state.allPlayers[action.payload]);
       return {
         ...state,
@@ -70,6 +73,7 @@ export default (state = initialState, action) => {
       };
     }
     case ActionTypes.UNREGISTER_PLAYER: {
+      if (!action.payload) return state;
       const addedPlayers = state.addedPlayers.remove(action.payload);
       return {
         ...state,
@@ -212,6 +216,25 @@ export default (state = initialState, action) => {
         ...state,
         error: action.payload.error,
       };
+
+    case ActionTypes.INITIALIZE_SESSION_SUCCESS: {
+      const { players, addedPlayers } = action.payload;
+      return {
+        ...state,
+        progress: 25,
+        allPlayers: players,
+        addedPlayers: addedPlayers.reduce(
+          (h, player) => h.insert(player), new Heap()
+        ),
+      };
+    }
+
+    case ActionTypes.INITIALIZE_SESSION_FAILURE:
+      return {
+        ...state,
+        error: action.payload.error,
+      };
+
     default:
       return state;
   }
@@ -300,5 +323,40 @@ export function startEditSavedSession(session) {
   return {
     type: ActionTypes.START_EDIT_SAVED_SESSION,
     payload: { session },
+  };
+}
+
+export function initializeSessionRequest() {
+  return {
+    type: ActionTypes.INITIALIZE_SESSION_REQUEST,
+  };
+}
+
+export function initializeSessionSuccess(players, addedPlayers) {
+  return {
+    type: ActionTypes.INITIALIZE_SESSION_SUCCESS,
+    payload: { players, addedPlayers },
+  };
+}
+
+function initializeSessionFailure(error) {
+  return {
+    type: ActionTypes.INITIALIZE_SESSION_FAILURE,
+    payload: { error },
+  };
+}
+
+export function initializeSession() {
+  return (dispatch, getState) => {
+    dispatch(initializeSessionRequest());
+    return request('/api/my/sessions/initialize', {
+      method: 'POST',
+    }).then(
+      res => {
+        startWebsocket(res.identifier);
+        dispatch(initializeSessionSuccess(res.identifier));
+      },
+      error => dispatch(initializeSessionFailure(error)),
+    );
   };
 }
