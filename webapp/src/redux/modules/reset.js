@@ -69,7 +69,7 @@ function resetPasswordRequestFailure(error) {
 
 export function resetPasswordRequest(type, value) {
   return (dispatch) => {
-    dispatch(resetPasswordRequestRequest());
+    dispatch(resetPasswordRequestRequestReq());
     return request(`/accounts/reset/request?${type}=${value}`, {
       method: 'POST',
       query: { [type]: value },

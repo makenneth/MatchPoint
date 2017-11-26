@@ -2,10 +2,10 @@ import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
 import { push } from 'react-router-redux';
 import WSActionTypes from 'redux/wsActionTypes';
+import { endSession } from 'redux/modules/websocketActions';
 import { Heap } from 'helpers';
 import { startLoad, stopLoad } from 'redux/modules/main';
 import { preSetTab } from 'redux/modules/navbar';
-// import { RESTORE_TEMP_SESSION } from 'redux/modules/tempSession';
 
 const initialState = {
   // prevState: null,
@@ -309,6 +309,7 @@ export function createSession(data) {
         dispatch(preSetTab('/club/sessions'));
         dispatch(push('/club/sessions'));
         dispatch(stopLoad());
+        dispatch(endSession());
         dispatch(createSessionSuccess(res.roundrobin));
       },
       (err) => {

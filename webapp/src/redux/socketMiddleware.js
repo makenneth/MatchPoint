@@ -7,14 +7,6 @@ import store from './store';
 
 let room;
 
-// const CHANNEL_EVENTS = {
-//   close: 'phx_close',
-//   error: 'phx_error',
-//   join: 'phx_join',
-//   reply: 'phx_reply',
-//   leave: 'phx_leave',
-// };
-
 export default async function startWebsocket() {
   let socket;
   try {
@@ -25,7 +17,8 @@ export default async function startWebsocket() {
     // probably direct to signup page
     return;
   }
-  room = socket.channel('session:abcd', {});
+  const shortId = store.getState().auth.club.short_id;
+  room = socket.channel(`session:${shortId}`, {});
 
   room.on('INITIAL_STATE', (res) => {
     store.dispatch(NewSession.initializeSessionSuccess(res.data.players, res.data.added_players));
@@ -45,7 +38,7 @@ export default async function startWebsocket() {
   });
 
   room.on('CREATE_PLAYER_FAILURE', (res) => {
-    store.dispatch(Players.addPlayerFailure(res.error));
+    store.dispatch(Players.addPlayerFailure(res.error_description));
   });
 
   room.on('UPDATE_PLAYER_SUCCESS', (res) => {
@@ -54,7 +47,7 @@ export default async function startWebsocket() {
   });
 
   room.on('UPDATE_PLAYER_FAILURE', (res) => {
-    store.dispatch(Players.updatePlayerFailure(res.error));
+    store.dispatch(Players.updatePlayerFailure(res.error_description));
   });
 
   room.on('DELETE_PLAYER_SUCCESS', (res) => {
@@ -62,7 +55,11 @@ export default async function startWebsocket() {
   });
 
   room.on('DELETE_PLAYER_FAILURE', (res) => {
-    store.dispatch(Players.deletePlayerFailure(res.error));
+    store.dispatch(Players.deletePlayerFailure(res.error_description));
+  });
+
+  room.on('SESSION_ENDED', () => {
+    socket.disconnect();
   });
 
   room.join().receive('ok', () => {
@@ -92,6 +89,10 @@ export function websocketMiddleware() {
         break;
       case WSActionTypes.DELETE_PLAYER_REQUEST:
         room.push('DELETE_PLAYER', { id: action.payload.id });
+        break;
+
+      case WSActionTypes.END_SESSION:
+        room.push('END_SESSION');
         break;
 
       default:

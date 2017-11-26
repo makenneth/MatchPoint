@@ -10,6 +10,7 @@ const actionTypes = keymirror({
   WEBSOCKET_CONNECT_SUCCESS: null,
   WEBSOCKET_CONNECT_FAILURE: null,
   JOIN_ROOM_SUCCESS: null,
+  END_SESSION: null,
 });
 
 export default actionTypes;

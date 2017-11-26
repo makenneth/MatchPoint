@@ -212,7 +212,7 @@ export function deletePlayerSuccess(id) {
   };
 }
 
-function deletePlayerFailure(error) {
+export function deletePlayerFailure(error) {
   return {
     type: ActionTypes.DELETE_PLAYER_FAILURE,
     payload: { error },

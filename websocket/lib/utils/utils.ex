@@ -17,7 +17,7 @@ defmodule MatchPoints.Utils do
   end
 
   def delete_matchpoints_api(url, token) do
-    HTTPoison.delete!(url, %{}, [{"cookie", "matchpoint_session="<>token}, {"Content-Type", "application/json"}])
+    HTTPoison.delete!(url, %{}, hackney: [cookie: [{"matchpoint_session", token}]])
   end
 
   def get_session_name(token) do
@@ -33,55 +33,71 @@ defmodule MatchPoints.Utils do
 
   def get_player_list(token) do
     HTTPoison.start
-    data = get_matchpoints_api("http://127.0.0.1:3000/api/my/players", token)
-    |> get_body
-    |> Poison.decode!
-    case data do
-      nil -> {:error, "Unable to get player list"}
-      _ -> {:ok, data["players"]}
+    case get_matchpoints_api("http://127.0.0.1:3000/api/my/players", token) do
+      %HTTPoison.Response{status_code: 200, body: body} ->
+        data = Poison.decode!(body)
+        {:ok, data["players"]}
+      %HTTPoison.Response{status_code: 500} ->
+        {:error, %{players: "Unable to get player list"}}
+      %HTTPoison.Error{reason: reason} ->
+        IO.inspect reason
+        {:error, %{internal_server: "Something had gone wrong..."}}
     end
   end
 
   def create_player(token, player) do
     HTTPoison.start
-    data = post_matchpoints_api("http://127.0.0.1:3000/api/my/players", token, %{player: player})
-    |> get_body
-    |> Poison.decode!
-    case data do
-      nil -> {:error, "Unable to get data"}
-      {:error, error} -> {:error, error}
-      _ -> {:ok, data["player"]}
+    case post_matchpoints_api("http://127.0.0.1:3000/api/my/players", token, %{player: player}) do
+      %HTTPoison.Response{status_code: 200, body: body} ->
+        data = Poison.decode!(body)
+        {:ok, data["player"]}
+      %HTTPoison.Response{status_code: 422, body: body} ->
+        data = Poison.decode!(body)
+        {:error, data["error_description"]}
+      %HTTPoison.Response{status_code: _code} -> {:error, %{player: "Something had gone wrong..."}}
+      %HTTPoison.Error{reason: reason} ->
+        IO.inspect reason
+        {:error, %{internal_server: "Something had gone wrong..."}}
     end
   end
 
   def update_player(token, player) do
     HTTPoison.start
-    data = patch_matchpoints_api(
-      "http://127.0.0.1:3000/api/my/players/" <> Integer.to_string(player["id"]),
+    case patch_matchpoints_api(
+      "http://127.0.0.1:3000/api/my/players/#{Integer.to_string(player["id"])}",
       token,
       %{player: player}
-    )
-    |> get_body
-    |> Poison.decode!
-    case data do
-      nil -> {:error, "Unable to get data"}
-      {:error, error} -> {:error, error}
-      _ -> {:ok, data["player"]}
+    ) do
+      %HTTPoison.Response{status_code: 200, body: body} ->
+        data = Poison.decode!(body)
+        {:ok, data["player"]}
+      %HTTPoison.Response{status_code: 422, body: body} ->
+        data = Poison.decode!(body)
+        {:error, data["error_description"]}
+      %HTTPoison.Response{status_code: _code} -> {:error, %{internal_server: "Something had gone wrong..."}}
+      %HTTPoison.Error{reason: reason} ->
+        IO.inspect reason
+        {:error, %{internal_server: "Something had gone wrong..."}}
     end
   end
 
   def delete_player(token, id) do
     HTTPoison.start
-    data = delete_matchpoints_api(
-      "http://127.0.0.1:3000/api/my/players" <> Integer.to_string(id),
+    case delete_matchpoints_api(
+      "http://127.0.0.1:3000/api/my/players/#{Integer.to_string(id)}",
       token
-    )
-    |> get_body
-    |> Poison.decode!
-    case data do
-      nil -> {:error, "Unable to get data"}
-      {:error, error} -> {:error, error}
-      _ -> {:ok, data["playerId"]}
+    ) do
+      %HTTPoison.Response{status_code: 200, body: body} ->
+        data = Poison.decode!(body)
+        {:ok, data["playerId"]}
+      %HTTPoison.Response{status_code: 422, body: body} ->
+        data = Poison.decode!(body)
+        {:error, data["error_description"]}
+      %HTTPoison.Response{status_code: code} ->
+        {:error, %{internal_server: "Something had gone wrong..."}}
+      %HTTPoison.Error{reason: reason} ->
+        IO.inspect reason
+        {:error, %{internal_server: "Something had gone wrong..."}}
     end
   end
 
