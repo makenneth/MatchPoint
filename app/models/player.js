@@ -7,7 +7,7 @@ class Player {
       'id', 'short_id', 'usatt_url',
       'rating', 'name', 'updated_at',
       'created_on', 'group_id', 'pos',
-      'session_count',
+      'session_count', 'promoted',
     ];
     const player = {};
     fields.forEach(field => {
@@ -258,6 +258,33 @@ class Player {
         }
         const player = Player.formatPlayer(results[0]);
         return resolve(player);
+      });
+    });
+  }
+
+  static async findPromotedPlayers(clubId) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT p.id, COALESCE(ph.won, 0) AS promoted
+        FROM players AS p
+        LEFT OUTER JOIN (
+          SELECT won, ph1.player_id FROM player_histories AS ph1
+          INNER JOIN (
+            SELECT MAX(change_date) AS change_date, id
+            FROM player_histories
+            WHERE roundrobin_id IS NOT NULL
+            GROUP BY id
+          ) AS ph2
+          ON ph1.change_date = ph2.change_date AND ph1.id = ph2.id
+          WHERE ph1.club_id = 1
+        ) AS ph
+        ON ph.player_id = p.id
+      `, [clubId], (err, results, fields) => {
+        connection.release();
+        if (err) throw err;
+
+        resolve(results.map(result => Player.formatPlayer(result)));
       });
     });
   }

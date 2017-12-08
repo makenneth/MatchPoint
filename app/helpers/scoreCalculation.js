@@ -6,12 +6,17 @@ export default class ScoreCalculation {
   }
 
   sortPlayers() {
+    const winners = {};
     let start = 0;
-    return this.schema.reduce((arr, playerInGroup) => {
+    const sorted = this.schema.reduce((arr, playerInGroup) => {
       const players = this.players.slice(start, start + playerInGroup);
       start += playerInGroup;
-      return [...arr, ...this.sortPlayerWithinGroup(players)];
+      const sortedInGroup = this.sortPlayerWithinGroup(players);
+      winners[sortedInGroup[0].id] = true;
+      return [...arr, ...sortedInGroup];
     }, []);
+
+    return [sorted, winners];
   }
 
   sortPlayerWithinGroup(players) {

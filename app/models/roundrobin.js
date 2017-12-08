@@ -360,7 +360,7 @@ static async update(clubId, id, realId, players, date, selectedSchema) {
 
   static updatePlayers(connection, clubId, roundrobin, results) {
     const calculation = new ScoreCalculation(roundrobin.players, roundrobin.selected_schema, results);
-    const sortedPlayers = calculation.sortPlayers();
+    const [sortedPlayers, winners] = calculation.sortPlayers();
     const [scoreChange, ratingChange] = calculation.calculateScoreChange();
     const promises = sortedPlayers.map((player) => {
       const rc = ratingChange[player.id.toString()];
@@ -368,7 +368,8 @@ static async update(clubId, id, realId, players, date, selectedSchema) {
       return RoundRobin.updatePlayer(
         connection, clubId,
         roundrobin.id, player.id,
-        player.rating, change, results[player.id]
+        player.rating, change,
+        results[player.id], !!winners[player.id],
       );
     });
     return Promise.all(promises).then(
@@ -386,19 +387,19 @@ static async update(clubId, id, realId, players, date, selectedSchema) {
   }
 
   static async updatePlayer(
-    connection, clubId, id, playerId, oldRating, change, result
+    connection, clubId, id, playerId, oldRating, change, result, isWinner
   ) {
     const resultJSON = JSON.stringify(result);
     const date = new Date();
     return new Promise((resolve, reject) => {
       connection.query(`INSERT INTO
         player_histories
-        (player_id, old_rating, rating_change, rating, club_id, roundrobin_id, result, change_date)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        (player_id, old_rating, rating_change, rating, club_id, roundrobin_id, result, change_date, won)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE rating_change = ?, rating = ?, result = ?
       `, [
         playerId, oldRating, change, oldRating + change,
-        clubId, id, resultJSON, date,
+        clubId, id, resultJSON, date, isWinner,
         change, oldRating + change, resultJSON
       ],
       (err, results, field) => {
