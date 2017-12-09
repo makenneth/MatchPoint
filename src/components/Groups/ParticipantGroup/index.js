@@ -2,12 +2,14 @@ import React from 'react';
 import { Table, TableBody, TableRow,
   TableHeader, TableHeaderColumn, TableRowColumn } from 'material-ui/Table';
 import UpArrow from 'react-icons/lib/md/keyboard-arrow-up';
-import PromoteButton from 'react-icons/lib/fa/arrow-up';
+// import PromoteButton from 'react-icons/lib/fa/arrow-up';
 import DownArrow from 'react-icons/lib/md/keyboard-arrow-down';
-import DemoteButton from 'react-icons/lib/fa/arrow-down';
+// import DemoteButton from 'react-icons/lib/fa/arrow-down';
 import IconButton from 'material-ui/IconButton/IconButton';
 
 const ParticipantGroup = (props) => {
+  const { promotedPlayers = {} } = props;
+  console.log(promotedPlayers);
   return (<div style={{ position: 'relative' }} className="participant-group-tables">
     <Table
       selectable={false}
@@ -33,37 +35,47 @@ const ParticipantGroup = (props) => {
         {
           props.players.map((player, i) => (
             <TableRow className="table-row" key={player.id}>
-              <TableRowColumn>{i + 1}</TableRowColumn>
-              <TableRowColumn>{player.name}</TableRowColumn>
-              <TableRowColumn>
+              <TableRowColumn
+                style={{ color: promotedPlayers[player.id] ? 'rgb(255, 64, 129)' : 'default' }}
+              >
+                {i + 1}
+              </TableRowColumn>
+              <TableRowColumn
+                style={{ color: promotedPlayers[player.id] ? 'rgb(255, 64, 129)' : 'default' }}
+              >
+                {player.name}
+              </TableRowColumn>
+              <TableRowColumn
+                style={{ color: promotedPlayers[player.id] ? 'rgb(255, 64, 129)' : 'default' }}
+              >
                 {player.rating}
                 {
-                  props.promote &&
-                    <IconButton
-                      iconClassName="material-icons"
-                      tooltip="Promote Player"
-                      onClick={() => props.promote(props.groupId, i)}
-                      style={{
-                        left: '15px',
-                        zIndex: 10,
-                      }}
-                    >
-                      <PromoteButton />
-                    </IconButton>
+                  // props.promote &&
+                  //   <IconButton
+                  //     iconClassName="material-icons"
+                  //     tooltip="Promote Player"
+                  //     onClick={() => props.promote(props.groupId, i)}
+                  //     style={{
+                  //       left: '15px',
+                  //       zIndex: 10,
+                  //     }}
+                  //   >
+                  //     <PromoteButton />
+                  //   </IconButton>
                 }
                 {
-                  props.demote &&
-                  <IconButton
-                    iconClassName="material-icons"
-                    tooltip="Demote Player"
-                    onClick={() => props.demote(props.groupId, i)}
-                    style={{
-                      left: '30px',
-                      zIndex: 10,
-                    }}
-                  >
-                    <DemoteButton />
-                  </IconButton>
+                  // props.demote &&
+                  // <IconButton
+                  //   iconClassName="material-icons"
+                  //   tooltip="Demote Player"
+                  //   onClick={() => props.demote(props.groupId, i)}
+                  //   style={{
+                  //     left: '30px',
+                  //     zIndex: 10,
+                  //   }}
+                  // >
+                  //   <DemoteButton />
+                  // </IconButton>
                 }
               </TableRowColumn>
             </TableRow>

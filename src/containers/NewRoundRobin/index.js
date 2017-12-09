@@ -5,6 +5,7 @@ import {
   fetchCurrentPlayers,
   addPlayer,
   updatePlayer,
+  fetchPromotedPlayers,
 } from 'redux/modules/players';
 import { fetchActivePlayers } from 'redux/modules/activePlayers';
 import { PlayerForm } from 'components';
@@ -19,6 +20,7 @@ import TabContainer from './TabContainer';
     closeNewModal,
     closeEditModal,
     fetchCurrentPlayers,
+    fetchPromotedPlayers,
     fetchActivePlayers,
     addPlayer,
     updatePlayer,
@@ -28,6 +30,7 @@ export default class NewRRSession extends Component {
   componentWillMount() {
     if (!this.props.session.loaded && !this.props.session.loading) {
       this.props.fetchCurrentPlayers();
+      this.props.fetchPromotedPlayers();
       // this.props.fetchActivePlayers();
     }
   }
