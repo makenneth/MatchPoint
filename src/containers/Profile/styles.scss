@@ -60,3 +60,10 @@
   }
 
 }
+
+.profile-tab-container > div {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  height: 100%;
+}

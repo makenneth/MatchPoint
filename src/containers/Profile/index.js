@@ -45,7 +45,7 @@ export default class Profile extends Component {
   render() {
     const tutorialEnabled = JSON.parse(isTutorialEnabled());
     return (<div className="profile-container">
-      <Card containerStyle={{ padding: '15px', height: '100%' }}>
+      <Card className="profile-tab-container">
         <CardHeader
           title="Member Profile"
           titleStyle={{
@@ -75,7 +75,7 @@ export default class Profile extends Component {
             passwordChange={this.props.passwordChange}
           />
         </CardText>
-        <CardText style={{ display: this.state.tab === 1 ? 'block' : 'none' }}>
+        <CardText style={{ display: this.state.tab === 1 ? 'block' : 'none', overflowY: 'auto' }}>
           <InfoChange
             infoChange={this.props.infoChange}
             autocomplete={this.props.autocomplete}

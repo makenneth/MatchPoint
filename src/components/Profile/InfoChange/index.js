@@ -167,7 +167,7 @@ export default class InfoChange extends Component {
     const { addressFocused } = this.state;
     const { isLoading } = this.props.infoChange;
 
-    return (<form onSubmit={this.handleSubmit}>
+    return (<form onSubmit={this.handleSubmit} style={{ overflow: 'initial' }}>
       <AddressAutoComplete
         selectPrediction={this.selectPrediction}
         onClickOutside={this.handleAddressClickOutisde}
