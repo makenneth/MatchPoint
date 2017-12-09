@@ -172,7 +172,10 @@ export default class Heap {
   }
 
   removePlayerList() {
-    this.playerList = null;
-    return this;
+    return this.dup();
+  }
+
+  dup() {
+    return new Heap(this.heap.slice(), Object.assign({}, this.map));
   }
 }

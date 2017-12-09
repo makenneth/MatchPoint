@@ -9,7 +9,6 @@ import IconButton from 'material-ui/IconButton/IconButton';
 
 const ParticipantGroup = (props) => {
   const { promotedPlayers = {} } = props;
-  console.log(promotedPlayers);
   return (<div style={{ position: 'relative' }} className="participant-group-tables">
     <Table
       selectable={false}
@@ -33,7 +32,7 @@ const ParticipantGroup = (props) => {
         style={{ position: 'relative' }}
       >
         {
-          props.players.map((player, i) => (
+          props.players.map((player = {}, i) => (
             <TableRow className="table-row" key={player.id}>
               <TableRowColumn
                 style={{ color: promotedPlayers[player.id] ? 'rgb(255, 64, 129)' : 'default' }}

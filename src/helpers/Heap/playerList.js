@@ -19,18 +19,17 @@ export default class PlayerList {
   }
 
   getSortedList(heap) {
-    let promoted = [];
+    const promoted = [];
     let promotedGroup;
     let currentGroup = this.schema.length - 1;
     let currentPosition = this.schema[currentGroup] - 1;
     while (currentGroup >= 0 && currentPosition >= 0 && heap.heap.length > 0) {
       const min = heap.removeMin();
       if (promoted.length > 0 && promotedGroup > currentGroup) {
-        promoted = promoted.sort((a, b) => a.rating - b.rating);
         while (promoted.length > 0) {
-          const cur = promoted.pop();
+          const cur = promoted.shift();
           this.playerList[currentGroup][currentPosition--] = cur;
-          if (currentPosition === 0) {
+          if (currentPosition === -1) {
             currentPosition = this.schema[--currentGroup] - 1;
           }
         }
