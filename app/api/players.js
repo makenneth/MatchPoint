@@ -110,4 +110,13 @@ router.route("/players/:id")
         }).catch(err => next({ code: 500, message: err }));
   });
 
+router.route("/players/promotion").get(async (req, res, next) => {
+  try {
+    const promoted = await Player.findPromotedPlayers(req.club.id);
+    res.status(200).send({ promoted });
+  } catch (e) {
+    return next({ code: 500, message, e });
+  }
+});
+
 export default router;
