@@ -92,6 +92,7 @@ CREATE TABLE player_histories (
   rating SMALLINT NOT NULL,
   result JSON,
   change_date DATETIME NOT NULL,
+  won TINYINT(1) DEFAULT 0,
   FOREIGN KEY (club_id) REFERENCES clubs (id),
   FOREIGN KEY (roundrobin_id) REFERENCES roundrobins (id) ON DELETE CASCADE,
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE,

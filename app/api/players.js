@@ -16,7 +16,7 @@ router.route("/players").get((req, res, next) => {
           res.status(200).send({ players });
           try {
             const json = JSON.stringify(players);
-            client.set(`players:${clubId}`, json);
+            client.setex(`players:${clubId}`, 24*60*60, json);
           } catch (e) {
             next({ code: 500, messgae: e });
           }

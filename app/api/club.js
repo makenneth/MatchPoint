@@ -37,7 +37,7 @@ router.get("/", (req, res, next) => {
             res.status(200).send({ roundrobin });
             try {
               const json = JSON.stringify(roundrobin);
-              client.set(`sessions:${clubId}:${req.params.id}`, json);
+              client.setex(`sessions:${clubId}:${req.params.id}`, 12*60*60, json);
             } catch (e) {
               next({ code: 500, message: e });
             }
