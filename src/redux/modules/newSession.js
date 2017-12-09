@@ -13,6 +13,7 @@ const initialState = {
   allPlayers: {},
   addedPlayers: new Heap(),
   date: new Date(),
+  promoted: {},
   max: 7,
   min: 3,
 };
@@ -185,6 +186,23 @@ export default (state = initialState, action) => {
         ...state,
         addedPlayers: state.addedPlayers.removePlayerList(),
       };
+
+    case ActionTypes.FETCH_PROMOTED_PLAYERS_SUCCESS: {
+      const promoted = {};
+      action.payload.promoted.forEach(player => {
+        promoted[player.id] = !!player.promoted;
+      });
+      return {
+        ...state,
+        promoted,
+      };
+    }
+
+    case ActionTypes.FETCH_PROMOTED_PLAYERS_FAILURE:
+      return {
+        ...state,
+        error: action.payload.error,
+      };
     default:
       return state;
   }
@@ -256,10 +274,10 @@ export function createSession(data) {
       body: JSON.stringify({ session: data }),
     }).then(
       (res) => {
-        dispatch(stopLoad());
-        dispatch(createSessionSuccess(res.roundrobin));
         dispatch(preSetTab('/club/sessions'));
         browserHistory.push('/club/sessions');
+        dispatch(stopLoad());
+        dispatch(createSessionSuccess(res.roundrobin));
       },
       (err) => {
         dispatch(stopLoad());

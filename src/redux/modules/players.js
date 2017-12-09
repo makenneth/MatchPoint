@@ -37,6 +37,7 @@ export default function Players(state = initialState, action) {
         loading: false,
         error: action.payload.error,
       };
+
     default:
       return state;
   }
@@ -73,6 +74,43 @@ export function fetchCurrentPlayers() {
       },
       err => {
         dispatch(fetchCurrentPlayersFailure(err));
+        dispatch(stopLoad());
+        dispatch(setMessage('Something went wrong... please try again.'));
+      }
+    );
+  };
+}
+
+function fetchPromotedPlayersRequest() {
+  return {
+    type: ActionTypes.FETCH_PROMOTED_PLAYERS_REQUEST,
+  };
+}
+
+function fetchPromotedPlayersSuccess(promoted) {
+  return {
+    type: ActionTypes.FETCH_PROMOTED_PLAYERS_SUCCESS,
+    payload: { promoted },
+  };
+}
+
+function fetchPromotedPlayersFailure(error) {
+  return {
+    type: ActionTypes.FETCH_PROMOTED_PLAYERS_FAILURE,
+    payload: { error },
+  };
+}
+
+export function fetchPromotedPlayers() {
+  return (dispatch) => {
+    dispatch(fetchPromotedPlayersRequest());
+    return request('/api/my/players/promotion').then(
+      res => {
+        dispatch(fetchPromotedPlayersSuccess(res.promoted));
+        dispatch(stopLoad());
+      },
+      err => {
+        dispatch(fetchPromotedPlayersFailure(err));
         dispatch(stopLoad());
         dispatch(setMessage('Something went wrong... please try again.'));
       }
