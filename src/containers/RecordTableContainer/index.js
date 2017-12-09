@@ -27,8 +27,8 @@ export default class RecordTableContainer extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.joinedPlayers !== nextProps.joinedPlayers) {
-      const { joinedPlayers } = nextProps;
+    const { joinedPlayers } = nextProps;
+    if (!this.props.joinedPlayers.every((p, i) => p.id === joinedPlayers[i].id)) {
       const newResults = {};
       joinedPlayers.forEach((player, i) => {
         newResults[player.id] = {};
