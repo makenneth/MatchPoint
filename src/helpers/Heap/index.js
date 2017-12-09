@@ -36,14 +36,14 @@ export default class Heap {
     <T> removeMax()
     - Returns object with max value inside the heap
   */
-  removeMax() {
-    const max = this.heap[0];
+  removeMin() {
+    const min = this.heap[0];
     this.heap[0] = this.heap[this.heap.length - 1];
     delete this.map[this.heap[0].id];
     this.heap.pop();
     this.heapifyDown(0);
 
-    return max;
+    return min;
   }
 
   /*
@@ -79,7 +79,7 @@ export default class Heap {
     const copiedArr = this.heap.slice();
     copiedArr[idx] = player;
     const newHeap = new Heap(copiedArr, this.map);
-    if (player.rating > old.rating) {
+    if (player.rating < old.rating) {
       newHeap.heapifyDown(idx);
     } else {
       newHeap.heapifyUp(idx);
@@ -101,7 +101,7 @@ export default class Heap {
     }
 
     const parentIdx = Math.ceil(idx / 2) - 1;
-    if (this.heap[idx].rating > this.heap[parentIdx].rating) {
+    if (this.heap[idx].rating < this.heap[parentIdx].rating) {
       this.swap(idx, parentIdx);
       return this.heapifyUp(parentIdx);
     }
@@ -123,17 +123,17 @@ export default class Heap {
       const rightIdx = childIndices[1];
       const right = this.heap[rightIdx];
 
-      if (left.rating > parent.rating && left.rating > right.rating) {
+      if (left.rating < parent.rating && left.rating < right.rating) {
         this.swap(leftIdx, idx);
         return this.heapifyDown(leftIdx);
-      } else if (right.rating > parent.rating) {
+      } else if (right.rating < parent.rating) {
         this.swap(rightIdx, idx);
         return this.heapifyDown(rightIdx);
       }
     } else if (childIndices.length === 1) {
       const child = this.heap[childIndices[0]];
 
-      if (child.rating > parent.rating) {
+      if (child.rating < parent.rating) {
         this.swap(childIndices[0], idx);
         return this.heapifyDown(childIndices[0]);
       }
@@ -148,26 +148,24 @@ export default class Heap {
     const copiedHeap = new Heap(this.heap.slice(), Object.assign({}, this.map));
     const sorted = [];
     while (copiedHeap.heap.length > 0) {
-      sorted.push(copiedHeap.removeMax());
+      sorted.push(copiedHeap.removeMin());
     }
 
-    if (order === 'ASC') {
+    if (order === 'DESC') {
       sorted.reverse();
     }
 
     return sorted;
   }
 
-  toPlayerList(schema) {
+  toPlayerList(schema, promoted) {
     // make sure there is only one instance of list per heap.
     if (this.playerList) {
       return this.playerList;
     }
-    const list = new PlayerList(schema);
+    const list = new PlayerList(schema, promoted);
     const copiedHeap = new Heap(this.heap.slice(), Object.assign({}, this.map));
-    while (copiedHeap.heap.length > 0) {
-      list.append(copiedHeap.removeMax());
-    }
+    list.getSortedList(copiedHeap);
 
     this.playerList = list;
     return list;

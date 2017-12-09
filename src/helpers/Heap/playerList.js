@@ -2,9 +2,10 @@
 // import { updatePlayerList } from 'redux/modules/newSession';
 
 export default class PlayerList {
-  constructor(schema) {
+  constructor(schema, promoted) {
     this.schema = schema;
-    this.playerList = schema.map(() => []);
+    this.promoted = promoted || {};
+    this.playerList = schema.map((p) => [...new Array(p)]);
     this.currentGroup = 0;
   }
 
@@ -14,6 +15,37 @@ export default class PlayerList {
 
     if (group.length >= this.schema[this.currentGroup]) {
       this.currentGroup++;
+    }
+  }
+
+  getSortedList(heap) {
+    let promoted = [];
+    let promotedGroup;
+    let currentGroup = this.schema.length - 1;
+    let currentPosition = this.schema[currentGroup] - 1;
+    while (currentGroup >= 0 && currentPosition >= 0 && heap.heap.length > 0) {
+      const min = heap.removeMin();
+      if (promoted.length > 0 && promotedGroup > currentGroup) {
+        promoted = promoted.sort((a, b) => a.rating - b.rating);
+        while (promoted.length > 0) {
+          const cur = promoted.pop();
+          this.playerList[currentGroup][currentPosition--] = cur;
+          if (currentPosition === 0) {
+            currentPosition = this.schema[--currentGroup] - 1;
+          }
+        }
+        promotedGroup = null;
+      }
+
+      if (this.promoted[min.id] && currentGroup > 0 && currentPosition <= 2) {
+        promoted.push(min);
+        promotedGroup = currentGroup;
+      } else {
+        this.playerList[currentGroup][currentPosition--] = min;
+        if (currentPosition === -1) {
+          currentPosition = this.schema[--currentGroup] - 1;
+        }
+      }
     }
   }
 
