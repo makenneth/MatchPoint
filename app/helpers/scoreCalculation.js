@@ -12,7 +12,9 @@ export default class ScoreCalculation {
       const players = this.players.slice(start, start + playerInGroup);
       start += playerInGroup;
       const sortedInGroup = this.sortPlayerWithinGroup(players);
-      winners[sortedInGroup[0].id] = true;
+      if (sortedInGroup[0].wins === playerInGroup * 3) {
+        winners[sortedInGroup[0].id] = true;
+      }
       return [...arr, ...sortedInGroup];
     }, []);
 

@@ -277,7 +277,7 @@ class Player {
             GROUP BY id
           ) AS ph2
           ON ph1.change_date = ph2.change_date AND ph1.id = ph2.id
-          WHERE ph1.club_id = 1
+          WHERE ph1.club_id = ?
         ) AS ph
         ON ph.player_id = p.id
       `, [clubId], (err, results, fields) => {
