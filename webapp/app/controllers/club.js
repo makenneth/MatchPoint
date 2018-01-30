@@ -48,6 +48,47 @@ export default () => {
       }
     },
 
+
+    update:  async (req, res, next) => {
+      const data = req.body.data;
+      const type = req.query.type;
+      // const club = req.club;
+      console.log(data);
+      try {
+        if (type === "password") {
+          const ok = await Club.changePassword(req.club, data);
+        } else if (type === "info") {
+          if (data.info.address !== req.club.address) {
+            const { lat, lng } = await GoogleApi.getGeoCode(data.info.address);
+            console.log(lat, lng)
+            data.lat = lat;
+            data.lng = lng;
+          }
+          const ok = await Club.changeInfo(req.club, data);
+        }
+      } catch (err) {
+        console.log(err);
+        if (err.password || err.city || err.state || err.address || err.email) {
+          return next({ code: 422, message: err });
+        }
+
+        return next({ code: 500, message: err });
+      }
+
+      try {
+        const club = await Club.detail(req.club.id);
+        if (club.email !== req.club.email) {
+          new Mailer(club).sendConfirmationEmail();
+        }
+        delete club.password_digest;
+        delete club.session_token;
+        delete club.confirm_token;
+        return res.status(200).send({ club });
+      } catch (e) {
+        return next({ code: 500, message: e });
+      }
+    },
+
     all: (req, res, next) => {
       const { geolocation } = req.body;
       Club.all(geolocation)
