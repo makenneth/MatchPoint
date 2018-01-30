@@ -1,10 +1,11 @@
 import express from "express";
 import { csrfProtection } from "../helpers/appModules";
+import Players from '../controllers/player';
 
 const router = express.Router();
 router.route("/players")
-  .get(Controller.getPlayers)
-  .post(csrfProtection, Controller.createPlayer);
+  .get(Players.getPlayers)
+  .post(csrfProtection, Players.createPlayer);
 
 // router.route("/players/active").get((req, res, next) => {
 //   // not tested...
@@ -16,10 +17,10 @@ router.route("/players")
 // });
 
 router.route("/players/:id")
-  .delete(csrfProtection, Controller.deletePlayer)
-  .patch(csrfProtection, Controller.updatePlayer);
+  .delete(csrfProtection, Players.deletePlayer)
+  .patch(csrfProtection, Players.updatePlayer);
 
 router.route("/players/promotion")
-  .get(Controller.getPromotedPlayers);
+  .get(Players.getPromotedPlayers);
 
 export default router;
