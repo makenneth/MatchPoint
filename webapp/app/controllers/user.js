@@ -2,6 +2,14 @@ import ClubHelper from "../helpers/clubHelper";
 import Club from "../models/club";
 
 export default {
+  create: (req, res, next) => {
+
+  },
+
+  update: (req, res, next) => {
+
+  },
+
   post: (req, res, next) => {
     const data = req.body.user;
     Club.findByUsernameAndPassword(data.username.toLowerCase(), data.password)

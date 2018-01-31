@@ -135,6 +135,21 @@ class RoundRobin {
     });
   }
 
+  static async findPastSessions(id) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT date, num_players
+        WHERE club_id = ?
+        ORDER BY date DESC LIMIT 5
+      `, [id], (err, results, fields) => {
+        connection.release();
+        if (err) throw err;
+        const sessions = results.map(row => RoundRobin.format(row));
+        resolve(sessions);
+      });
+    });
+  }
 static async update(clubId, id, realId, players, date, selectedSchema) {
     const connection = await db.getConnection();
 

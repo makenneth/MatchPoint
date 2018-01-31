@@ -1,6 +1,6 @@
 import express from "express";
 import { jsonParser, csrfProtection } from "../helpers/appModules";
-import Session from '../controllers/sesion';
+import Session from '../controllers/session';
 
 const router = express.Router();
 

@@ -13,6 +13,7 @@ import ClubValidation from "../validations/club";
   // short_id        CHAR(10)     NOT NULL
   // username        VARCHAR(40)  NOT NULL
   // club_name       VARCHAR(80)  NOT NULL
+  // phone           VARCHAR(40)
   // email           VARCHAR(255) NOT NULL
   // verified        TINYINT(1)   DEFAULT 0
   // token           VARCHAR(50)  NOT NULL
@@ -76,6 +77,33 @@ class Club {
     });
   }
 
+  static async mobileDetail(id) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT
+          short_id, club_name, verified,
+          phone, address, geolat, geolng,
+          city, state, country
+        FROM clubs AS c
+        INNER JOIN club_geolocations AS cg
+        ON cg.club_id = c.id
+        WHERE c.id = ?
+      `, [id], async (err, results, field) => {
+        connection.release();
+        if (err) throw err;
+        console.log(results);
+        if (results.length > 0) {
+          const club = Club.formatClubRow(results[0]);
+          club.pastSessions = await RoundRobin.getPastSessions(id);
+          resolve(club);
+        } else {
+          reject({ club: 'Club not found.' });
+        }
+      });
+    });
+  }
+
   static async find(id) {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
@@ -103,7 +131,7 @@ class Club {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT c.id, short_id, username, club_name, email,
+        SELECT c.id, short_id, club_name, email,
         city, state, address, geolat, geolng, country
         FROM clubs AS c
         INNER JOIN club_geolocations AS cg
@@ -411,6 +439,37 @@ class Club {
           });
         });
       });
+  }
+
+  static async findBasicInfo(geolocation) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+       SELECT  FROM clubs WHERE username = ?
+      `, [username], async (err, results, field) => {
+        connection.release();
+        if (err) throw(err);
+
+        if (results.length === 0) {
+          return reject({
+            username: 'Username or password is not correct.',
+            password: 'Username or password is not correct.'
+          });
+        }
+        const digest = results[0].password_digest;
+        try {
+          const isPassword = await Club.isPassword(password, digest);
+        } catch (e) {
+          return reject({
+            username: 'Username or password is not correct.',
+            password: 'Username or password is not correct.'
+          });
+        }
+        const club = Club.formatClubRow(results[0]);
+        delete club.password_digest;
+        return resolve(club);
+      });
+    });
   }
 
   static async findByUsernameAndPassword(username, password) {

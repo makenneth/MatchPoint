@@ -1,5 +1,4 @@
 require('dotenv').config()
-import Raven from "raven";
 import path from "path";
 import cookieParser from "cookie-parser";
 import express from "express";
@@ -7,15 +6,10 @@ import db from './utils/connection';
 import { app, csrfProtection, jsonParser } from "./helpers/appModules";
 import ClubHelper  from "./helpers/clubHelper";
 import ClubModel  from "./models/club";
-import playerRoutes from "./api/players";
-import clubRoutes from "./api/club";
-import sessionRoutes from "./api/session";
-import accountRoutes from "./api/account";
-import uploadRoutes from "./api/upload";
-import currentUserRoutes from "./api/currentUser";
+import UserModel  from "./models/user";
+import * as Routes from './routes';
 
 const port = process.env.APP_PORT || 3000;
-Raven.config(process.env.RAVEN_URL).install();
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "public", "views"));
@@ -41,8 +35,8 @@ app.use("/favicon.ico", (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, "..", "public")));
-app.use("/api/clubs", clubRoutes);
-app.use("/api/upload", uploadRoutes);
+app.use("/api/clubs", Routes.club);
+app.use("/api/upload", Routes.upload);
 app.use("/api/my", jsonParser, (req, res, next) => {
   ClubModel.findBySessionToken(req.cookies.matchpoint_session)
     .then(
@@ -58,14 +52,35 @@ app.use("/api/my", jsonParser, (req, res, next) => {
       res.status(500).send(err);
     });
 });
-app.use("/api/my", currentUserRoutes);
-app.use("/api/my", playerRoutes);
+app.use("/api/my", Routes.currentUser);
+app.use("/api/my", Routes.player);
+app.use("/m/api/my", jsonParser, (req, res, next) => {
+  User.find(req.cookies.matchpoint_session, req.cookies.device_id)
+    .then(
+      (user) => {
+        req.user = user;
+        return next();
+      },
+      (err) => {
+        res.status(403).send(err);
+      }
+    ).catch((err) => {
+      res.status(500).send(err);
+    });
+});
+app.use("/m/api", (req, res, next) => {
+  if (req.cookies.apiKey === 'vWYg8aJHhX4aqZmtpjIxF9RYBMV79y1k') {
+    return next();
+  }
+  res.status(403).send({ error_description: "Invalid API Key" });
+});
+app.use("/m/api", Routes.mobile);
 app.use("/api/*", (req, res) => {
   res.status(404).send("Invalid route");
   res.end();
 });
-app.use("/session", sessionRoutes);
-app.use("/accounts", accountRoutes);
+app.use("/session", Routes.session);
+app.use("/accounts", Routes.account);
 app.get("*", csrfProtection, (req, res) => {
   res.render("index", { csrfToken: req.csrfToken() });
 });
