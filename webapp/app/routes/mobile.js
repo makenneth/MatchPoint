@@ -25,7 +25,7 @@ router.route("/session")
   });
 
 router
-  .get("/clubs", Clubs.all)
-  .get("/club/:clubId", Clubs.mobileDetail);
+  .get("/clubs", Clubs.mobileAll)
+  .get("/clubs/:clubId", Clubs.mobileDetail);
 
 export default router;

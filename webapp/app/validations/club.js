@@ -1,4 +1,4 @@
-class Club {
+function clubValidation() {
   validateUsername(username) {
     if (username && username.length < 8) {
       return { username: "Username must be at least 8 characters long" };
@@ -42,28 +42,45 @@ class Club {
       return { stateName: "State cannot be empty" };
     }
   }
-  validateInfo(club) {
-    let err = this.validateEmail(club.email);
-    if (err) return err;
-    err = this.validateCity(club.city);
-    if (err) return err;
-    err = this.validateState(club.state);
-    if (err) return err;
-  }
 
-  validate(club) {
-    let err = this.validateUsername(club.username);
-    if (err) return err;
-    err = this.validatePassword(club.password);
-    if (err) return err;
-    err = this.validateClubName(club.clubName);
-    if (err) return err;
-    err = this.validateCity(club.city);
-    if (err) return err;
-    err = this.validateState(club.stateName);
-    if (err) return err;
+  return {
+    validateInfo: function(club) {
+      let err = validateEmail(club.email);
+      if (err) return err;
+      err = validateCity(club.city);
+      if (err) return err;
+      err = validateState(club.state);
+      if (err) return err;
+    },
+
+    validate: function(club) {
+      let err = validateUsername(club.username);
+      if (err) return err;
+      err = validatePassword(club.password);
+      if (err) return err;
+      err = validateClubName(club.clubName);
+      if (err) return err;
+      err = validateCity(club.city);
+      if (err) return err;
+      err = validateState(club.stateName);
+      if (err) return err;
+    }
+
+    schedule: function(schedule) {
+      if (schedule.length !== 7) {
+        return { schedule: 'Schedule does not have the right amount of days.' };
+      }
+      const areValid = schedule.every((day) => (
+        day.every((session) => new Date(session).toString() !== 'Invalid Date');
+      ));
+
+      if (!areValid) {
+        return { schedule: 'Date format is not recognized' };
+      }
+
+      return null;
+    }
   }
 }
 
-const clubValidation = new Club();
-export default clubValidation;
+export default clubValidation();

@@ -3,8 +3,9 @@ import URLSafeBase64 from "urlsafe-base64";
 import crypto from "crypto";
 import shortid from "shortid";
 import bcrypt from "bcrypt-as-promised";
-import db from '../utils/connection';
 import mysql from "mysql";
+import { camelCase } from 'lodash';
+import db from '../utils/connection';
 import RoundRobin from './roundrobin';
 import ClubValidation from "../validations/club";
   // id              MEDIUMINT    NOT NULL AUTOINCREMENT
@@ -46,6 +47,24 @@ class Club {
     fields.forEach(field => {
       if (row[field]) {
         club[field] = row[field];
+      }
+    });
+
+    return club;
+  }
+
+  static mobileFormat(row) {
+    const fields = [
+      'id', 'password_digest', 'session_token',
+      'short_id', 'username', 'club_name',
+      'email', 'verified', 'token',
+      'confirm_token', 'updated_at', 'created_on',
+      'city', 'state', 'address', 'geolat', 'geolng', 'country',
+    ];
+    const club = {};
+    fields.forEach(field => {
+      if (row[field]) {
+        club[camelCase(field)] = row[field];
       }
     });
 
@@ -118,11 +137,29 @@ class Club {
         connection.release();
         if (err) throw err;
         if (results.length > 0) {
-          const club = Club.formatClubRow(results[0]);
+          const club = Club.mobileFormat(results[0]);
           resolve(club);
         } else {
           reject({ club: 'Club not found.' });
         }
+      });
+    });
+  }
+
+  static async mobileAll() {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT short_id, club_name, email,
+        city, state, address, geolat, geolng, country
+        FROM clubs AS c
+        INNER JOIN club_geolocations AS cg
+        ON cg.club_id = c.id
+      `, async (err, results, field) => {
+        connection.release();
+        if (err) throw(err);
+        const clubs = results.map(r => Club.mobileFormat(r));
+        resolve(clubs);
       });
     });
   }
@@ -537,6 +574,27 @@ class Club {
           });
           resolve(club);
         }
+      });
+    });
+  }
+
+  static async updateSchedule(clubId, schedule) {
+    const scheduleError = ClubValidation.schedule(schedule);
+    if (scheduleError) {
+      throw scheduleError;
+    }
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        UPDATE clubs SET schedule = ?
+        WHERE id = ?;
+      `, [schedule, clubId], (err, results, field) => {
+          connection.release();
+          if (err) {
+            throw({ schedule: 'Unable to update schedule.' });
+          }
+
+          resolve(club);
       });
     });
   }

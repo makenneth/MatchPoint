@@ -89,8 +89,15 @@ export default {
   },
 
   all: (req, res, next) => {
-    const { geolocation } = req.body;
+    const { geolocation } = req.query;
     Club.all(geolocation)
+      .then(clubs => res.status(200).send({ clubs }))
+      .catch(err => next({ code: 500, message: err }));
+  },
+
+  mobileAll: (req, res, next) => {
+    const { geolocation } = req.query;
+    Club.mobileAll(geolocation)
       .then(clubs => res.status(200).send({ clubs }))
       .catch(err => next({ code: 500, message: err }));
   },
@@ -107,5 +114,16 @@ export default {
 
   getActiveClubs: () => {
     // this will be in nosql or redis
+  },
+
+  updateSchedule: () => {
+    const clubId = req.club;
+    const { schedule } = req.body;
+    Club.updateSchedule(clubId, schedule)
+      .then(async () => {
+        res.status(204).send();
+      }).catch((err) => {
+        next({ code: err.schedule ? 400 : 500, message: err });
+      });
   },
 };

@@ -69,7 +69,7 @@ app.use("/m/api/my", jsonParser, (req, res, next) => {
     });
 });
 app.use("/m/api", (req, res, next) => {
-  if (req.cookies.apiKey === 'vWYg8aJHhX4aqZmtpjIxF9RYBMV79y1k') {
+  if (req.query.api_key === 'vWYg8aJHhX4aqZmtpjIxF9RYBMV79y1k') {
     return next();
   }
   res.status(403).send({ error_description: "Invalid API Key" });
@@ -85,13 +85,13 @@ app.get("*", csrfProtection, (req, res) => {
   res.render("index", { csrfToken: req.csrfToken() });
 });
 
-app.use((err, req, res, next) => {
-  if (err.code && err.code === 500) {
-    Raven.captureException(JSON.stringify(err));
-    return next({ code: 500 });
-  }
-  next(err);
-});
+// app.use((err, req, res, next) => {
+//   if (err.code && err.code === 500) {
+//     Raven.captureException(JSON.stringify(err));
+//     return next({ code: 500 });
+//   }
+//   next(err);
+// });
 
 app.use((err, req, res, next) => {
   let errorMessage = err.message;
