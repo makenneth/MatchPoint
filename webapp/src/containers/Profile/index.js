@@ -6,7 +6,7 @@ import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
 import { changePassword, changeInfo } from 'redux/modules/profile';
 import { addressAutoComplete, clearPredictions } from 'redux/modules/autocomplete';
 import { setMessage } from 'redux/modules/main';
-import { PasswordChange, InfoChange } from 'components';
+import { PasswordChange, InfoChange, OperationInfo } from 'components';
 import { enableTutorial, disableTutorial, isTutorialEnabled } from 'redux/modules/tutorial';
 import './styles.scss';
 
@@ -26,7 +26,7 @@ import './styles.scss';
 export default class Profile extends Component {
   constructor(props) {
     super(props);
-    this.state = { tab: 0 };
+    this.state = { tab: 2 };
   }
 
   setTab(tab) {
@@ -63,8 +63,12 @@ export default class Profile extends Component {
             onClick={() => this.setTab(1)}
           />
           <FlatButton
-            label="Settings"
+            label="Operation Info"
             onClick={() => this.setTab(2)}
+          />
+          <FlatButton
+            label="Settings"
+            onClick={() => this.setTab(3)}
           />
         </CardActions>
         <CardText style={{ display: this.state.tab === 0 ? 'block' : 'none' }}>
@@ -86,7 +90,10 @@ export default class Profile extends Component {
             clearPredictions={this.props.clearPredictions}
           />
         </CardText>
-        <CardText style={{ display: this.state.tab === 2 ? 'block' : 'none' }}>
+        <CardText style={{ display: this.state.tab === 2 ? 'block' : 'none', overflowY: 'auto' }}>
+          <OperationInfo />
+        </CardText>
+        <CardText style={{ display: this.state.tab === 3 ? 'block' : 'none' }}>
           <div className="setting-container">
             <div className={tutorialEnabled ? 'enabled' : 'disabled'}>
               <span>Tutorial:</span>{tutorialEnabled ? 'Enabled' : 'Disabled'}

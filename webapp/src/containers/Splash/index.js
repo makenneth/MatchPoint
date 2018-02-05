@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
 import { setPage } from 'redux/modules/splash';
 import { setToken } from 'redux/modules/reset';
 import { LogInForm, SignUpForm, ForgotForm, ResetForm, Activated } from 'components';

@@ -1,0 +1,92 @@
+.hours-table-container {
+  padding: 20px 0;
+
+  &--row {
+    display: flex;
+    padding: 5px 0;
+    position: relative;
+    font-size: 15px;
+
+    > *:first-child {
+      width: 150px;
+      margin-right: 20px;
+    }
+
+    > *:last-child {
+    }
+  }
+
+  &--title {
+    font-weight: 500;
+    font-size: 18px;
+  }
+
+  &--header {
+    font-weight: 500;
+    padding: 10px 0;
+  }
+
+  &--body {
+
+  }
+
+  &--label {
+
+  }
+
+  &--hours-rows {
+    flex: 1;
+
+    .not-open-placeholder {
+      text-align: left;
+    }
+  }
+
+  &--new-row {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+
+    .hours-table-container--hour-row {
+      display: flex;
+    }
+  }
+
+  &--new-input {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  &--new-button {
+    font-size: 18px;
+    cursor: pointer;
+  }
+  &--hour-label {
+    font-weight: 500;
+    margin-right: 10px;
+  }
+
+  &--hour-row {
+    & > div {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+
+      &:last-child {
+        margin-left: 30px;
+      }
+    }
+
+  }
+
+  .plus-button {
+    position: absolute;
+    right: 0;
+    cursor: pointer;
+    font-size: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}

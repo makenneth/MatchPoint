@@ -138,7 +138,7 @@ export default class LogInForm extends Component {
         </div>}
         <Divider style={style} />
         {!this.props.loading && <div className="redirect-signup">
-          Don't have an account yet?&nbsp;&nbsp;
+          Don&apos;t have an account yet?&nbsp;&nbsp;
           <a onClick={() => this.props.setPage(2)}>
             Sign Up
           </a>

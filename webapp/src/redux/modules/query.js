@@ -20,7 +20,7 @@ export default (state = initialState, action) => {
       };
 
     case ActionTypes.FETCH_ROUNDROBIN_DETAIL_SUCCESS: {
-      const { clubId, session } = action.payload;
+      const { session } = action.payload;
       let roundrobin;
       if (!session.finalized) {
         const { players } = session;

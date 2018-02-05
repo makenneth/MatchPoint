@@ -109,7 +109,7 @@ export function postResult(id, date, results) {
       method: 'POST',
       body: JSON.stringify({ results, date }),
     }).then(
-      res => {
+      () => {
         dispatch(stopLoad());
         browserHistory.push('/club/sessions');
         dispatch(postResultSuccess(id));
@@ -158,7 +158,7 @@ export function updateResult(id, date, results) {
       err => {
         dispatch(stopLoad());
         dispatch(setMessage('Unable to update result.'));
-        dispatch(updateResultFailure(err))
+        dispatch(updateResultFailure(err));
       },
     );
   };

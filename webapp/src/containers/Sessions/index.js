@@ -76,7 +76,7 @@ export default class RoundRobinSessions extends Component {
             <MdInfoOutline />
             <div className="tooltip">
               <ol>
-                <li>You are only allowed to edit the detail for "pending sessions".</li>
+                <li>You are only allowed to edit the detail for &quot;pending sessions&quot;.</li>
                 <li>You are only allowed to change the posted result for last saved entry.</li>
               </ol>
             </div>

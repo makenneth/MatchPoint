@@ -10,13 +10,13 @@ export default class SignUpForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: 'kxmingg@gmail.com',
-      username: 'testuser',
-      password: 'password',
-      passwordRepeat: 'password',
-      clubName: 'Test Club',
-      state: 'CA',
-      city: 'San Francisco',
+      email: '',
+      username: '',
+      password: '',
+      passwordRepeat: '',
+      clubName: '',
+      state: '',
+      city: '',
       errors: {},
     };
   }

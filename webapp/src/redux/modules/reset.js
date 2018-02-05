@@ -1,6 +1,5 @@
 import ActionTypes from 'redux/actionTypes';
 import request from 'utils/request';
-import { LOAD } from 'redux/modules/main';
 
 const initialState = {
   token: null,
@@ -81,7 +80,7 @@ export function resetPasswordRequest(type, value) {
   };
 }
 
-function resetPasswordRequest() {
+function resetPasswordReq() {
   return {
     type: ActionTypes.RESET_PASSWORD_REQUEST,
   };
@@ -102,12 +101,12 @@ function resetPasswordFailure(error) {
 
 export function resetPassword(token, newPassword) {
   return (dispatch) => {
-    dispatch(resetPasswordRequest());
+    dispatch(resetPasswordReq());
     return request('/accounts/reset', {
       method: 'POST',
       body: JSON.stringify({ token, newPassword }),
     }).then(
-      (res) => dispatch(resetPasswordSuccess()),
+      () => dispatch(resetPasswordSuccess()),
       err => dispatch(resetPasswordFailure(err))
     );
   };

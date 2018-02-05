@@ -9,7 +9,7 @@ import countries from 'constants/countries';
 import AddressAutoComplete from './AutoComplete';
 import './styles.scss';
 
-export default class InfoChange extends Component {
+export default class OperationInfo extends Component {
   constructor(props) {
     super(props);
 
