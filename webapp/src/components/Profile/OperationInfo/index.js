@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import HoursTable from './HoursTable';
 // import './styles.scss';
 
-export default class ContactInfo extends Component {
+export default class OperationInfo extends Component {
   render() {
     const { operationHours, roundrobinHours, isLoading } = this.props.hoursState;
     // so it should show what is already set...
@@ -19,6 +19,7 @@ export default class ContactInfo extends Component {
         updateClubHour={this.props.updateClubHour}
         addClubHour={this.props.addClubHour}
         deleteClubHour={this.props.deleteClubHour}
+        hourState={this.props.hourState}
       />
       <HoursTable
         title="Round Robin Hours"
@@ -28,6 +29,7 @@ export default class ContactInfo extends Component {
         updateClubHour={this.props.updateClubHour}
         addClubHour={this.props.addClubHour}
         deleteClubHour={this.props.deleteClubHour}
+        hourState={this.props.hourState}
       />
     </div>);
   }

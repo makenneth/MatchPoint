@@ -120,19 +120,15 @@ export default {
   createHour: (req, res, next) => {
     const clubId = req.club.id;
     const { hours, type } = req.body;
-    console.log('before call');
     Hour.createHour(clubId, type, hours)
-      .then((id) => {
-        console.log('finished', id);
+      .then(async (id) => {
         try {
-          const hour = Hour.getHour(clubId, id);
+          const hour = await Hour.getHour(clubId, id);
           res.status(200).send({ hour });
         } catch (e) {
-          console.log('json parse', e);
           next({ code: 500, message: err });
         }
       }).catch((err) => {
-        console.log('catch', err);
         next({ code: err.hours ? 400 : 500, message: err });
       });
   },
@@ -150,11 +146,14 @@ export default {
   },
 
   deleteHour: (req, res, next) => {
+    console.log('delete');
     const clubId = req.club.id;
     const hourId = req.params.hourId;
+    console.log(clubId, hourId)
     Hour.deleteHour(clubId, hourId)
       .then(() => {
-        res.status(204).send();
+        console.log('success');
+        res.status(200).send({ id: hourId });
       }).catch((err) => {
         next({ code: err.hours ? 400 : 500, message: err });
       });

@@ -5,13 +5,21 @@ const initialState = {
   isLoading: false,
   error: null,
   type: null,
+  hourType: null,
 };
 
 export default function Hour(state = initialState, action) {
   switch (action.type) {
     case ActionTypes.UPDATE_CLUB_HOUR_REQUEST:
-    case ActionTypes.DELETE_CLUB_HOUR_REQUEST:
     case ActionTypes.ADD_CLUB_HOUR_REQUEST:
+      return {
+        ...state,
+        isLoading: true,
+        type: action.type.split('_')[0],
+        hourType: action.payload.hourType,
+      };
+
+    case ActionTypes.DELETE_CLUB_HOUR_REQUEST:
       return {
         ...state,
         isLoading: true,
@@ -25,6 +33,7 @@ export default function Hour(state = initialState, action) {
         ...state,
         isLoading: false,
         type: null,
+        hourType: null,
       };
 
     case ActionTypes.UPDATE_CLUB_HOUR_FAILURE:
@@ -35,6 +44,7 @@ export default function Hour(state = initialState, action) {
         isLoading: false,
         error: action.error,
         type: null,
+        hourType: null,
       };
 
     default:
@@ -74,16 +84,17 @@ export function updateClubHour(id, type, hours) {
     );
   };
 }
-function addClubHourRequest() {
+function addClubHourRequest(hourType) {
   return {
     type: ActionTypes.ADD_CLUB_HOUR_REQUEST,
+    payload: { hourType },
   };
 }
 
-function addClubHourSuccess(result) {
+function addClubHourSuccess(hour) {
   return {
     type: ActionTypes.ADD_CLUB_HOUR_SUCCESS,
-    payload: result,
+    payload: { hour },
   };
 }
 
@@ -96,12 +107,12 @@ function addClubHourFailure(err) {
 
 export function addClubHour(type, hours) {
   return (dispatch) => {
-    dispatch(addClubHourRequest());
+    dispatch(addClubHourRequest(type));
     return request('/api/my/hours', {
       method: 'POST',
       body: JSON.stringify({ type, hours }),
     }).then(
-      res => dispatch(addClubHourSuccess(res.hours)),
+      res => dispatch(addClubHourSuccess(res.hour)),
       err => dispatch(addClubHourFailure(err))
     );
   };
@@ -113,10 +124,10 @@ function deleteClubHourRequest() {
   };
 }
 
-function deleteClubHourSuccess(hourId) {
+function deleteClubHourSuccess(hour) {
   return {
     type: ActionTypes.DELETE_CLUB_HOUR_SUCCESS,
-    payload: { hourId },
+    payload: { hour },
   };
 }
 
@@ -127,13 +138,14 @@ function deleteClubHourFailure(err) {
   };
 }
 
-export function deleteClubHour(hourId) {
+export function deleteClubHour(hour) {
   return (dispatch) => {
+    console.log(hour);
     dispatch(deleteClubHourRequest());
-    return request(`/api/my/hours/${hourId}`, {
+    return request(`/api/my/hours/${hour.id}`, {
       method: 'DELETE',
     }).then(
-      () => dispatch(deleteClubHourSuccess(hourId)),
+      () => dispatch(deleteClubHourSuccess(hour)),
       err => dispatch(deleteClubHourFailure(err))
     );
   };

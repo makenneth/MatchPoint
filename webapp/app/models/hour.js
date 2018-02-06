@@ -17,7 +17,7 @@ export default (function() {
 
   function formatRow(row) {
     const hour = {};
-    ['open', 'close', 'id', 'day'].forEach((field) => {
+    ['open', 'close', 'id', 'day', 'type'].forEach((field) => {
       hour[field] = row[field];
     });
 
@@ -40,7 +40,6 @@ export default (function() {
             connection.release();
             throw(err);
           }
-          console.log(results);
           if (results.length > 0) {
             return resolve(format(results));
           } else {
@@ -77,7 +76,6 @@ export default (function() {
     },
 
     createHour: async function(clubId, type, hour) {
-      console.log(clubId, type, hour);
       const connection = await db.getConnection();
       const hourId = await new Promise((resolve, reject) => {
         connection.beginTransaction((tError) => {
@@ -110,7 +108,6 @@ export default (function() {
           VALUES
           (?, ?)
         `, [clubId, hourId], (err, results, field) => {
-          console.log('insert club hours');
           if (err) {
             console.log(err);
             connection.rollback();
@@ -152,7 +149,25 @@ export default (function() {
     },
 
     deleteHour: async function(clubId, hourId)  {
-
+      const connection = await db.getConnection();
+      return new Promise((resolve, reject) => {
+        connection.query(`
+          DELETE h.* FROM hours AS h
+          INNER JOIN club_hours AS ch
+          ON ch.hour_id = h.id
+          WHERE ch.club_id = ? AND h.id = ?;
+        `, [clubId, hourId], async (err, results, field) => {
+          if (err) {
+            connection.release();
+            throw(err);
+          }
+          if (results.affectedRows === 0) {
+            return reject({ hours: 'Record not found.' });
+          } else {
+            return resolve(true);
+          }
+        });
+      });
     }
   };
 })();

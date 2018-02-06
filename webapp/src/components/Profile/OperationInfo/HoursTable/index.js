@@ -3,9 +3,12 @@ import moment from 'moment';
 import TimePicker from 'material-ui/TimePicker';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import Plus from 'react-icons/lib/md/playlist-add';
-import Check from 'react-icons/lib/md/check';
+import Plus from 'react-icons/lib/fa/plus';
+// import Check from 'react-icons/lib/md/check';
 import Clear from 'react-icons/lib/md/clear';
+import Delete from 'react-icons/lib/md/delete';
+import Edit from 'react-icons/lib/md/edit';
+import Save from 'react-icons/lib/md/save';
 import './styles.scss';
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -16,12 +19,23 @@ class HoursTable extends Component {
     addClubHour: PropTypes.func,
     deleteClubHour: PropTypes.func,
     hours: PropTypes.array,
+    hourState: PropTypes.object,
+    type: PropTypes.string,
   };
 
   state = {
     newRow: null,
     editingRows: {},
   };
+
+  componentWillReceiveProps(nextProps) {
+    const { isLoading, type, hourType } = this.props.hourState;
+    if (isLoading && !nextProps.hourState.isLoading && !nextProps.hourState.error) {
+      if (type === 'ADD' && hourType === this.props.type) {
+        this.setState({ newRow: null });
+      }
+    }
+  }
 
   addRow = () => {
     this.setState({
@@ -37,8 +51,19 @@ class HoursTable extends Component {
     this.setState({ newRow: null });
   }
 
-  updateTime = () => {
-
+  beginUpdatePeriod = (i, j) => {
+    debugger;
+    const period = this.props.hours[i][j];
+    this.setState({
+      editingRows: {
+        ...this.state.editingRows,
+        [period.id]: {
+          ...period,
+          open: moment(period.open),
+          close: moment(period.close),
+        },
+      },
+    });
   }
 
   updateNewDay = (day) => {
@@ -59,69 +84,96 @@ class HoursTable extends Component {
     });
   }
 
+  updateTime = (id, type, time) => {
+    const { [id]: row } = this.state.editingRows;
+    this.setState({
+      editingRows: {
+        ...this.state.editingRows,
+        [id]: {
+          ...row,
+          [type]: time,
+        },
+      },
+    });
+  }
+
   handleSubmitNewRow = () => {
     this.props.addClubHour(this.props.type, this.state.newRow);
   }
 
-  renderSessionTime(session, i, j, editingData, isNew) {
-    const callback = isNew ? this.updateNewTime : this.updateTime.bind(this, i, j);
+  handleUpdateClubHour = (id) => {
+    const { [id]: updated } = this.state.editingRows;
+    this.props.updateClubHour(id, updated);
+  }
+
+  renderSessionTime(session, dayIdx, periodIdx, editingData, isNew) {
+    const callback = isNew ? this.updateNewTime : this.updateTime.bind(this, dayIdx, periodIdx);
     const textFieldStyle = { width: '100px', height: '30px' };
     if (isNew) {
       textFieldStyle.width = '80px';
       textFieldStyle.height = '48px';
     }
-
+    console.log(session, editingData);
     if (editingData) {
-      return (<div className="hours-table-container--hour-row" key={j}>
+      return (<div className="hours-table-container--hour-row" key={periodIdx}>
         <div>
           <span className="hours-table-container--hour-label">Open:</span>
-          {editingData ?
-            <TimePicker
-              name="start-time"
-              minutesStep={15}
-              value={editingData.open}
-              onChange={(ev, date) => callback('open', date)}
-              textFieldStyle={textFieldStyle}
-            /> :
-            <span>{moment(session.open).format('h:mm A')}</span>
-          }
+          <TimePicker
+            name="start-time"
+            minutesStep={15}
+            value={editingData.open}
+            onChange={(ev, date) => callback('open', date)}
+            textFieldStyle={textFieldStyle}
+          />
         </div>
         <div>
           <span className="hours-table-container--hour-label">Close:</span>
-          {editingData ?
-            <TimePicker
-              name="close-time"
-              minutesStep={15}
-              value={editingData.close}
-              onChange={(ev, date) => callback('close', date)}
-              textFieldStyle={textFieldStyle}
-            /> :
-            <span>{moment(session.close).format('h:mm A')}</span>
-          }
+          <TimePicker
+            name="close-time"
+            minutesStep={15}
+            value={editingData.close}
+            onChange={(ev, date) => callback('close', date)}
+            textFieldStyle={textFieldStyle}
+          />
         </div>
+        <span className="buttons">
+          <Delete
+            style={{ color: '#EF5350', cursor: 'pointer' }}
+            onClick={() => this.props.deleteClubHour(session)}
+          />
+          <Save
+            style={{ color: '#66BB6A', cursor: 'pointer' }}
+            onClick={() => this.handleUpdateClubHour(session.id)}
+          />
+        </span>
       </div>);
     }
 
-    return (<div className="hours-table-container--hour-row" key={j}>
+    return (<div className="hours-table-container--hour-row normal" key={periodIdx}>
       <span>{moment(session.open).format('h:mm A')}</span>
       <span>-</span>
       <span>{moment(session.close).format('h:mm A')}</span>
+      <span className="buttons">
+        <Edit
+          style={{ cursor: 'pointer' }}
+          onClick={() => this.beginUpdatePeriod(dayIdx, periodIdx)}
+        />
+      </span>
     </div>);
   }
 
-  renderHoursRow(hours, i, j) {
+  renderHoursRow(hours, dayIdx, periodIdx) {
     const { editingRows } = this.state;
-    debugger;
     // probably need to add dst offset or something.
-    return this.renderSessionTime(hours, i, j, undefined)
+    return this.renderSessionTime(hours, dayIdx, periodIdx, editingRows[hours.id]);
   }
 
-  renderDayRow(day, i) {
+  renderDayRow(day, dayIdx) {
     return (<div className="hours-table-container--row">
-      <div className="hours-table-container--label">{dayNames[i]}</div>
+      <div className="hours-table-container--label">{dayNames[dayIdx]}</div>
       {
-        <div className="hours-table-container--hours-rows" key={i}>
-          {day.map((hours, j) => this.renderHoursRow(hours, i, j))}
+        <div className="hours-table-container--hours-rows" key={dayIdx}>
+          {day.map((hours, periodIdx) => this.renderHoursRow(hours, dayIdx, periodIdx))}
           {day.length === 0 && <span className="not-open-placeholder">Not Open</span>}
         </div>
       }
@@ -130,6 +182,8 @@ class HoursTable extends Component {
 
   render() {
     const { newRow } = this.state;
+    console.log('state', this.state.editingRows);
+    console.log(newRow);
     return (
       <div className="hours-table-container">
         <h2 className="hours-table-container--title">
@@ -162,7 +216,7 @@ class HoursTable extends Component {
             <div className="hours-table-container--new-input">
               {this.renderSessionTime(null, null, null, newRow, true)}
               <div className="hours-table-container--new-button">
-                <Check
+                <Save
                   style={{ color: '#66BB6A', cursor: 'pointer' }}
                   onClick={this.handleSubmitNewRow}
                 />

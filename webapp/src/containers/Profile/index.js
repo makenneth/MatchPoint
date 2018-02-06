@@ -13,8 +13,8 @@ import { fetchClubHours } from 'redux/modules/hours';
 import './styles.scss';
 
 @connect(
-  ({ auth: { club }, autocomplete, passwordChange, infoChange, hours }) =>
-    ({ club, autocomplete, passwordChange, infoChange, hours }),
+  ({ auth: { club }, autocomplete, passwordChange, infoChange, hours, hour }) =>
+    ({ club, autocomplete, passwordChange, infoChange, hours, hour }),
   {
     changePassword,
     changeInfo,
@@ -108,6 +108,7 @@ export default class Profile extends Component {
             addClubHour={this.props.addClubHour}
             deleteClubHour={this.props.deleteClubHour}
             hoursState={this.props.hours}
+            hourState={this.props.hour}
           />
         </CardText>
         <CardText style={{ display: this.state.tab === 3 ? 'block' : 'none' }}>

@@ -33,9 +33,37 @@ export default (state = initialState, action) => {
         isLoading: false,
       };
 
-    case ActionTypes.UPDATE_CLUB_HOUR_SUCCESS:
+    case ActionTypes.ADD_CLUB_HOUR_SUCCESS: {
+      const { hour } = action.payload;
+      const targetHours = state[`${hour.type}Hours`];
+      const dayHours = targetHours[hour.day].concat(hour);
+      return {
+        ...state,
+        [`${hour.type}Hours`]: [
+          ...targetHours.slice(0, hour.day),
+          dayHours.sort((a, b) => new Date(a.open) - new Date(b.open)),
+          ...targetHours.slice(hour.day + 1),
+        ],
+      };
+    }
+
     case ActionTypes.DELETE_CLUB_HOUR_SUCCESS:
-    case ActionTypes.CREATE_CLUB_HOUR_SUCCESS:
+      const { hour } = action.payload;
+      debugger;
+      const targetHours = state[`${hour.type}Hours`];
+      const dayHours = targetHours[hour.day].filter((h) => (
+        h.id !== hour.id
+      ));
+      return {
+        ...state,
+        [`${hour.type}Hours`]: [
+          ...targetHours.slice(0, hour.day),
+          dayHours,
+          ...targetHours.slice(hour.day + 1),
+        ],
+      };
+
+    case ActionTypes.UPDATE_CLUB_HOUR_SUCCESS:
       return {
         ...state,
       };
