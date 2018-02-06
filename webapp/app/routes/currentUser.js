@@ -20,7 +20,7 @@ router
   .patch("", jsonParser, Clubs.update)
   .patch("/hours/:hourId", jsonParser, Clubs.updateHour)
   .delete("/hours/:hourId", Clubs.deleteHour)
-  .patch("/hours", jsonParser, Clubs.createHour)
+  .post("/hours", jsonParser, Clubs.createHour)
   .get("/hours", Clubs.getHours)
   .get('/geolocation/autocomplete', GoogleApi.autocomplete);
 

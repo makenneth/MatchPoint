@@ -3,16 +3,18 @@ import { connect } from 'react-redux';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
+import { PasswordChange, InfoChange, OperationInfo } from 'components';
 import { changePassword, changeInfo } from 'redux/modules/profile';
 import { addressAutoComplete, clearPredictions } from 'redux/modules/autocomplete';
 import { setMessage } from 'redux/modules/main';
-import { PasswordChange, InfoChange, OperationInfo } from 'components';
 import { enableTutorial, disableTutorial, isTutorialEnabled } from 'redux/modules/tutorial';
+import { updateClubHour, addClubHour, deleteClubHour } from 'redux/modules/hour';
+import { fetchClubHours } from 'redux/modules/hours';
 import './styles.scss';
 
 @connect(
-  ({ auth: { club }, autocomplete, passwordChange, infoChange }) =>
-    ({ club, autocomplete, passwordChange, infoChange }),
+  ({ auth: { club }, autocomplete, passwordChange, infoChange, hours }) =>
+    ({ club, autocomplete, passwordChange, infoChange, hours }),
   {
     changePassword,
     changeInfo,
@@ -21,12 +23,22 @@ import './styles.scss';
     disableTutorial,
     addressAutoComplete,
     clearPredictions,
+    updateClubHour,
+    addClubHour,
+    deleteClubHour,
+    fetchClubHours,
   }
 )
 export default class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = { tab: 2 };
+  }
+
+  componentWillMount() {
+    if (!this.props.hours.isLoaded && !this.props.hours.isLoading) {
+      this.props.fetchClubHours();
+    }
   }
 
   setTab(tab) {
@@ -91,7 +103,12 @@ export default class Profile extends Component {
           />
         </CardText>
         <CardText style={{ display: this.state.tab === 2 ? 'block' : 'none', overflowY: 'auto' }}>
-          <OperationInfo />
+          <OperationInfo
+            updateClubHour={this.props.updateClubHour}
+            addClubHour={this.props.addClubHour}
+            deleteClubHour={this.props.deleteClubHour}
+            hoursState={this.props.hours}
+          />
         </CardText>
         <CardText style={{ display: this.state.tab === 3 ? 'block' : 'none' }}>
           <div className="setting-container">

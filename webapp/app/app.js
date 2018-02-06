@@ -54,25 +54,25 @@ app.use("/api/my", jsonParser, (req, res, next) => {
 });
 app.use("/api/my", Routes.currentUser);
 app.use("/api/my", Routes.player);
-app.use("/m/api/my", jsonParser, (req, res, next) => {
-  User.find(req.cookies.matchpoint_session, req.cookies.device_id)
-    .then(
-      (user) => {
-        req.user = user;
-        return next();
-      },
-      (err) => {
-        res.status(403).send(err);
-      }
-    ).catch((err) => {
-      res.status(500).send(err);
-    });
-});
 app.use("/m/api", (req, res, next) => {
   if (req.query.api_key === 'vWYg8aJHhX4aqZmtpjIxF9RYBMV79y1k') {
     return next();
   }
   res.status(403).send({ error_description: "Invalid API Key" });
+});
+app.use("/m/api/my", jsonParser, (req, res, next) => {
+  User.find(req.cookies.matchpoint_session, req.cookies.device_id)
+  .then(
+    (user) => {
+      req.user = user;
+      return next();
+    },
+    (err) => {
+      res.status(403).send(err);
+    }
+  ).catch((err) => {
+    res.status(500).send(err);
+  });
 });
 app.use("/m/api", Routes.mobile);
 app.use("/api/*", (req, res) => {

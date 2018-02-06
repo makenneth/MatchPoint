@@ -11,11 +11,10 @@ import './styles.scss';
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 class HoursTable extends Component {
-  static defaultProps = {
-    hours: Array.from(Array(7), () => ([])),
-  };
-
   static propTypes = {
+    updateClubHour: PropTypes.func,
+    addClubHour: PropTypes.func,
+    deleteClubHour: PropTypes.func,
     hours: PropTypes.array,
   };
 
@@ -28,8 +27,8 @@ class HoursTable extends Component {
     this.setState({
       newRow: {
         day: 0,
-        start: moment(),
-        end: moment(),
+        open: moment(),
+        close: moment(),
       },
     });
   }
@@ -60,6 +59,10 @@ class HoursTable extends Component {
     });
   }
 
+  handleSubmitNewRow = () => {
+    this.props.addClubHour(this.props.type, this.state.newRow);
+  }
+
   renderSessionTime(session, i, j, editingData, isNew) {
     const callback = isNew ? this.updateNewTime : this.updateTime.bind(this, i, j);
     const textFieldStyle = { width: '100px', height: '30px' };
@@ -71,45 +74,46 @@ class HoursTable extends Component {
     if (editingData) {
       return (<div className="hours-table-container--hour-row" key={j}>
         <div>
-          <span className="hours-table-container--hour-label">Start:</span>
+          <span className="hours-table-container--hour-label">Open:</span>
           {editingData ?
             <TimePicker
+              name="start-time"
               minutesStep={15}
-              value={editingData.start}
-              onClick={(...args) => callback('start', ...args)}
+              value={editingData.open}
+              onChange={(ev, date) => callback('open', date)}
               textFieldStyle={textFieldStyle}
             /> :
-            <span>{moment(session.start).format('h:mm A')}</span>
+            <span>{moment(session.open).format('h:mm A')}</span>
           }
         </div>
         <div>
-          <span className="hours-table-container--hour-label">End:</span>
+          <span className="hours-table-container--hour-label">Close:</span>
           {editingData ?
             <TimePicker
+              name="close-time"
               minutesStep={15}
-              value={editingData.end}
-              onClick={(...args) => callback('end', ...args)}
+              value={editingData.close}
+              onChange={(ev, date) => callback('close', date)}
               textFieldStyle={textFieldStyle}
             /> :
-            <span>{moment(session.end).format('h:mm A')}</span>
+            <span>{moment(session.close).format('h:mm A')}</span>
           }
         </div>
       </div>);
     }
 
     return (<div className="hours-table-container--hour-row" key={j}>
-      <span>{session.start}</span>
+      <span>{moment(session.open).format('h:mm A')}</span>
       <span>-</span>
-      <span>{session.end}</span>
+      <span>{moment(session.close).format('h:mm A')}</span>
     </div>);
   }
 
-  renderHoursRow(hours, i) {
+  renderHoursRow(hours, i, j) {
     const { editingRows } = this.state;
+    debugger;
     // probably need to add dst offset or something.
-    return hours.map((session, j) => (
-      this.renderSessionTime(session, i, j, editingRows[i][j])
-    ));
+    return this.renderSessionTime(hours, i, j, undefined)
   }
 
   renderDayRow(day, i) {
@@ -117,7 +121,7 @@ class HoursTable extends Component {
       <div className="hours-table-container--label">{dayNames[i]}</div>
       {
         <div className="hours-table-container--hours-rows" key={i}>
-          {day.map(hours => this.renderHoursRow(hours, i))}
+          {day.map((hours, j) => this.renderHoursRow(hours, i, j))}
           {day.length === 0 && <span className="not-open-placeholder">Not Open</span>}
         </div>
       }
@@ -144,6 +148,7 @@ class HoursTable extends Component {
         {
           newRow && <div className="hours-table-container--new-row">
             <SelectField
+              name="weekday-selector"
               onChange={(e, idx, val) => this.updateNewDay(val)}
               style={{ marginRight: '70px', width: '100px' }}
               value={newRow.day}
@@ -157,7 +162,10 @@ class HoursTable extends Component {
             <div className="hours-table-container--new-input">
               {this.renderSessionTime(null, null, null, newRow, true)}
               <div className="hours-table-container--new-button">
-                <Check style={{ color: '#66BB6A', cursor: 'pointer' }} />
+                <Check
+                  style={{ color: '#66BB6A', cursor: 'pointer' }}
+                  onClick={this.handleSubmitNewRow}
+                />
                 <Clear
                   style={{ color: '#EF5350', cursor: 'pointer' }}
                   onClick={this.cancelAddRow}

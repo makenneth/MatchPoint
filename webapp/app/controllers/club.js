@@ -1,4 +1,5 @@
 import Club from "../models/club";
+import Hour from "../models/hour";
 // import { client } from "../helpers/appModules";
 import Mailer from "../helpers/mailer";
 import ClubHelper from "../helpers/clubHelper";
@@ -116,27 +117,31 @@ export default {
     // this will be in nosql or redis
   },
 
-  createHour: () => {
+  createHour: (req, res, next) => {
     const clubId = req.club.id;
     const { hours, type } = req.body;
-    Club.createHour(clubId, type, hours)
+    console.log('before call');
+    Hour.createHour(clubId, type, hours)
       .then((id) => {
+        console.log('finished', id);
         try {
-          const hours = Club.getHour(clubId, id);
-          res.status(204).send({ hours });
+          const hour = Hour.getHour(clubId, id);
+          res.status(200).send({ hour });
         } catch (e) {
+          console.log('json parse', e);
           next({ code: 500, message: err });
         }
       }).catch((err) => {
+        console.log('catch', err);
         next({ code: err.hours ? 400 : 500, message: err });
       });
   },
 
-  updateHour: () => {
+  updateHour: (req, res, next) => {
     const clubId = req.club.id;
     const hourId = req.params.hourId;
     const { hours } = req.body;
-    Club.updateHour(clubId, hourId, hours)
+    Hour.updateHour(clubId, hourId, hours)
       .then(() => {
         res.status(204).send();
       }).catch((err) => {
@@ -144,10 +149,10 @@ export default {
       });
   },
 
-  deleteHour: () => {
+  deleteHour: (req, res, next) => {
     const clubId = req.club.id;
     const hourId = req.params.hourId;
-    Club.deleteHour(clubId, hourId)
+    Hour.deleteHour(clubId, hourId)
       .then(() => {
         res.status(204).send();
       }).catch((err) => {
@@ -155,7 +160,13 @@ export default {
       });
   },
 
-  getHours: () => {
-
+  getHours: (req, res, next) => {
+    const clubId = req.club.id;
+    Hour.getHours(clubId)
+      .then((hours) => {
+        res.status(200).send({ hours });
+      }).catch((err) => {
+        next({ code: 500, message: err });
+      });
   },
 };

@@ -7,22 +7,27 @@ import HoursTable from './HoursTable';
 
 export default class ContactInfo extends Component {
   render() {
-    const { isLoading } = this.props.contactChange || {};
-    const { clubHours, roundrobinHours } = this.props;
+    const { operationHours, roundrobinHours, isLoading } = this.props.hoursState;
     // so it should show what is already set...
     // then there will be an edit button that will pop a modal up
     return (<div className="contact-info-container">
       <HoursTable
         title="Operation Hours"
-        hours={clubHours}
+        type="operation"
+        hours={operationHours}
         isLoading={isLoading}
-        handleSubmit={this.props.updateHours}
+        updateClubHour={this.props.updateClubHour}
+        addClubHour={this.props.addClubHour}
+        deleteClubHour={this.props.deleteClubHour}
       />
       <HoursTable
         title="Round Robin Hours"
+        type="roundrobin"
         hours={roundrobinHours}
         isLoading={isLoading}
-        handleSubmit={this.props.updateHours}
+        updateClubHour={this.props.updateClubHour}
+        addClubHour={this.props.addClubHour}
+        deleteClubHour={this.props.deleteClubHour}
       />
     </div>);
   }

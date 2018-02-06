@@ -2,14 +2,14 @@ import { camelCase } from 'lodash';
 import db from '../utils/connection';
 import { validation } from '../validations/hour';
 
-export default function() {
+export default (function() {
   function format(results) {
     const hours = {
-      roundrobinHours: Array.from(Array(7), _ => new Array(7)),
-      operationHous: Array.from(Array(7), _ => new Array(7)),
+      roundrobinHours: Array.from(Array(7), _ => []),
+      operationHours: Array.from(Array(7), _ => []),
     };
     results.forEach((rows) => {
-      hours[`${row.type}Hours`][rows.day].push(formatRow(rows));
+      hours[`${rows.type}Hours`][rows.day].push(formatRow(rows));
     });
 
     return hours;
@@ -25,7 +25,7 @@ export default function() {
   }
 
   return {
-    getHour: async function(clubId) {
+    getHours: async function(clubId) {
       const connection = await db.getConnection();
       return new Promise((resolve, reject) => {
         connection.query(`
@@ -33,15 +33,41 @@ export default function() {
           FROM hours AS h
           INNER JOIN club_hours AS ch
           ON h.id = ch.hour_id
-          WHERE ch.club_id = 1
+          WHERE ch.club_id = ?
           ORDER BY h.day, h.open;
+        `, [clubId], async (err, results, field) => {
+          if (err) {
+            connection.release();
+            throw(err);
+          }
+          console.log(results);
+          if (results.length > 0) {
+            return resolve(format(results));
+          } else {
+            return resolve(format([]));
+          }
+        });
+      });
+    },
+
+
+    getHour: async function(clubId, hourId) {
+      const connection = await db.getConnection();
+      return new Promise((resolve, reject) => {
+        connection.query(`
+          SELECT h.*
+          FROM hours AS h
+          INNER JOIN club_hours AS ch
+          ON h.id = ch.hour_id
+          WHERE ch.club_id = ? AND h.id = ?;
         `, [clubId, hourId], async (err, results, field) => {
           if (err) {
             connection.release();
             throw(err);
           }
+          console.log(results);
           if (results.length > 0) {
-            const hours = formatRows(results);
+            const hours = formatRow(results[0]);
             return resolve(hours);
           } else {
             return resolve({});
@@ -51,38 +77,54 @@ export default function() {
     },
 
     createHour: async function(clubId, type, hour) {
+      console.log(clubId, type, hour);
       const connection = await db.getConnection();
-      return new Promise((resolve, reject) => {
+      const hourId = await new Promise((resolve, reject) => {
         connection.beginTransaction((tError) => {
           if (tError) throw tError;
           connection.query(`
             INSERT INTO hours (type, day, open, close)
-            VALUES (?, ?, ?)
-          `, [type, hour.day, hours.open, hours.close], (err, results, field) => {
+            VALUES (?, ?, ?, ?)
+          `, [
+              type,
+              hour.day,
+              hour.open.slice(0, 19).replace('T', ' '),
+              hour.close.slice(0, 19).replace('T', ' '),
+            ], (err, results, field) => {
+            console.log('tried to insert');
             if (err) {
+              console.log(err);
               connection.rollback();
               connection.release();
               throw(err);
             }
             resolve(results.insertId);
           });
-        })
-      }).then((hourId) => {
+        });
+      });
+
+      const insertToJoin = new Promise((resolve) => {
         connection.query(`
           INSERT INTO club_hours
-          (club_id, hourId)
+          (club_id, hour_id)
           VALUES
           (?, ?)
         `, [clubId, hourId], (err, results, field) => {
+          console.log('insert club hours');
           if (err) {
+            console.log(err);
             connection.rollback();
             connection.release();
             throw(err);
           }
+          connection.commit();
+          connection.release();
           resolve(true);
         });
       });
-    }
+
+      return Promise.resolve(hourId);
+    },
 
     updateHour: async function(clubId, hourId, hour) {
       const scheduleError = ClubValidation.hours(hours);
@@ -113,4 +155,4 @@ export default function() {
 
     }
   };
-}();
+})();
