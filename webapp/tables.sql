@@ -167,3 +167,26 @@ INSERT INTO matchpoints.club_geolocations (
 ) VALUES (
   "San Francisco", "CA", "United States", 2
 );
+
+CREATE TABLE matchpoints.hours (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  type VARCHAR(255) NOT NULL,
+  open DATETIME NOT NULL,
+  close DATETIME NOT NULL,
+  day TINYINT(4) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE matchpoints.club_hours (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  club_id MEDIUMINT NOT NULL,
+  hour_id MEDIUMINT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (club_id)
+    REFERENCES clubs (id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (hour_id)
+    REFERENCES hours (id)
+    ON DELETE CASCADE
+);
+

@@ -116,14 +116,46 @@ export default {
     // this will be in nosql or redis
   },
 
-  updateSchedule: () => {
-    const clubId = req.club;
-    const { schedule } = req.body;
-    Club.updateSchedule(clubId, schedule)
-      .then(async () => {
+  createHour: () => {
+    const clubId = req.club.id;
+    const { hours, type } = req.body;
+    Club.createHour(clubId, type, hours)
+      .then((id) => {
+        try {
+          const hours = Club.getHour(clubId, id);
+          res.status(204).send({ hours });
+        } catch (e) {
+          next({ code: 500, message: err });
+        }
+      }).catch((err) => {
+        next({ code: err.hours ? 400 : 500, message: err });
+      });
+  },
+
+  updateHour: () => {
+    const clubId = req.club.id;
+    const hourId = req.params.hourId;
+    const { hours } = req.body;
+    Club.updateHour(clubId, hourId, hours)
+      .then(() => {
         res.status(204).send();
       }).catch((err) => {
-        next({ code: err.schedule ? 400 : 500, message: err });
+        next({ code: err.hours ? 400 : 500, message: err });
       });
+  },
+
+  deleteHour: () => {
+    const clubId = req.club.id;
+    const hourId = req.params.hourId;
+    Club.deleteHour(clubId, hourId)
+      .then(() => {
+        res.status(204).send();
+      }).catch((err) => {
+        next({ code: err.hours ? 400 : 500, message: err });
+      });
+  },
+
+  getHours: () => {
+
   },
 };

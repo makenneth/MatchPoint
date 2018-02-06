@@ -18,7 +18,10 @@ router
   .get("/sessions/latest-date", RoundRobins.getLatestDate)
   .get("/sessions/edit-status/:id", RoundRobins.getEditStatus)
   .patch("", jsonParser, Clubs.update)
-  .patch("/schedule", jsonParser, Clubs.updateSchedule)
+  .patch("/hours/:hourId", jsonParser, Clubs.updateHour)
+  .delete("/hours/:hourId", Clubs.deleteHour)
+  .patch("/hours", jsonParser, Clubs.createHour)
+  .get("/hours", Clubs.getHours)
   .get('/geolocation/autocomplete', GoogleApi.autocomplete);
 
 export default router;

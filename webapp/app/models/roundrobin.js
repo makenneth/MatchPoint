@@ -16,11 +16,7 @@ class RoundRobin {
     const roundrobin = {};
     fields.forEach(field => {
       if (field === 'results' || field === 'selected_schema') {
-        try {
-          roundrobin[field] = JSON.parse(row[field]);
-        } catch (e) {
-          Raven.captureException(e);
-        }
+        roundrobin[field] = JSON.parse(row[field]);
       } else if (row.hasOwnProperty(field)) {
         roundrobin[field] = row[field];
       }

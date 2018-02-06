@@ -1,4 +1,3 @@
-import Raven from "raven";
 import URLSafeBase64 from "urlsafe-base64";
 import crypto from "crypto";
 import shortid from "shortid";
@@ -336,10 +335,10 @@ class Club {
         if (results.affectedRows > 0) {
           resolve(true);
         } else {
-          Raven.captureException({
-            logging_reason: 'Exploits',
-            error_description: 'Users attempted to call change password directly.'
-          });
+          // Raven.captureException({
+          //   logging_reason: 'Exploits',
+          //   error_description: 'Users attempted to call change password directly.'
+          // });
           reject({ user: 'User doesn\'t exist.' });
         }
       });
@@ -574,27 +573,6 @@ class Club {
           });
           resolve(club);
         }
-      });
-    });
-  }
-
-  static async updateSchedule(clubId, schedule) {
-    const scheduleError = ClubValidation.schedule(schedule);
-    if (scheduleError) {
-      throw scheduleError;
-    }
-    const connection = await db.getConnection();
-    return new Promise((resolve, reject) => {
-      connection.query(`
-        UPDATE clubs SET schedule = ?
-        WHERE id = ?;
-      `, [schedule, clubId], (err, results, field) => {
-          connection.release();
-          if (err) {
-            throw({ schedule: 'Unable to update schedule.' });
-          }
-
-          resolve(club);
       });
     });
   }

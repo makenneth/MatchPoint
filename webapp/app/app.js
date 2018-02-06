@@ -13,14 +13,14 @@ const port = process.env.APP_PORT || 3000;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "public", "views"));
-app.use((err, req, res, next) => {
-  try {
-    next();
-  } catch (e) {
-    Raven.captureException(JSON.stringify(e));
-    res.status(500).send({ error_description: "Internal Server Error" });
-  }
-})
+// app.use((err, req, res, next) => {
+//   try {
+//     next();
+//   } catch (e) {
+//     Raven.captureException(JSON.stringify(e));
+//     res.status(500).send({ error_description: "Internal Server Error" });
+//   }
+// })
 app.use(cookieParser());
 app.use((err, req, res, next) => {
   if (err.code !== "EBADCSRFTOKEN") {

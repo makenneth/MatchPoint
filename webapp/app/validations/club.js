@@ -1,5 +1,5 @@
 function clubValidation() {
-  validateUsername(username) {
+  function validateUsername(username) {
     if (username && username.length < 8) {
       return { username: "Username must be at least 8 characters long" };
     }
@@ -7,7 +7,7 @@ function clubValidation() {
     return null;
   }
 
-  validatePassword(password) {
+  function validatePassword(password) {
     if (password && password.length < 8) {
       return { password: "Password must be at least 8 characters long" };
     }
@@ -15,7 +15,7 @@ function clubValidation() {
     return null;
   };
 
-  validateEmail(email) {
+  function validateEmail(email) {
     const emailRegex = new RegExp(".+@.+..+", "i");
 
     if (!emailRegex.test(email)) {
@@ -25,19 +25,19 @@ function clubValidation() {
     return null;
   };
 
-  validateClubName(clubName) {
+  function validateClubName(clubName) {
     if (clubName && clubName.length === 0) {
       return { clubName: "Club name cannot be empty" };
     }
   }
 
-  validateCity(city) {
+  function validateCity(city) {
     if (city && city.length === 0) {
       return { city: "City cannot be empty" };
     }
   }
 
-  validateState(stateName) {
+  function validateState(stateName) {
     if (stateName && stateName.length === 0) {
       return { stateName: "State cannot be empty" };
     }
@@ -64,22 +64,7 @@ function clubValidation() {
       if (err) return err;
       err = validateState(club.stateName);
       if (err) return err;
-    }
-
-    schedule: function(schedule) {
-      if (schedule.length !== 7) {
-        return { schedule: 'Schedule does not have the right amount of days.' };
-      }
-      const areValid = schedule.every((day) => (
-        day.every((session) => new Date(session).toString() !== 'Invalid Date');
-      ));
-
-      if (!areValid) {
-        return { schedule: 'Date format is not recognized' };
-      }
-
-      return null;
-    }
+    },
   }
 }
 
