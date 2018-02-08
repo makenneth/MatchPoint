@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { reducer as reduxAsyncConnect } from 'redux-async-connect';
+import { reducer as reduxAsyncConnect } from 'redux-async-connect-react16';
 import auth from './auth';
 import main from './main';
 import navbar from './navbar';

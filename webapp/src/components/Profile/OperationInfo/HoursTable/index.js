@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import TimePicker from 'material-ui/TimePicker';
 import SelectField from 'material-ui/SelectField';
@@ -25,14 +26,17 @@ class HoursTable extends Component {
 
   state = {
     newRow: null,
-    editingRows: {},
+    editingRow: null,
   };
 
   componentWillReceiveProps(nextProps) {
     const { isLoading, type, hourType } = this.props.hourState;
-    if (isLoading && !nextProps.hourState.isLoading && !nextProps.hourState.error) {
-      if (type === 'ADD' && hourType === this.props.type) {
+    if (hourType === this.props.type && isLoading &&
+      !nextProps.hourState.isLoading && !nextProps.hourState.error) {
+      if (type === 'ADD') {
         this.setState({ newRow: null });
+      } else if (type === 'UPDATE') {
+        this.setState({ editingRow: null });
       }
     }
   }
@@ -41,8 +45,8 @@ class HoursTable extends Component {
     this.setState({
       newRow: {
         day: 0,
-        open: moment(),
-        close: moment(),
+        open: new Date(),
+        close: new Date(),
       },
     });
   }
@@ -52,16 +56,12 @@ class HoursTable extends Component {
   }
 
   beginUpdatePeriod = (i, j) => {
-    debugger;
     const period = this.props.hours[i][j];
     this.setState({
-      editingRows: {
-        ...this.state.editingRows,
-        [period.id]: {
-          ...period,
-          open: moment(period.open),
-          close: moment(period.close),
-        },
+      editingRow: {
+        ...period,
+        open: new Date(period.open),
+        close: new Date(period.close),
       },
     });
   }
@@ -84,15 +84,11 @@ class HoursTable extends Component {
     });
   }
 
-  updateTime = (id, type, time) => {
-    const { [id]: row } = this.state.editingRows;
+  updateTime = (type, time) => {
     this.setState({
-      editingRows: {
-        ...this.state.editingRows,
-        [id]: {
-          ...row,
-          [type]: time,
-        },
+      editingRow: {
+        ...this.state.editingRow,
+        [type]: time,
       },
     });
   }
@@ -101,19 +97,19 @@ class HoursTable extends Component {
     this.props.addClubHour(this.props.type, this.state.newRow);
   }
 
-  handleUpdateClubHour = (id) => {
-    const { [id]: updated } = this.state.editingRows;
-    this.props.updateClubHour(id, updated);
+  handleUpdateClubHour = () => {
+    const updated = this.state.editingRow;
+    this.props.updateClubHour(updated.id, updated);
   }
 
   renderSessionTime(session, dayIdx, periodIdx, editingData, isNew) {
-    const callback = isNew ? this.updateNewTime : this.updateTime.bind(this, dayIdx, periodIdx);
-    const textFieldStyle = { width: '100px', height: '30px' };
+    const callback = isNew ? this.updateNewTime : this.updateTime;
+    const textFieldStyle = { width: '80px', height: '36px', marginRight: '20px  ' };
     if (isNew) {
       textFieldStyle.width = '80px';
       textFieldStyle.height = '48px';
     }
-    console.log(session, editingData);
+
     if (editingData) {
       return (<div className="hours-table-container--hour-row" key={periodIdx}>
         <div>
@@ -136,16 +132,6 @@ class HoursTable extends Component {
             textFieldStyle={textFieldStyle}
           />
         </div>
-        <span className="buttons">
-          <Delete
-            style={{ color: '#EF5350', cursor: 'pointer' }}
-            onClick={() => this.props.deleteClubHour(session)}
-          />
-          <Save
-            style={{ color: '#66BB6A', cursor: 'pointer' }}
-            onClick={() => this.handleUpdateClubHour(session.id)}
-          />
-        </span>
       </div>);
     }
 
@@ -163,9 +149,21 @@ class HoursTable extends Component {
   }
 
   renderHoursRow(hours, dayIdx, periodIdx) {
-    const { editingRows } = this.state;
-    // probably need to add dst offset or something.
-    return this.renderSessionTime(hours, dayIdx, periodIdx, editingRows[hours.id]);
+    const editingData = this.state.editingRow &&
+      this.state.editingRow.id === hours.id ? this.state.editingRow : null;
+    return [
+      this.renderSessionTime(hours, dayIdx, periodIdx, editingData),
+      editingData && <span className="buttons">
+        <Delete
+          style={{ color: '#EF5350', cursor: 'pointer' }}
+          onClick={() => this.props.deleteClubHour(hours)}
+        />
+        <Save
+          style={{ color: '#66BB6A', cursor: 'pointer' }}
+          onClick={() => this.handleUpdateClubHour(hours.id)}
+        />
+      </span>,
+    ];
   }
 
   renderDayRow(day, dayIdx) {
@@ -182,8 +180,7 @@ class HoursTable extends Component {
 
   render() {
     const { newRow } = this.state;
-    console.log('state', this.state.editingRows);
-    console.log(newRow);
+    console.log('state', this.state.editingRow);
     return (
       <div className="hours-table-container">
         <h2 className="hours-table-container--title">

@@ -35,10 +35,19 @@
   }
 
   &--hours-rows {
+    position: relative;
     flex: 1;
 
     .not-open-placeholder {
       text-align: left;
+    }
+
+    .buttons {
+      position: absolute;
+      top: 0;
+      right: 0;
+      font-size: 20px;
+      margin-left: 8px;
     }
   }
 
@@ -87,12 +96,6 @@
         padding: 0 5px;
         font-size: 16px;
       }
-    }
-
-    .buttons {
-      position: absolute;
-      top: 0;
-      right: 0;
     }
   }
 

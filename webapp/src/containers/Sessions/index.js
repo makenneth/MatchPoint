@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-async-connect-react16';
 import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
 import { List, ListItem } from 'material-ui/List';

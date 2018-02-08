@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-async-connect-react16';
 import {
   fetchSession, isLoaded,
   updateScore, updateResult,

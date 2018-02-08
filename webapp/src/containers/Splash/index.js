@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { setPage } from 'redux/modules/splash';
 import { setToken } from 'redux/modules/reset';
 import { LogInForm, SignUpForm, ForgotForm, ResetForm, Activated } from 'components';
-import { asyncConnect } from 'redux-async-connect';
+import { asyncConnect } from 'redux-async-connect-react16';
 import RaisedButton from 'material-ui/RaisedButton';
 
 import './styles.scss';

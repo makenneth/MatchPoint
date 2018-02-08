@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tutorial } from 'components';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
@@ -16,7 +17,7 @@ import './styles.scss';
 )
 export default class Main extends Component {
   static contextTypes = {
-    router: React.PropTypes.any,
+    router: PropTypes.any,
   };
 
   componentWillReceiveProps(nextProps) {
