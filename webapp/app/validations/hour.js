@@ -1,18 +1,11 @@
-export default function() {
+function validation() {
   return {
-    validate: function(type, hours) {
-      if (!['roundrobin_hours', 'operation_hours'].includes(type)) {
-
+    validate: function(hours) {
+      if (!['roundrobin', 'operation'].includes(hours.type)) {
+        return { hours: 'Invalid parameters' };
       }
-      if (hours.length !== 7) {
-        return { hours: 'Schedule does not have the right number of days.' };
-      }
-      const areValid = hours.every((day) => (
-        day.length === 0 || day.every((session) => (
-          new Date(session.close).toString() !== 'Invalid Date' ||
-          new Date(session.open).toString() !== 'Invalid Date'
-        ))
-      ));
+      const areValid = new Date(hours.close).toString() !== 'Invalid Date' ||
+        new Date(hours.open).toString() !== 'Invalid Date';
 
       if (!areValid) {
         return { hours: 'Date format is not recognized' };
@@ -22,3 +15,5 @@ export default function() {
     }
   };
 };
+
+export default validation();

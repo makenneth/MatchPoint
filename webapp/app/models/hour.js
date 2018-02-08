@@ -1,6 +1,6 @@
 import { camelCase } from 'lodash';
 import db from '../utils/connection';
-import { validation } from '../validations/hour';
+import validation from '../validations/hour';
 
 export default (function() {
   function format(results) {
@@ -76,6 +76,10 @@ export default (function() {
     },
 
     createHour: async function(clubId, type, hour) {
+      const scheduleError = validation.validate(hours);
+      if (scheduleError) {
+        throw scheduleError;
+      }
       const connection = await db.getConnection();
       const hourId = await new Promise((resolve, reject) => {
         connection.beginTransaction((tError) => {
@@ -89,9 +93,7 @@ export default (function() {
               hour.open.slice(0, 19).replace('T', ' '),
               hour.close.slice(0, 19).replace('T', ' '),
             ], (err, results, field) => {
-            console.log('tried to insert');
             if (err) {
-              console.log(err);
               connection.rollback();
               connection.release();
               throw(err);
@@ -124,26 +126,34 @@ export default (function() {
     },
 
     updateHour: async function(clubId, hourId, hour) {
-      const scheduleError = ClubValidation.hours(hours);
+
+      const scheduleError = validation.validate(hour);
       if (scheduleError) {
         throw scheduleError;
       }
       const connection = await db.getConnection();
       return new Promise((resolve, reject) => {
         connection.query(`
-          UPDATE hours AS h
+          UPDATE hours
           SET day = ?, open = ?, close = ?
-          INNER JOIN clubs AS c
-          ON h.club_id = c.id
-          WHERE id = ? AND clubId = ?;
-        `, [hour.day, hour.open, hour.close, hourId, clubId], (err, results, field) => {
+          WHERE id = ? AND EXISTS (
+            SELECT * FROM club_hours
+            WHERE club_id = ? AND hour_id = ?
+          );
+        `, [
+          hour.day,
+          hour.open.slice(0, 19).replace('T', ' '),
+          hour.close.slice(0, 19).replace('T', ' '),
+          hourId, clubId, hourId], (err, results, field) => {
             connection.release();
+            console.log(err, results);
             if (err) {
-              throw({ code: 500, internal: err });
+              reject({ code: 500, internal: err });
             } else if (results.affectedRows === 0) {
-              throw({ code: 400, hours: 'Unable to update hours.' });
+              reject({ code: 400, hours: 'Unable to update hours.' });
+            } else {
+              resolve(true);
             }
-            resolve(true);
         });
       });
     },

@@ -139,20 +139,17 @@ export default {
     const { hours } = req.body;
     Hour.updateHour(clubId, hourId, hours)
       .then(() => {
-        res.status(204).send();
+        res.status(200).send({ success: true });
       }).catch((err) => {
         next({ code: err.hours ? 400 : 500, message: err });
       });
   },
 
   deleteHour: (req, res, next) => {
-    console.log('delete');
     const clubId = req.club.id;
     const hourId = req.params.hourId;
-    console.log(clubId, hourId)
     Hour.deleteHour(clubId, hourId)
       .then(() => {
-        console.log('success');
         res.status(200).send({ id: hourId });
       }).catch((err) => {
         next({ code: err.hours ? 400 : 500, message: err });
