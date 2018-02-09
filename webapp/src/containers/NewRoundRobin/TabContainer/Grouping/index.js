@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
+import Toggle from 'material-ui/Toggle';
 import { /* NumOfPlayers, */ ParticipantGroup } from 'components';
 import { changeSchema, movePlayerUp, movePlayerDown } from 'redux/modules/schemata';
 import { stopLoad } from 'redux/modules/main';
@@ -35,61 +36,16 @@ export default class Grouping extends Component {
       dialogOpen: false,
       title: null,
       message: null,
+      isPromotionEnabled: true,
     };
+  }
+
+  togglePromotionEnabled = () => {
+    this.setState({ isPromotionEnabled: !this.state.isPromotionEnabled });
   }
 
   handleDialogClose = () => {
     this.setState({ dialogOpen: false });
-  }
-
-  schemata() {
-    const { schemata, selected } = this.props;
-    if (!Array.isArray(schemata[0]) || (schemata && schemata.length > 0)) {
-      let errorText = selected.length > 0 ? '' : 'Select an arrangement';
-      let errorColor = selected.length > 0 ? 'black' : 'orange';
-      const floatingStyle = {
-        zIndex: selected.length ? 'auto' : 999,
-        color: selected.length ? '#E0E0E0' : 'orange',
-      };
-      if (Array.isArray(schemata[0]) && schemata[0].length === 0) {
-        errorText = 'Please select more players';
-        errorColor = 'red';
-        floatingStyle.color = 'red';
-      }
-
-      return (<SelectField
-        id="select-schema-field"
-        value={selected.join(',')}
-        onChange={this.changeSchema}
-        floatingLabelStyle={floatingStyle}
-        floatingLabelText="Select a schema"
-        floatingLabelFixed={Boolean(true)}
-        style={{ zIndex: selected.length ? 'auto' : 999 }}
-        labelStyle={{ color: errorColor }}
-        errorText={errorText}
-        errorStyle={{ color: errorColor }}
-      >
-        {
-          schemata[0].length > 0 ?
-            schemata.map(schema => (
-              <MenuItem
-                key={schema}
-                value={schema.join(',')}
-                primaryText={schema.join(', ')}
-              />
-            ))
-            :
-            <MenuItem
-              key="noth"
-              value=""
-              disabled={Boolean(true)}
-              primaryText="No arrangement available"
-            />
-        }
-      </SelectField>);
-    }
-
-    return null;
   }
 
   changeSchema = (e, _, selectedGroup) => {
@@ -151,28 +107,6 @@ export default class Grouping extends Component {
     }
   }
 
-  groupTables() {
-    const playerList = this.props.addedPlayers
-      .toPlayerList(this.props.selected, this.props.promoted)
-      .toArray();
-    return (<div>
-      {
-        this.props.selected.map((numPlayers, i, arr) => {
-          return (<ParticipantGroup
-            key={`${i}${numPlayers}`} groupId={i}
-            numPlayers={numPlayers}
-            players={playerList[i]}
-            playerList={playerList}
-            swapPlayers={this.handleSwap}
-            promotedPlayers={this.props.promoted}
-            moveUp={i === 0 ? null : this.props.movePlayerUp}
-            moveDown={i === arr.length - 1 ? null : this.props.movePlayerDown}
-          />);
-        })
-      }
-    </div>);
-  }
-
   dialog() {
     const actions = [
       <FlatButton
@@ -192,13 +126,84 @@ export default class Grouping extends Component {
     </Dialog>);
   }
 
-  render() {
-    let groupTables;
+  renderGroupTables() {
+    if (!this.props.selected.length) {
+      return null;
+    }
+    const playerList = this.props.addedPlayers
+      .toPlayerList(this.props.selected, this.props.promoted, this.state.isPromotionEnabled)
+      .toArray();
+    return (<div>
+      {
+        this.props.selected.map((numPlayers, i, arr) => {
+          return (<ParticipantGroup
+            key={`${i}${numPlayers}`} groupId={i}
+            numPlayers={numPlayers}
+            players={playerList[i]}
+            playerList={playerList}
+            swapPlayers={this.handleSwap}
+            promotedPlayers={this.props.promoted}
+            moveUp={i === 0 ? null : this.props.movePlayerUp}
+            moveDown={i === arr.length - 1 ? null : this.props.movePlayerDown}
+          />);
+        })
+      }
+    </div>);
+  }
 
-    if (this.props.selected.length) {
-      groupTables = this.groupTables();
+  renderSchemata() {
+    const { schemata, selected } = this.props;
+    if (!Array.isArray(schemata[0]) || (schemata && schemata.length > 0)) {
+      let errorText = selected.length > 0 ? '' : 'Select an arrangement';
+      let errorColor = selected.length > 0 ? 'black' : 'orange';
+      const floatingStyle = {
+        zIndex: selected.length ? 'auto' : 999,
+        color: selected.length ? '#E0E0E0' : 'orange',
+      };
+      if (Array.isArray(schemata[0]) && schemata[0].length === 0) {
+        errorText = 'Please select more players';
+        errorColor = 'red';
+        floatingStyle.color = 'red';
+      }
+
+      return (<SelectField
+        id="select-schema-field"
+        value={selected.join(',')}
+        onChange={this.changeSchema}
+        floatingLabelStyle={floatingStyle}
+        floatingLabelText="Select a schema"
+        floatingLabelFixed={Boolean(true)}
+        style={{ zIndex: selected.length ? 'auto' : 999 }}
+        labelStyle={{ color: errorColor }}
+        errorText={errorText}
+        errorStyle={{ color: errorColor }}
+      >
+        {
+          schemata[0].length > 0 ?
+            schemata.map(schema => (
+              <MenuItem
+                key={schema}
+                value={schema.join(',')}
+                primaryText={schema.join(', ')}
+              />
+            ))
+            :
+            <MenuItem
+              key="noth"
+              value=""
+              disabled={Boolean(true)}
+              primaryText="No arrangement available"
+            />
+        }
+      </SelectField>);
     }
 
+    return null;
+  }
+
+  render() {
+    const { isPromotionEnabled } = this.state;
+    const disableChange = !this.props.selected.length;
     return (<div className="grouping">
       {!this.props.loading && <IconMenu
         className="group-menu"
@@ -215,17 +220,24 @@ export default class Grouping extends Component {
         <MenuItem
           primaryText="Generate PDF"
           onClick={this.generatePDF}
-          disabled={!this.props.selected.length}
+          disabled={disableChange}
         />
         <MenuItem
           primaryText="Save"
           onClick={this.handleSave}
-          disabled={!this.props.selected.length}
+          disabled={disableChange}
         />
       </IconMenu>}
-
-      {this.schemata()}
-      {groupTables}
+      {this.renderSchemata()}
+      {!disableChange && <div className="toggle-promotion-container">
+        <Toggle
+          style={{ width: '200px' }}
+          label={`Promotion ${isPromotionEnabled ? 'Enabled' : 'Disabled'}`}
+          onToggle={this.togglePromotionEnabled}
+          toggled={isPromotionEnabled}
+        />
+      </div>}
+      {this.renderGroupTables()}
       {this.state.dialog && this.dialog()}
     </div>);
   }
