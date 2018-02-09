@@ -498,6 +498,13 @@ form {
   }
 }
 
+.toggle-promotion-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 0;
+}
+
 @media (min-width: 944px) and (min-device-width: 944px){
   .forms {
     top: 50%;

@@ -158,12 +158,13 @@ export default class Heap {
     return sorted;
   }
 
-  toPlayerList(schema, promoted) {
+  toPlayerList(schema, promoted, promotionEnabled) {
     // make sure there is only one instance of list per heap.
-    if (this.playerList) {
+    if (this.playerList && promotionEnabled === this.playerList.promotionEnabled) {
       return this.playerList;
     }
-    const list = new PlayerList(schema, promoted);
+
+    const list = new PlayerList(schema, promoted, promotionEnabled);
     const copiedHeap = new Heap(this.heap.slice(), Object.assign({}, this.map));
     list.getSortedList(copiedHeap);
 
