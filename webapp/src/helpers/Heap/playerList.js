@@ -58,11 +58,22 @@ export default class PlayerList {
     return this.playerList;
   }
 
-  swap(group1, idx1, group2, idx2) {
+  swap(group1, idx1, swapeeId) {
+    let group2;
+    let idx2;
+    this.playerList.forEach((group, i) => {
+      group.forEach((p, j) => {
+        if (p.id === swapeeId) {
+          group2 = i;
+          idx2 = j;
+        }
+      });
+    });
+
     const groupOne = [
-      this.playerList[group2][idx1],
-      ...this.playerList[group1].slice(0, idx2),
-      ...this.playerList[group1].slice(idx2 + 1),
+      this.playerList[group2][idx2],
+      ...this.playerList[group1].slice(0, idx1),
+      ...this.playerList[group1].slice(idx1 + 1),
     ].sort((a, b) => b.rating - a.rating);
 
     const groupTwo = [
@@ -71,7 +82,7 @@ export default class PlayerList {
       ...this.playerList[group2].slice(idx2 + 1),
     ].sort((a, b) => b.rating - a.rating);
 
-    this.playerList = this.playerList.map((g, i) => (
+    this.playerList = this.playerList.map((g, i) => {
       if (i === group1) {
         return groupOne;
       }
@@ -80,7 +91,7 @@ export default class PlayerList {
       }
 
       return g;
-    ));
+    });
   }
 
   promote(group, idx) {
