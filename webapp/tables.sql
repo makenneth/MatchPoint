@@ -6,15 +6,38 @@ DROP TABLE IF EXISTS roundrobins;
 DROP TABLE IF EXISTS clubs;
 DROP TABLE IF EXISTS players;
 
+CREATE TABLE users (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  account_type VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  verified TINYINT(1) DEFAULT 0,
+  username VARCHAR(50) NOT NULL,
+  short_id VARCHAR(14) NOT NULL,
+  PRIMARY KEY (id);
+);
+
+CREATE TABLE user_devices (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  device_id VARCHAR(255) NOT NULL,
+  api_token VARCHAR(255) NOT NULL,
+  user_id MEDIUMINT NOT NULL,
+  FOREIGN KEY (user_id)
+    REFERENCES users (id)
+    ON DELETE CASCADE
+  PRIMARY KEY (id);
+);
+
+
+CREATE TABLE tokens (
+
+  usatt_url
+);
+
 CREATE TABLE clubs (
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
   password_digest VARCHAR(64) NOT NULL,
   session_token VARCHAR(50) NOT NULL,
-  short_id VARCHAR(14) NOT NULL,
-  username VARCHAR(50) NOT NULL,
   club_name VARCHAR(80) NOT NULL,
-  email VARCHAR(255) NOT NULL,
-  verified TINYINT(1) DEFAULT 0,
   token VARCHAR(50),
   confirm_token VARCHAR(50),
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
