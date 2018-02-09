@@ -131,7 +131,6 @@ export default class TabContainer extends Component {
       </Tab>
       <Tab label="Grouping" value={1} className="grouping-tab tab-menu-tab">
         <Grouping
-          sortedPlayers={this.state.sortedPlayers}
           addedPlayers={this.props.addedPlayers}
           editingId={this.props.editingId}
         />

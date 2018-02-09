@@ -1,14 +1,14 @@
 import React from 'react';
 import { Table, TableBody, TableRow,
   TableHeader, TableHeaderColumn, TableRowColumn } from 'material-ui/Table';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 import UpArrow from 'react-icons/lib/md/keyboard-arrow-up';
-// import PromoteButton from 'react-icons/lib/fa/arrow-up';
 import DownArrow from 'react-icons/lib/md/keyboard-arrow-down';
-// import DemoteButton from 'react-icons/lib/fa/arrow-down';
 import IconButton from 'material-ui/IconButton/IconButton';
 
 const ParticipantGroup = (props) => {
-  const { promotedPlayers = {} } = props;
+  const { promotedPlayers = {}, playerList = [] } = props;
   return (<div style={{ position: 'relative' }} className="participant-group-tables">
     <Table
       selectable={false}
@@ -42,40 +42,28 @@ const ParticipantGroup = (props) => {
               <TableRowColumn
                 style={{ color: promotedPlayers[player.id] ? 'rgb(255, 64, 129)' : 'default' }}
               >
-                {player.name}
+                <SelectField
+                  name="player-selector"
+                  onChange={(e, idx, val) => props.swapPlayers(props.groupId, i, val)}
+                  style={{ marginRight: '40px' }}
+                  listStyle={{ height: '52px' }}
+                  hintStyle={{ height: '52px' }}
+                  value={player.id}
+                >
+                  <MenuItem key={player.id} value={player.id} primaryText={player.name} />
+                  {
+                    playerList.filter((g, k) => k !== props.groupId).map(group => (
+                      group.map((swapee) => (
+                        <MenuItem key={swapee.id} value={swapee.id} primaryText={swapee.name} />
+                      ))
+                    ))
+                  }
+                </SelectField>
               </TableRowColumn>
               <TableRowColumn
                 style={{ color: promotedPlayers[player.id] ? 'rgb(255, 64, 129)' : 'default' }}
               >
                 {player.rating}
-                {
-                  // props.promote &&
-                  //   <IconButton
-                  //     iconClassName="material-icons"
-                  //     tooltip="Promote Player"
-                  //     onClick={() => props.promote(props.groupId, i)}
-                  //     style={{
-                  //       left: '15px',
-                  //       zIndex: 10,
-                  //     }}
-                  //   >
-                  //     <PromoteButton />
-                  //   </IconButton>
-                }
-                {
-                  // props.demote &&
-                  // <IconButton
-                  //   iconClassName="material-icons"
-                  //   tooltip="Demote Player"
-                  //   onClick={() => props.demote(props.groupId, i)}
-                  //   style={{
-                  //     left: '30px',
-                  //     zIndex: 10,
-                  //   }}
-                  // >
-                  //   <DemoteButton />
-                  // </IconButton>
-                }
               </TableRowColumn>
             </TableRow>
           ))
@@ -86,7 +74,7 @@ const ParticipantGroup = (props) => {
       !!props.moveUp &&
         (<IconButton
           iconClassName="material-icons"
-          tooltip="Move one player up"
+          tooltip="Shift one player up"
           onClick={() => props.moveUp(props.groupId)}
           style={{
             position: 'absolute',
@@ -102,7 +90,7 @@ const ParticipantGroup = (props) => {
       !!props.moveDown &&
         (<IconButton
           iconClassName="material-icons"
-          tooltip="Move one player down"
+          tooltip="Shift one player down"
           onClick={() => props.moveDown(props.groupId)}
           style={{
             position: 'absolute',

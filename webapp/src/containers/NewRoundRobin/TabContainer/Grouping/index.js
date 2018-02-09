@@ -117,6 +117,11 @@ export default class Grouping extends Component {
     ).generate();
   }
 
+  handleSwap = (g1, idx1, swapeeId) => {
+    this.props.addedPlayers.playerList.swap(g1, idx1, swapeeId);
+    this.forceUpdate();
+  }
+
   handleSave = () => {
     if (this.props.selected.length === 0) {
       this.setState({
@@ -146,24 +151,6 @@ export default class Grouping extends Component {
     }
   }
 
-  promote = (groupId, playerRank) => {
-    const success = this.props.addedPlayers
-      .toPlayerList(this.props.selected, this.props.promoted)
-      .promote(groupId, playerRank);
-    if (success) {
-      this.forceUpdate();
-    }
-  }
-
-  demote = (groupId, playerRank) => {
-    const success = this.props.addedPlayers
-      .toPlayerList(this.props.selected, this.props.promoted)
-      .demote(groupId, playerRank);
-    if (success) {
-      this.forceUpdate();
-    }
-  }
-
   groupTables() {
     const playerList = this.props.addedPlayers
       .toPlayerList(this.props.selected, this.props.promoted)
@@ -175,9 +162,9 @@ export default class Grouping extends Component {
             key={`${i}${numPlayers}`} groupId={i}
             numPlayers={numPlayers}
             players={playerList[i]}
+            playerList={playerList}
+            swapPlayers={this.handleSwap}
             promotedPlayers={this.props.promoted}
-            // promote={i === 0 ? null : this.promote}
-            // demote={i === arr.length - 1 ? null : this.demote}
             moveUp={i === 0 ? null : this.props.movePlayerUp}
             moveDown={i === arr.length - 1 ? null : this.props.movePlayerDown}
           />);
@@ -243,8 +230,3 @@ export default class Grouping extends Component {
     </div>);
   }
 }
-/* <NumOfPlayers
-  setMinAndMax={this.props.setMinAndMax}
-  min={this.props.min}
-  max={this.props.max}
-/> */
