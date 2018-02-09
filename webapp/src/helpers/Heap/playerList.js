@@ -58,6 +58,31 @@ export default class PlayerList {
     return this.playerList;
   }
 
+  swap(group1, idx1, group2, idx2) {
+    const groupOne = [
+      this.playerList[group2][idx1],
+      ...this.playerList[group1].slice(0, idx2),
+      ...this.playerList[group1].slice(idx2 + 1),
+    ].sort((a, b) => b.rating - a.rating);
+
+    const groupTwo = [
+      this.playerList[group1][idx1],
+      ...this.playerList[group2].slice(0, idx2),
+      ...this.playerList[group2].slice(idx2 + 1),
+    ].sort((a, b) => b.rating - a.rating);
+
+    this.playerList = this.playerList.map((g, i) => (
+      if (i === group1) {
+        return groupOne;
+      }
+      if (i === group2) {
+        return groupTwo;
+      }
+
+      return g;
+    ));
+  }
+
   promote(group, idx) {
     if (group < 1 || idx < 0 || idx >= this.schema[group]) {
       return false;
