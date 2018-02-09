@@ -1,7 +1,8 @@
 function validation() {
   return {
-    validate: function(hours) {
-      if (!['roundrobin', 'operation'].includes(hours.type)) {
+    validate: function(hours, type) {
+      const t = type || hours.type;
+      if (!['roundrobin', 'operation'].includes(t)) {
         return { hours: 'Invalid parameters' };
       }
       const areValid = new Date(hours.close).toString() !== 'Invalid Date' ||

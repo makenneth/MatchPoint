@@ -76,7 +76,7 @@ export default (function() {
     },
 
     createHour: async function(clubId, type, hour) {
-      const scheduleError = validation.validate(hours);
+      const scheduleError = validation.validate(hour, type);
       if (scheduleError) {
         throw scheduleError;
       }
@@ -126,7 +126,6 @@ export default (function() {
     },
 
     updateHour: async function(clubId, hourId, hour) {
-
       const scheduleError = validation.validate(hour);
       if (scheduleError) {
         throw scheduleError;
