@@ -1,10 +1,8 @@
-// import store from 'redux/store';
-// import { updatePlayerList } from 'redux/modules/newSession';
-
 export default class PlayerList {
-  constructor(schema, promoted) {
+  constructor(schema, promoted, promotionEnabled) {
     this.schema = schema;
     this.promoted = promoted || {};
+    this.promotionEnabled = promotionEnabled;
     this.playerList = schema.map((p) => [...new Array(p)]);
     this.currentGroup = 0;
   }
@@ -36,7 +34,8 @@ export default class PlayerList {
         promotedGroup = null;
       }
 
-      if (this.promoted[min.id] && currentGroup > 0 && currentPosition <= 2) {
+      if (this.promotionEnabled && this.promoted[min.id] &&
+        currentGroup > 0 && currentPosition <= 2) {
         promoted.push(min);
         promotedGroup = currentGroup;
       } else {
@@ -56,6 +55,42 @@ export default class PlayerList {
 
   toArray() {
     return this.playerList;
+  }
+
+  swap(group1, idx1, swapeeId) {
+    let group2;
+    let idx2;
+    this.playerList.forEach((group, i) => {
+      group.forEach((p, j) => {
+        if (p.id === swapeeId) {
+          group2 = i;
+          idx2 = j;
+        }
+      });
+    });
+
+    const groupOne = [
+      this.playerList[group2][idx2],
+      ...this.playerList[group1].slice(0, idx1),
+      ...this.playerList[group1].slice(idx1 + 1),
+    ].sort((a, b) => b.rating - a.rating);
+
+    const groupTwo = [
+      this.playerList[group1][idx1],
+      ...this.playerList[group2].slice(0, idx2),
+      ...this.playerList[group2].slice(idx2 + 1),
+    ].sort((a, b) => b.rating - a.rating);
+
+    this.playerList = this.playerList.map((g, i) => {
+      if (i === group1) {
+        return groupOne;
+      }
+      if (i === group2) {
+        return groupTwo;
+      }
+
+      return g;
+    });
   }
 
   promote(group, idx) {

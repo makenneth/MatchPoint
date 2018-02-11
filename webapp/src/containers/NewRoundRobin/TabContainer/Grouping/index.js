@@ -7,6 +7,7 @@ import FlatButton from 'material-ui/FlatButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import Dialog from 'material-ui/Dialog';
+import Toggle from 'material-ui/Toggle';
 import { /* NumOfPlayers, */ ParticipantGroup } from 'components';
 import { changeSchema, movePlayerUp, movePlayerDown } from 'redux/modules/schemata';
 import { stopLoad } from 'redux/modules/main';
@@ -35,14 +36,122 @@ export default class Grouping extends Component {
       dialogOpen: false,
       title: null,
       message: null,
+      isPromotionEnabled: true,
     };
+  }
+
+  togglePromotionEnabled = () => {
+    this.setState({ isPromotionEnabled: !this.state.isPromotionEnabled });
   }
 
   handleDialogClose = () => {
     this.setState({ dialogOpen: false });
   }
 
-  schemata() {
+  changeSchema = (e, _, selectedGroup) => {
+    if (selectedGroup) {
+      this.totalPlayerAdded = 0;
+      this.props.changeSchema(selectedGroup.split(',').map(el => +el));
+    }
+  }
+
+  generatePDF = () => {
+    if (this.props.schemata[0].length === 0) {
+      this.setState({
+        title: 'Ooooops..',
+        message: 'There are no players yet :(.',
+        dialogOpen: true,
+      });
+      return;
+    }
+    new PDFGenerator(
+      this.props.club.club_name,
+      this.props.addedPlayers.toPlayerList(),
+      this.props.selected,
+      this.props.addedPlayers.length(),
+      moment(this.props.date).format('YYYY-MM-DD'),
+    ).generate();
+  }
+
+  handleSwap = (g1, idx1, swapeeId) => {
+    this.props.addedPlayers.playerList.swap(g1, idx1, swapeeId);
+    this.forceUpdate();
+  }
+
+  handleSave = () => {
+    if (this.props.selected.length === 0) {
+      this.setState({
+        title: 'Well....',
+        message: 'You have to have selected a schema before you can save.',
+        dialogOpen: true,
+      });
+    } else {
+      if (this.props.editingId) {
+        this.props.updateSessionDetail(
+          this.props.editingId,
+          {
+            date: moment(this.props.date).format('YYYY-MM-DD'),
+            numOfPlayers: this.props.addedPlayers.length(),
+            selectedSchema: this.props.selected,
+            players: this.props.addedPlayers.toPlayerList().flatten(),
+          }
+        );
+      } else {
+        this.props.createSession({
+          date: moment(this.props.date).format('YYYY-MM-DD'),
+          numOfPlayers: this.props.addedPlayers.length(),
+          selectedSchema: this.props.selected,
+          players: this.props.addedPlayers.toPlayerList().flatten(),
+        });
+      }
+    }
+  }
+
+  dialog() {
+    const actions = [
+      <FlatButton
+        label="Close"
+        primary={Boolean(true)}
+        onTouchTap={this.handleDialogClose}
+      />,
+    ];
+    return (<Dialog
+      title={this.title}
+      actions={actions}
+      open={this.state.dialogOpen}
+      modal={false}
+      onRequestClose={this.handleDialogClose}
+    >
+      {this.content}
+    </Dialog>);
+  }
+
+  renderGroupTables() {
+    if (!this.props.selected.length) {
+      return null;
+    }
+    const playerList = this.props.addedPlayers
+      .toPlayerList(this.props.selected, this.props.promoted, this.state.isPromotionEnabled)
+      .toArray();
+    return (<div>
+      {
+        this.props.selected.map((numPlayers, i, arr) => {
+          return (<ParticipantGroup
+            key={`${i}${numPlayers}`} groupId={i}
+            numPlayers={numPlayers}
+            players={playerList[i]}
+            playerList={playerList}
+            swapPlayers={this.handleSwap}
+            promotedPlayers={this.props.promoted}
+            moveUp={i === 0 ? null : this.props.movePlayerUp}
+            moveDown={i === arr.length - 1 ? null : this.props.movePlayerDown}
+          />);
+        })
+      }
+    </div>);
+  }
+
+  renderSchemata() {
     const { schemata, selected } = this.props;
     if (!Array.isArray(schemata[0]) || (schemata && schemata.length > 0)) {
       let errorText = selected.length > 0 ? '' : 'Select an arrangement';
@@ -92,126 +201,9 @@ export default class Grouping extends Component {
     return null;
   }
 
-  changeSchema = (e, _, selectedGroup) => {
-    if (selectedGroup) {
-      this.totalPlayerAdded = 0;
-      this.props.changeSchema(selectedGroup.split(',').map(el => +el));
-    }
-  }
-
-  generatePDF = () => {
-    if (this.props.schemata[0].length === 0) {
-      this.setState({
-        title: 'Ooooops..',
-        message: 'There are no players yet :(.',
-        dialogOpen: true,
-      });
-      return;
-    }
-    new PDFGenerator(
-      this.props.club.club_name,
-      this.props.addedPlayers.toPlayerList(),
-      this.props.selected,
-      this.props.addedPlayers.length(),
-      moment(this.props.date).format('YYYY-MM-DD'),
-    ).generate();
-  }
-
-  handleSave = () => {
-    if (this.props.selected.length === 0) {
-      this.setState({
-        title: 'Well....',
-        message: 'You have to have selected a schema before you can save.',
-        dialogOpen: true,
-      });
-    } else {
-      if (this.props.editingId) {
-        this.props.updateSessionDetail(
-          this.props.editingId,
-          {
-            date: moment(this.props.date).format('YYYY-MM-DD'),
-            numOfPlayers: this.props.addedPlayers.length(),
-            selectedSchema: this.props.selected,
-            players: this.props.addedPlayers.toPlayerList().flatten(),
-          }
-        );
-      } else {
-        this.props.createSession({
-          date: moment(this.props.date).format('YYYY-MM-DD'),
-          numOfPlayers: this.props.addedPlayers.length(),
-          selectedSchema: this.props.selected,
-          players: this.props.addedPlayers.toPlayerList().flatten(),
-        });
-      }
-    }
-  }
-
-  promote = (groupId, playerRank) => {
-    const success = this.props.addedPlayers
-      .toPlayerList(this.props.selected, this.props.promoted)
-      .promote(groupId, playerRank);
-    if (success) {
-      this.forceUpdate();
-    }
-  }
-
-  demote = (groupId, playerRank) => {
-    const success = this.props.addedPlayers
-      .toPlayerList(this.props.selected, this.props.promoted)
-      .demote(groupId, playerRank);
-    if (success) {
-      this.forceUpdate();
-    }
-  }
-
-  groupTables() {
-    const playerList = this.props.addedPlayers
-      .toPlayerList(this.props.selected, this.props.promoted)
-      .toArray();
-    return (<div>
-      {
-        this.props.selected.map((numPlayers, i, arr) => {
-          return (<ParticipantGroup
-            key={`${i}${numPlayers}`} groupId={i}
-            numPlayers={numPlayers}
-            players={playerList[i]}
-            promotedPlayers={this.props.promoted}
-            // promote={i === 0 ? null : this.promote}
-            // demote={i === arr.length - 1 ? null : this.demote}
-            moveUp={i === 0 ? null : this.props.movePlayerUp}
-            moveDown={i === arr.length - 1 ? null : this.props.movePlayerDown}
-          />);
-        })
-      }
-    </div>);
-  }
-
-  dialog() {
-    const actions = [
-      <FlatButton
-        label="Close"
-        primary={Boolean(true)}
-        onTouchTap={this.handleDialogClose}
-      />,
-    ];
-    return (<Dialog
-      title={this.title}
-      actions={actions}
-      open={this.state.dialogOpen}
-      modal={false}
-      onRequestClose={this.handleDialogClose}
-    >
-      {this.content}
-    </Dialog>);
-  }
-
   render() {
-    let groupTables;
-
-    if (this.props.selected.length) {
-      groupTables = this.groupTables();
-    }
-
+    const { isPromotionEnabled } = this.state;
+    const disableChange = !this.props.selected.length;
     return (<div className="grouping">
       {!this.props.loading && <IconMenu
         className="group-menu"
@@ -228,23 +220,25 @@ export default class Grouping extends Component {
         <MenuItem
           primaryText="Generate PDF"
           onClick={this.generatePDF}
-          disabled={!this.props.selected.length}
+          disabled={disableChange}
         />
         <MenuItem
           primaryText="Save"
           onClick={this.handleSave}
-          disabled={!this.props.selected.length}
+          disabled={disableChange}
         />
       </IconMenu>}
-
-      {this.schemata()}
-      {groupTables}
+      {this.renderSchemata()}
+      {!disableChange && <div className="toggle-promotion-container">
+        <Toggle
+          style={{ width: '200px' }}
+          label={`Promotion ${isPromotionEnabled ? 'Enabled' : 'Disabled'}`}
+          onToggle={this.togglePromotionEnabled}
+          toggled={isPromotionEnabled}
+        />
+      </div>}
+      {this.renderGroupTables()}
       {this.state.dialog && this.dialog()}
     </div>);
   }
 }
-/* <NumOfPlayers
-  setMinAndMax={this.props.setMinAndMax}
-  min={this.props.min}
-  max={this.props.max}
-/> */
