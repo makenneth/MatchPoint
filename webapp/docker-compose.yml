@@ -1,0 +1,26 @@
+version: '3'
+services:
+  web:
+    image: web-app
+    build: .
+    network_mode: "host"
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_USER=root
+      - DB_PORT=3306
+      - DB_PASSWORD=Lalala4321.
+      - DB=matchpoints
+      - DOMAIN=http://73.93.140.244:8000
+      - APP_PORT=8000
+      - NODE_ENV=production
+      - HOST=127.0.0.1
+      - WEB_HOST=http://73.93.140.244:8000
+      - WEBSOCKET_SERVER=http://localhost:9000
+      - EMAIL_USER=noreplymatchpoints@gmail.com
+      - EMAIL_PASS=matchpointsorg
+
+  redis-server:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
