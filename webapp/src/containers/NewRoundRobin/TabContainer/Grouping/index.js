@@ -66,7 +66,9 @@ export default class Grouping extends Component {
     }
     new PDFGenerator(
       this.props.club.club_name,
-      this.props.addedPlayers.toPlayerList(),
+      this.props.addedPlayers.toPlayerList(
+        this.props.selected, this.props.promoted, this.state.isPromotionEnabled
+      ),
       this.props.selected,
       this.props.addedPlayers.length(),
       moment(this.props.date).format('YYYY-MM-DD'),
@@ -93,7 +95,9 @@ export default class Grouping extends Component {
             date: moment(this.props.date).format('YYYY-MM-DD'),
             numOfPlayers: this.props.addedPlayers.length(),
             selectedSchema: this.props.selected,
-            players: this.props.addedPlayers.toPlayerList().flatten(),
+            players: this.props.addedPlayers.toPlayerList(
+              this.props.selected, this.props.promoted, this.state.isPromotionEnabled
+            ).flatten(),
           }
         );
       } else {
@@ -101,7 +105,9 @@ export default class Grouping extends Component {
           date: moment(this.props.date).format('YYYY-MM-DD'),
           numOfPlayers: this.props.addedPlayers.length(),
           selectedSchema: this.props.selected,
-          players: this.props.addedPlayers.toPlayerList().flatten(),
+          players: this.props.addedPlayers.toPlayerList(
+            this.props.selected, this.props.promoted, this.state.isPromotionEnabled
+          ).flatten(),
         });
       }
     }

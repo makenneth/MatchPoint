@@ -16,7 +16,16 @@ class RoundRobin {
     const roundrobin = {};
     fields.forEach(field => {
       if (field === 'results' || field === 'selected_schema') {
-        roundrobin[field] = JSON.parse(row[field]);
+        try {
+          roundrobin[field] = JSON.parse(row[field]);
+        } catch (e) {
+          // console.log(e);
+          if (field === 'selected_schema') {
+            roundrobin[field] = [];
+          } else if (field === 'results') {
+            roundrobin[field] = {};
+          }
+        }
       } else if (row.hasOwnProperty(field)) {
         roundrobin[field] = row[field];
       }
