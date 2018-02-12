@@ -19,7 +19,8 @@ services:
       - DOMAIN=${DOMAIN}
       - APP_PORT=${APP_PORT}
       - NODE_ENV=${NODE_ENV}
-      - HOST=${127.0.0.1}
+      - HOST=${HOST}
+      - REDIS_HOST=${REDIS_HOST}
       - WEB_HOST=${WEB_HOST}
       - WEBSOCKET_SERVER=${WEBSOCKET_SERVER}
       - EMAIL_USER=noreplymatchpoints@gmail.com
