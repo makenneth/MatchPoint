@@ -3,7 +3,12 @@ var path = require("path");
 
 module.exports = {
   context: __dirname,
-  entry: "./src/app.js",
+  entry: {
+    app: "./src/app.js",
+    vendor: [
+      'react', 'react-dom', 'react-router', 'material-ui', 'lodash'
+    ]
+  },
   output: {
     publicPath: "/js/",
     path: path.join(__dirname, "public", "js"),
