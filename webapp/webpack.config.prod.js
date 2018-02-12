@@ -5,10 +5,11 @@ module.exports = {
   context: __dirname,
   entry: "./src/app.js",
   output: {
+    publicPath: "/js/",
     path: path.join(__dirname, "public", "js"),
     filename: "bundle.js"
   },
- module: {
+  module: {
     loaders: [
       {
         test: /\.jsx?$/,

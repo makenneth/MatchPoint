@@ -3,6 +3,7 @@ import { browserHistory } from 'react-router';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { RecordTableContainer } from 'containers';
+import moment from 'moment';
 import MenuBar from './MenuBar';
 import EditDetailModal from './EditDetailModal';
 
@@ -29,9 +30,14 @@ export default class EditSession extends Component {
   saveSession = () => {
     const session = this.props.session;
     if (this.props.editable) {
-      this.props.postResult(session.short_id, session.date, this.props.results);
+      this.props.postResult(
+        session.short_id,
+        moment(session.date).format('YYYY-MM-DD'),
+        this.props.results
+      );
     }
   }
+
   handleClose = () => {
     this.setState({ open: false });
   }

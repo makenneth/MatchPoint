@@ -180,7 +180,6 @@ class HoursTable extends Component {
 
   render() {
     const { newRow } = this.state;
-    console.log('state', this.state.editingRow);
     return (
       <div className="hours-table-container">
         <h2 className="hours-table-container--title">

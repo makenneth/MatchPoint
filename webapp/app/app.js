@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 import path from "path";
 import cookieParser from "cookie-parser";
 import express from "express";

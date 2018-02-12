@@ -1,4 +1,5 @@
 import { camelCase } from 'lodash';
+import moment from 'moment';
 import db from '../utils/connection';
 import validation from '../validations/hour';
 
@@ -64,7 +65,6 @@ export default (function() {
             connection.release();
             throw(err);
           }
-          console.log(results);
           if (results.length > 0) {
             const hours = formatRow(results[0]);
             return resolve(hours);
@@ -90,8 +90,8 @@ export default (function() {
           `, [
               type,
               hour.day,
-              hour.open.slice(0, 19).replace('T', ' '),
-              hour.close.slice(0, 19).replace('T', ' '),
+              moment(hour.open).format('YYYY-MM-DD HH:mm:ss'),
+              moment(hour.close).format('YYYY-MM-DD HH:mm:ss')
             ], (err, results, field) => {
             if (err) {
               connection.rollback();
@@ -141,8 +141,8 @@ export default (function() {
           );
         `, [
           hour.day,
-          hour.open.slice(0, 19).replace('T', ' '),
-          hour.close.slice(0, 19).replace('T', ' '),
+          moment(hour.open).format('YYYY-MM-DD HH:mm:ss'),
+          moment(hour.close).format('YYYY-MM-DD HH:mm:ss'),
           hourId, clubId, hourId], (err, results, field) => {
             connection.release();
             console.log(err, results);
