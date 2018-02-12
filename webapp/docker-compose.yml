@@ -1,26 +1,26 @@
 version: '3'
 services:
+  redis-server:
+    image: "redis:alpine"
+    ports:
+      - "${REDIS_PORT}:6379"
+
   web:
     image: web-app
     build: .
     network_mode: "host"
     ports:
-      - "8000:8000"
+      - "${APP_PORT}:${APP_PORT}"
     environment:
       - DB_USER=root
       - DB_PORT=3306
-      - DB_PASSWORD=Lalala4321.
+      - DB_PASSWORD=${DB_PASSWORD}
       - DB=matchpoints
-      - DOMAIN=http://73.93.140.244:8000
-      - APP_PORT=8000
-      - NODE_ENV=production
-      - HOST=127.0.0.1
-      - WEB_HOST=http://73.93.140.244:8000
-      - WEBSOCKET_SERVER=http://localhost:9000
+      - DOMAIN=${DOMAIN}
+      - APP_PORT=${APP_PORT}
+      - NODE_ENV=${NODE_ENV}
+      - HOST=${127.0.0.1}
+      - WEB_HOST=${WEB_HOST}
+      - WEBSOCKET_SERVER=${WEBSOCKET_SERVER}
       - EMAIL_USER=noreplymatchpoints@gmail.com
       - EMAIL_PASS=matchpointsorg
-
-  redis-server:
-    image: "redis:alpine"
-    ports:
-      - "6379:6379"
