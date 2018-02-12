@@ -3,6 +3,7 @@ import shortid from "shortid";
 import ScoreCalculation from '../helpers/scoreCalculation';
 import db from '../utils/connection';
 import Player from '../models/player';
+import moment from 'moment';
 
 class RoundRobin {
   static format(row) {
@@ -27,7 +28,11 @@ class RoundRobin {
           }
         }
       } else if (row.hasOwnProperty(field)) {
-        roundrobin[field] = row[field];
+        if (field === 'date') {
+          roundrobin[field] = moment(row[field]).format('YYYY-MM-DD');
+        } else {
+          roundrobin[field] = row[field];
+        }
       }
     });
 
@@ -155,7 +160,8 @@ class RoundRobin {
       });
     });
   }
-static async update(clubId, id, realId, players, date, selectedSchema) {
+
+  static async update(clubId, id, realId, players, date, selectedSchema) {
     const connection = await db.getConnection();
 
     let schema;
@@ -191,18 +197,14 @@ static async update(clubId, id, realId, players, date, selectedSchema) {
       });
     })
       .then(async (id) => {
-        console.log('edited');
         try {
           const del = await RoundRobin.deleteAllRoundrobinPlayers(connection, realId);
-          console.log('del success');
         } catch (e) {
           console.log(e);
           return Promise.reject(e);
         }
         try {
-          // need id lol
           const create = await RoundRobin.createRoundrobinPlayers(connection, realId, players, selectedSchema);
-          console.log('createSuccess');
         } catch (e) {
           console.log(e);
           return Promise.reject(e);
@@ -227,6 +229,7 @@ static async update(clubId, id, realId, players, date, selectedSchema) {
       });
     });
   }
+
   static async create(clubId, players, date, selectedSchema) {
     const connection = await db.getConnection();
 

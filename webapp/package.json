@@ -8,12 +8,12 @@
     "build-server": "babel -d ./build ./app --ignore node_modules,test",
     "build": "npm run clean && npm run build-server && npm run webpack",
     "prestart": "npm run build && npm run webpack",
-    "start": "npm start-dev",
     "webpack": "node ./node_modules/webpack/bin/webpack.js --config ./webpack.config.prod.js",
     "watch-client": "webpack-dev-server",
     "test": "karma start",
     "lint:fix": "eslint ./src/** --fix",
-    "lint": "eslint --color ./src/**"
+    "lint": "eslint --color ./src/**",
+    "dev": "concurrently \"npm run watch-client\" \"nodemon app/app.js --exec babel-node\""
   },
   "keywords": [],
   "author": "",

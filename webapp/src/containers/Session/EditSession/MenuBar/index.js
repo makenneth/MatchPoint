@@ -22,7 +22,7 @@ const MenuBar = (props) => {
   </IconMenu>);
   return (<AppBar
     className="app-bar"
-    title={`Date: ${moment(date).utc().format('MMMM DD, YYYY')}`}
+    title={`Date: ${moment(date).format('MMMM DD, YYYY')}`}
     iconElementLeft={
       !isLoading ? (<IconButton
         onClick={props.handleBack}

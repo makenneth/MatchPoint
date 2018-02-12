@@ -213,3 +213,4 @@ CREATE TABLE matchpoints.club_hours (
     ON DELETE CASCADE
 );
 
+ALTER TABLE roundrobins MODIFY COLUMN date DATE;

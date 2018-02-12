@@ -1,3 +1,4 @@
+require('dotenv').config();
 import csrf from "csurf";
 import express from "express";
 import bodyParser from "body-parser";
