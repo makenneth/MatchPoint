@@ -17,6 +17,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB=matchpoints
       - DOMAIN=${DOMAIN}
+      - APP_HOST=${APP_HOST}
       - APP_PORT=${APP_PORT}
       - NODE_ENV=${NODE_ENV}
       - HOST=${HOST}
