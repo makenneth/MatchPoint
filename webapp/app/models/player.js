@@ -217,9 +217,7 @@ class Player {
              phs1.club_id = phs2.club_id
         ) AS ph
         ON ph.player_id = p.id
-        WHERE cp.club_id = ?
-        ORDER BY ph.id DESC
-        LIMIT 1;
+        WHERE cp.club_id = ?;
       `, [clubId, clubId], (err, results, field) => {
         connection.release();
         if (err) throw(err);
