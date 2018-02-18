@@ -119,8 +119,6 @@ class RoundRobin {
           ON phs1.player_id = phs2.player_id AND
              phs1.change_date = phs2.max_date AND
              phs1.club_id = phs2.club_id
-          ORDER BY phs1.id DESC
-          LIMIT 1
         ) AS ph1
         ON p.id = ph1.player_id AND r.finalized = 0
         LEFT JOIN (
@@ -129,8 +127,6 @@ class RoundRobin {
           INNER JOIN roundrobins AS r
           ON r.id = ph.roundrobin_id
           WHERE r.short_id = ?
-          ORDER BY ph.id DESC
-          LIMIT 1
         ) AS ph2
         ON p.id = ph2.player_id AND r.finalized = 1
         WHERE r.club_id = ? AND r.short_id = ?
