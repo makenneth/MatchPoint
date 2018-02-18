@@ -204,7 +204,7 @@ class Player {
         INNER JOIN club_players AS cp
         ON cp.player_id = p.id
         INNER JOIN (
-          SELECT phs1.rating, phs1.player_id
+          SELECT phs1.id, phs1.rating, phs1.player_id
           FROM player_histories AS phs1
           INNER JOIN (
             SELECT club_id, player_id, MAX(change_date) AS max_date
@@ -218,6 +218,8 @@ class Player {
         ) AS ph
         ON ph.player_id = p.id
         WHERE cp.club_id = ?
+        ORDER BY ph.id DESC
+        LIMIT 1;
       `, [clubId, clubId], (err, results, field) => {
         connection.release();
         if (err) throw(err);
