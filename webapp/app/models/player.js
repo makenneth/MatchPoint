@@ -205,7 +205,18 @@ class Player {
         ON cp.player_id = p.id
         INNER JOIN (
           SELECT phs1.id, phs1.rating, phs1.player_id
-          FROM player_histories AS phs1
+          FROM (
+            SELECT ph1.id, rating, ph1.club_id, ph1.player_id, ph1.change_date
+            FROM player_histories AS ph1
+            INNER JOIN (
+              SELECT MAX(id) AS id, club_id, player_id, change_date
+              FROM player_histories
+              WHERE club_id = ?
+              GROUP BY player_id, club_id, change_date
+            ) AS ph2
+            ON ph1.id = ph2.id AND ph1.player_id = ph2.player_id
+            WHERE ph1.club_id = ?
+          ) AS phs1
           INNER JOIN (
             SELECT club_id, player_id, MAX(change_date) AS max_date
             FROM player_histories
@@ -218,7 +229,7 @@ class Player {
         ) AS ph
         ON ph.player_id = p.id
         WHERE cp.club_id = ?;
-      `, [clubId, clubId], (err, results, field) => {
+      `, [clubId, clubId, clubId, clubId], (err, results, field) => {
         connection.release();
         if (err) throw(err);
         const data = results.map(row => Player.formatPlayer(row));

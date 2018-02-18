@@ -108,8 +108,19 @@ class RoundRobin {
         INNER JOIN roundrobins AS r
         ON r.id = rp.roundrobin_id
         LEFT JOIN (
-          SELECT phs1.rating, phs1.player_id
-          FROM player_histories AS phs1
+          SELECT phs1.id, phs1.rating, phs1.player_id
+          FROM (
+            SELECT ph1.id, rating, ph1.club_id, ph1.player_id, ph1.change_date
+            FROM player_histories AS ph1
+            INNER JOIN (
+              SELECT MAX(id) AS id, club_id, player_id, change_date
+              FROM player_histories
+              WHERE club_id = ?
+              GROUP BY player_id, club_id, change_date
+            ) AS ph2
+            ON ph1.id = ph2.id AND ph1.player_id = ph2.player_id
+            WHERE ph1.club_id = ?
+          ) AS phs1
           INNER JOIN (
             SELECT club_id, player_id, MAX(change_date) AS max_date
             FROM player_histories
@@ -131,7 +142,7 @@ class RoundRobin {
         ON p.id = ph2.player_id AND r.finalized = 1
         WHERE r.club_id = ? AND r.short_id = ?
         ORDER BY rp.group_id ASC, rp.pos ASC
-      `, [clubId, id, clubId, id], async (err, results, fields) => {
+      `, [clubId, clubId, clubId, id, clubId, id], async (err, results, fields) => {
         if (err) throw err;
         const players = results.map(row => Player.formatPlayer(row));
         try {
