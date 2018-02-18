@@ -3,24 +3,25 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import express from "express";
 import db from './utils/connection';
+import Token from './helpers/token';
 import { app, csrfProtection, jsonParser } from "./helpers/appModules";
-import ClubHelper  from "./helpers/clubHelper";
-import ClubModel  from "./models/club";
-import UserModel  from "./models/user";
+import ClubHelper from "./helpers/clubHelper";
+import ClubModel from "./models/club";
+import User from "./models/user";
 import * as Routes from './routes';
 
 const port = process.env.APP_PORT || 3000;
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "..", "public", "views"));
-// app.use((err, req, res, next) => {
-//   try {
-//     next();
-//   } catch (e) {
-//     Raven.captureException(JSON.stringify(e));
-//     res.status(500).send({ error_description: "Internal Server Error" });
-//   }
-// })
+app.use((err, req, res, next) => {
+  try {
+    next();
+  } catch (e) {
+    // Raven.captureException(JSON.stringify(e));
+    res.status(500).send({ error_description: "Internal Server Error", error: e });
+  }
+})
 app.use(cookieParser());
 app.use((err, req, res, next) => {
   if (err.code !== "EBADCSRFTOKEN") {
@@ -35,13 +36,22 @@ app.use("/favicon.ico", (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, "..", "public")));
-app.use("/api/clubs", Routes.club);
+// app.use("/api/clubs", Routes.club);
+app.use("*", (req, res, next) => {
+  if (!req.cookies._d) {
+    res.cookie('_d', Token.generateToken(16), { maxAge: 60 * 60 * 24 * 30, httpOnly: true });
+  }
+  next();
+});
+app.use("/api/users", Routes.user);
 app.use("/api/upload", Routes.upload);
-app.use("/api/my", jsonParser, (req, res, next) => {
-  ClubModel.findBySessionToken(req.cookies.matchpoint_session)
+app.use("/api/my", (req, res, next) => {
+  console.log(req.cookies);
+  User.findBySessionToken(req.cookies._s, req.cookies._d)
     .then(
-      (club) => {
-        req.club = club;
+      (user) => {
+        console.log('found user', user);
+        req.user = user;
         return next();
       },
       (err) => {
@@ -60,19 +70,19 @@ app.use("/m/api", (req, res, next) => {
   }
   res.status(403).send({ error_description: "Invalid API Key" });
 });
-app.use("/m/api/my", jsonParser, (req, res, next) => {
-  User.find(req.cookies.matchpoint_session, req.cookies.device_id)
-  .then(
-    (user) => {
-      req.user = user;
-      return next();
-    },
-    (err) => {
-      res.status(403).send(err);
-    }
-  ).catch((err) => {
-    res.status(500).send(err);
-  });
+app.use("/m/api/my", (req, res, next) => {
+  User.findBySessionToken(req.cookies._s, req.cookies._d)
+    .then(
+      (user) => {
+        req.user = user;
+        return next();
+      },
+      (err) => {
+        res.status(403).send(err);
+      }
+    ).catch((err) => {
+      res.status(500).send(err);
+    });
 });
 app.use("/m/api", Routes.mobile);
 app.use("/api/*", (req, res) => {

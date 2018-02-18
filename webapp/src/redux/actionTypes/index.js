@@ -146,6 +146,10 @@ const actionTypes = keymirror({
   FETCH_CLUB_HOURS_REQUEST: null,
   FETCH_CLUB_HOURS_SUCCESS: null,
   FETCH_CLUB_HOURS_FAILURE: null,
+
+  CONFIG_INIT_INFORMATION_REQUEST: null,
+  CONFIG_INIT_INFORMATION_SUCCESS: null,
+  CONFIG_INIT_INFORMATION_FAILURE: null,
 });
 
 export default actionTypes;

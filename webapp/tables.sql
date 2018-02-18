@@ -1,10 +1,15 @@
 DROP TABLE IF EXISTS club_players;
-DROP TABLE IF EXISTS club_geolocations;
 DROP TABLE IF EXISTS player_histories;
 DROP TABLE IF EXISTS roundrobin_players;
 DROP TABLE IF EXISTS roundrobins;
+DROP TABLE IF EXISTS user_devices;
+DROP TABLE IF EXISTS session_tokens;
+DROP TABLE IF EXISTS user_players;
+DROP TABLE IF EXISTS club_hours;
+DROP TABLE IF EXISTS hours;
 DROP TABLE IF EXISTS clubs;
 DROP TABLE IF EXISTS players;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
@@ -13,45 +18,41 @@ CREATE TABLE users (
   verified TINYINT(1) DEFAULT 0,
   username VARCHAR(50) NOT NULL,
   short_id VARCHAR(14) NOT NULL,
-  PRIMARY KEY (id);
-);
-
-CREATE TABLE user_devices (
-  id MEDIUMINT NOT NULL AUTO_INCREMENT,
-  device_id VARCHAR(255) NOT NULL,
-  api_token VARCHAR(255) NOT NULL,
-  user_id MEDIUMINT NOT NULL,
-  FOREIGN KEY (user_id)
-    REFERENCES users (id)
-    ON DELETE CASCADE
-  PRIMARY KEY (id);
-);
-
-
-CREATE TABLE tokens (
-
-  usatt_url
-);
-
-CREATE TABLE clubs (
-  id MEDIUMINT NOT NULL AUTO_INCREMENT,
   password_digest VARCHAR(64) NOT NULL,
-  session_token VARCHAR(50) NOT NULL,
-  club_name VARCHAR(80) NOT NULL,
-  token VARCHAR(50),
   confirm_token VARCHAR(50),
+  token VARCHAR(50),
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE (short_id),
   UNIQUE (username),
-  UNIQUE (email),
-  UNIQUE (club_name)
+  UNIQUE (email)
 );
 
-CREATE TABLE club_geolocations (
+CREATE TABLE user_devices (
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
-  club_id MEDIUMINT NOT NULL,
+  device_id VARCHAR(255) NOT NULL,
+  user_id MEDIUMINT NOT NULL,
+  FOREIGN KEY (user_id)
+    REFERENCES users (id)
+    ON DELETE CASCADE,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE session_tokens (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  session_token VARCHAR(255) NOT NULL,
+  device_id VARCHAR(255) NOT NULL,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_on DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE clubs (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  user_id MEDIUMINT NOT NULL,
+  club_name VARCHAR(80),
+  phone VARCHAR(50),
   city VARCHAR(50),
   state CHAR(2),
   country VARCHAR(40),
@@ -59,16 +60,17 @@ CREATE TABLE club_geolocations (
   geolat decimal(10, 6),
   geolng decimal(10, 6),
   PRIMARY KEY (id),
-  FOREIGN KEY (club_id)
-    REFERENCES clubs (id)
+  FOREIGN KEY (user_id)
+    REFERENCES users (id)
     ON DELETE CASCADE,
+  UNIQUE (club_name),
   KEY geolat (geolat),
   KEY geolng (geolng)
 );
 
 CREATE TABLE players (
   id INT NOT NULL AUTO_INCREMENT,
-  short_id VARCHAR(14) NOT NULL,
+  short_id VARCHAR(255) NOT NULL,
   usatt_url VARCHAR(255),
   name VARCHAR(126) NOT NULL,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -77,18 +79,38 @@ CREATE TABLE players (
   UNIQUE (short_id)
 );
 
-CREATE TABLE club_players (
+# hmmm players should not all have usatt_url.. only one should suffice
+# does it make sense to keep this in one table
+# should only have user_id if the player is "claimed"
+CREATE TABLE user_players (
   id MEDIUMINT NOT NULL AUTO_INCREMENT,
-  club_id MEDIUMINT NOT NULL,
+  user_id MEDIUMINT,
   player_id INT NOT NULL,
-  FOREIGN KEY (club_id)
-    REFERENCES clubs (id)
+  club_id MEDIUMINT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id)
+    REFERENCES users (id)
     ON DELETE CASCADE,
   FOREIGN KEY (player_id)
     REFERENCES players (id)
     ON DELETE CASCADE,
-  PRIMARY KEY (id)
+  FOREIGN KEY (club_id)
+    REFERENCES clubs (id)
+    ON DELETE CASCADE
 );
+
+-- CREATE TABLE club_players (
+--   id MEDIUMINT NOT NULL AUTO_INCREMENT,
+--   club_id MEDIUMINT NOT NULL,
+--   player_id INT NOT NULL,
+--   FOREIGN KEY (club_id)
+--     REFERENCES clubs (id)
+--     ON DELETE CASCADE,
+--   FOREIGN KEY (player_id)
+--     REFERENCES players (id)
+--     ON DELETE CASCADE,
+--   PRIMARY KEY (id)
+-- );
 
 CREATE TABLE roundrobins (
   id INT NOT NULL AUTO_INCREMENT,
@@ -135,6 +157,28 @@ CREATE TABLE roundrobin_players (
   PRIMARY KEY (roundrobin_id, id)
 );
 
+CREATE TABLE hours (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  type VARCHAR(255) NOT NULL,
+  open DATETIME NOT NULL,
+  close DATETIME NOT NULL,
+  day TINYINT(4) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE club_hours (
+  id MEDIUMINT NOT NULL AUTO_INCREMENT,
+  club_id MEDIUMINT NOT NULL,
+  hour_id MEDIUMINT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (club_id)
+    REFERENCES clubs (id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (hour_id)
+    REFERENCES hours (id)
+    ON DELETE CASCADE
+);
+
 DELIMITER $$
 CREATE TRIGGER ensure_roundrobin_player_id BEFORE INSERT ON roundrobin_players
 FOR EACH ROW BEGIN
@@ -168,12 +212,6 @@ INSERT INTO matchpoints.clubs (
   1
 );
 
-INSERT INTO matchpoints.club_geolocations (
-  city, state, country, club_id
-) VALUES (
-  "San Francisco", "CA", "United States", 1
-);
-
 INSERT INTO matchpoints.clubs (
   password_digest, session_token, short_id, username, club_name, email, verified
 ) VALUES (
@@ -184,33 +222,3 @@ INSERT INTO matchpoints.clubs (
   "test@gmail.com",
   1
 );
-
-INSERT INTO matchpoints.club_geolocations (
-  city, state, country, club_id
-) VALUES (
-  "San Francisco", "CA", "United States", 2
-);
-
-CREATE TABLE matchpoints.hours (
-  id MEDIUMINT NOT NULL AUTO_INCREMENT,
-  type VARCHAR(255) NOT NULL,
-  open DATETIME NOT NULL,
-  close DATETIME NOT NULL,
-  day TINYINT(4) NOT NULL,
-  PRIMARY KEY (id)
-);
-
-CREATE TABLE matchpoints.club_hours (
-  id MEDIUMINT NOT NULL AUTO_INCREMENT,
-  club_id MEDIUMINT NOT NULL,
-  hour_id MEDIUMINT NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (club_id)
-    REFERENCES clubs (id)
-    ON DELETE CASCADE,
-  FOREIGN KEY (hour_id)
-    REFERENCES hours (id)
-    ON DELETE CASCADE
-);
-
-ALTER TABLE roundrobins MODIFY COLUMN date DATE;

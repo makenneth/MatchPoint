@@ -344,6 +344,13 @@ h1 {
   top: 50%;
   -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
+
+  &.information p {
+    @include default-font;
+    &:first-child {
+      margin-bottom: 20px;
+    }
+  }
 }
 
 form {

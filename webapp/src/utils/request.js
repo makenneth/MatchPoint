@@ -81,7 +81,7 @@ function serializeParams(obj) {
  *
  * @return {object}           An object containing either "data" or "err"
  */
-export default function request(url, options = {}) {
+export default async function request(url, options = {}) {
   let requestUrl = url;
   const headers = {
     'Content-Type': 'application/json',

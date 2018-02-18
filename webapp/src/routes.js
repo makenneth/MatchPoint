@@ -1,6 +1,11 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-import { Main, Splash, Club, NewRoundrobin, Sessions, Session, Query, Profile, PDFGenerator } from 'containers';
+import {
+  Main, Splash, Club,
+  NewRoundrobin, Sessions,
+  Session, Query, Profile,
+  PDFGenerator, InformationForm,
+} from 'containers';
 import { Confirmation, Loading } from 'components';
 import { isAuthLoaded, loadAuth } from 'redux/modules/auth';
 import ErrorPage from './errorPage';
@@ -15,9 +20,9 @@ export default ({ getState, dispatch }) => {
       callback();
     };
 
-    if (isAuthLoaded(getState().auth)) {
+    if (getState().auth.isLoaded) {
       checkAuth();
-    } else {
+    } else if (!getState().auth.isLoading) {
       dispatch(loadAuth()).then(checkAuth);
     }
   };
@@ -31,9 +36,9 @@ export default ({ getState, dispatch }) => {
       callback();
     };
 
-    if (isAuthLoaded(getState().auth)) {
+    if (getState().auth.isLoaded) {
       checkAuth();
-    } else {
+    } else if (!getState().auth.isLoading) {
       dispatch(loadAuth()).then(checkAuth);
     }
   };
@@ -43,15 +48,33 @@ export default ({ getState, dispatch }) => {
     if (!club.verified) {
       replace('/club/confirm');
     }
+
     callback();
   };
+
   const requireNotConfirmed = (nextState, replace, callback) => {
     const { club } = getState().auth;
     if (club.verified) {
       replace('/club');
     }
+
     callback();
   };
+  const requiredInit = (nextState, replace, callback) => {
+    const { club } = getState().auth;
+    if (!club.clubName) {
+      replace('/club/info');
+    }
+    callback();
+  };
+  const requiredNotInit = (nextState, replace, callback) => {
+    const { club } = getState().auth;
+    if (club.clubName) {
+      replace('/club/sessions/new');
+    }
+    callback();
+  };
+
   return (
     <Route path="/" component={Main}>
       <Route onEnter={requireNotLoggedin}>
@@ -61,12 +84,17 @@ export default ({ getState, dispatch }) => {
       <Route onEnter={requireLoggedIn}>
         <Route path="club" component={Club}>
           <Route onEnter={requireConfirmed}>
-            <IndexRoute component={NewRoundrobin} />
-            <Route path="profile" component={Profile} />
-            <Route path="sessions" component={Sessions} />
-            <Route path="sessions/new" component={NewRoundrobin} />
-            <Route path="sessions/:id" component={Session} />
-            <Route path="pdf" component={PDFGenerator} />
+            <Route onEnter={requiredInit}>
+              <IndexRoute component={NewRoundrobin} />
+              <Route path="profile" component={Profile} />
+              <Route path="sessions" component={Sessions} />
+              <Route path="sessions/new" component={NewRoundrobin} />
+              <Route path="sessions/:id" component={Session} />
+              <Route path="pdf" component={PDFGenerator} />
+            </Route>
+            <Route onEnter={requiredNotInit}>
+              <Route path="info" component={InformationForm} />
+            </Route>
           </Route>
           <Route onEnter={requireNotConfirmed}>
             <Route path="confirm" component={Confirmation} />

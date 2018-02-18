@@ -9,3 +9,4 @@ export * from './Auth';
 export * from './Profile';
 export * from './Groups';
 export * from './Participants';
+export AutoComplete from './AutoComplete';

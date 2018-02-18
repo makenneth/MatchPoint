@@ -41,7 +41,6 @@ export default (state = initialState, action) => {
     case ActionTypes.LOAD_AUTH_REQUEST:
     case ActionTypes.LOG_IN_REQUEST:
     case ActionTypes.SIGN_UP_REQUEST:
-    case ActionTypes.LOG_OUT_REQUEST:
       return {
         ...state,
         loading: true,
@@ -69,6 +68,11 @@ export default (state = initialState, action) => {
         error: action.payload.error,
       };
 
+    case ActionTypes.LOG_OUT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
 
     case ActionTypes.LOG_OUT_SUCCESS:
       return {
@@ -110,9 +114,9 @@ function loadAuthFailure(error) {
 export function loadAuth() {
   return (dispatch) => {
     dispatch(loadAuthRequest());
-    return request('/api/clubs').then(
+    return request('/api/users').then(
       (res) => {
-        dispatch(loadAuthSuccess(res.club));
+        dispatch(loadAuthSuccess(res.user));
       },
       err => dispatch(loadAuthFailure(err))
     );
@@ -120,7 +124,7 @@ export function loadAuth() {
 }
 
 export const isAuthLoaded = (state) => {
-  return state.loading && state.loaded;
+  return !state.loading && state.loaded;
 };
 
 function logInRequest() {
@@ -151,8 +155,8 @@ export function logIn(user) {
       body: JSON.stringify({ user }),
     }).then(
       (res) => {
-        browserHistory.push('/club');
         dispatch(logInSuccess(res.club));
+        browserHistory.push('/club');
       },
       err => dispatch(logInFailure(err))
     );
@@ -182,14 +186,15 @@ function signUpFailure(error) {
 export function signUp(user) {
   return (dispatch) => {
     dispatch(signUpRequest());
-    return request('/api/clubs', {
+    console.log(user);
+    return request('/api/users', {
       method: 'POST',
       body: JSON.stringify({ user }),
     }).then(
       (res) => {
         dispatch(setPage(0));
-        browserHistory.push('/club');
         dispatch(signUpSuccess(res.user));
+        browserHistory.push('/club/info');
       },
       err => dispatch(signUpFailure(err))
     );

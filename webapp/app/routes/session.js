@@ -5,7 +5,7 @@ import Session from '../controllers/session';
 const router = express.Router();
 
 router
-  .post("/", jsonParser, csrfProtection, Session.post)
+  .post("/", jsonParser, csrfProtection, Session.create)
   .delete("/", Session.delete);
 
 export default router;

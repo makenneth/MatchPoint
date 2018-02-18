@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { setPage } from 'redux/modules/splash';
 import { setToken } from 'redux/modules/reset';
-import { LogInForm, SignUpForm, ForgotForm, ResetForm, Activated } from 'components';
+import {
+  LogInForm, SignUpForm, ForgotForm,
+  ResetForm, Activated,
+} from 'components';
 import { asyncConnect } from 'redux-async-connect-react16';
 import RaisedButton from 'material-ui/RaisedButton';
 
@@ -63,7 +66,7 @@ class Splash extends Component {
                 onClick={() => this.props.setPage(1)}
                 label="Log In"
                 backgroundColor="#0E3652"
-                labelColor="white"
+                labelColor="#fff"
                 style={{ backgroundColor: '#0E3652' }}
               />
               <RaisedButton
@@ -71,7 +74,7 @@ class Splash extends Component {
                 onClick={() => this.props.setPage(2)}
                 label="Sign Up"
                 backgroundColor="#0E5249"
-                labelColor="white"
+                labelColor="#fff"
                 style={{ backgroundColor: '#0E5249' }}
               />
             </div>

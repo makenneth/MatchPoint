@@ -6,8 +6,6 @@ import Clubs from '../controllers/club';
 const router = express.Router();
 
 router
-  .get("/", Clubs.get)
-  .post("/", csrfProtection, jsonParser, Clubs.create)
   .get("/all", Clubs.all)
   .get("/:clubId/sessions/:id", Roundrobins.get);
 

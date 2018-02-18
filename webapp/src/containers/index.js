@@ -7,3 +7,4 @@ export Sessions from './Sessions';
 export Session from './Session';
 export RecordTableContainer from './RecordTableContainer';
 export Query from './Query';
+export InformationForm from './Information';

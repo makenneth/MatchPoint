@@ -6,7 +6,7 @@ import AutoComplete from 'material-ui/AutoComplete';
 import CircularProgress from 'material-ui/CircularProgress';
 import MdInfoOutline from 'react-icons/lib/md/info-outline';
 import countries from 'constants/countries';
-import AddressAutoComplete from './AutoComplete';
+import AddressAutoComplete from 'components/AutoComplete';
 import './styles.scss';
 
 export default class ContactInfo extends Component {

@@ -1,40 +1,70 @@
 import ClubHelper from "../helpers/clubHelper";
-import Club from "../models/club";
+import { Club, User } from "../models";
+import { user as UserValidation } from "../validations";
+import Mailer from '../helpers/mailer';
 
 export default {
-  create: (req, res, next) => {
+  /* call when a new device is connected */
+  getApiKey: (req, res, next) => {
+    const deviceId = req.something;
+    User.getOrCreateApiKey();
 
+  },
+
+  create: async (req, res, next) => {
+    const { user } = req.body;
+    console.log(req.baseUrl);
+    // if (req.baseUrl === '/api') {
+    //   type = 'club';
+    // } else if (req.baseUrl === '/m/api') {
+    //   type = 'user';
+    // }
+    {
+      const [isValid, error] = UserValidation.validate(user);
+      if (!isValid) {
+        console.log('validation', error);
+        return next({ code: 422, message: error });
+      }
+    }
+    let userId;
+    try {
+      userId = await User.create('club', user, req.cookies._d);
+    } catch (err) {
+      console.log('after create', err);
+      if (err.username || err.email) {
+        return next({ code: 422, message: err });
+      } else {
+        return next({ code: 500, message: err });
+      }
+    }
+    try {
+      const user = await User.findById(userId, req.cookies._d, false);
+      console.log('created', user);
+      new Mailer(user).sendConfirmationEmail();
+      ClubHelper.logIn(user, res);
+    } catch (e) {
+      console.log('after login', e);
+      return next({ code: 500, message: e });
+    }
   },
 
   update: (req, res, next) => {
-
-  },
-
-  post: (req, res, next) => {
     const data = req.body.user;
-    Club.findByUsernameAndPassword(data.username.toLowerCase(), data.password)
-      .then(
-        (club) => {
-          return ClubHelper.logIn(club, res);
-        },
-        (err) => {
-          if (err.password || err.username) {
-            next({ code: 422, message: err });
-          } else {
-            next({ code: 500, message: err });
-          }
-        }
-      ).catch(err => next({ code: 500, message: err }));
+    User.update();
   },
 
-  delete: (req, res, next) => {
-    Club.resetSessionTokenWithOldToken(req.cookies.matchpoint_session)
-      .then(() => {
-        res.status(204).clearCookie("matchpoint_session");
-        res.end();
-      }).catch((err) => {
-        res.clearCookie("matchpoint_session");
-        next({ code: err.token ? 404 : 500, message: err });
-      });
-  }
+
+  findBySessionToken: (req, res, next) => {
+    User.findBySessionToken(req.cookies._s, req.cookies._d)
+      .then(
+        user => {
+          delete user.password_digest;
+          delete user.confirm_token;
+          delete user.token;
+          res.status(200).send({ user });
+        },
+        err => next({ code: 404, message: err }),
+      )
+      .catch(err => next({ code: 500, message: err }));
+  },
 };

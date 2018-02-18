@@ -1,7 +1,7 @@
 import URLSafeBase64 from "urlsafe-base64";
 import crypto from "crypto";
+import bcrypt from "../helpers/bcrypt";
 import shortid from "shortid";
-import bcrypt from "bcrypt-as-promised";
 import mysql from "mysql";
 import { camelCase } from 'lodash';
 import db from '../utils/connection';
@@ -26,20 +26,10 @@ class Club {
     return URLSafeBase64.encode(crypto.randomBytes(32));
   }
 
-  static isPassword(password, passwordDigest) {
-    return bcrypt.compare(password, passwordDigest);
-  }
-
-  static generatePasswordDigest(password) {
-    return bcrypt.hash(password, 10);
-  }
-
   static formatClubRow(row) {
     const fields = [
-      'id', 'password_digest', 'session_token',
-      'short_id', 'username', 'club_name',
-      'email', 'verified', 'token',
-      'confirm_token', 'updated_at', 'created_on',
+      'id', 'short_id', 'club_name',
+      'email','updated_at', 'created_on', 'phone',
       'city', 'state', 'address', 'geolat', 'geolng', 'country',
     ];
     const club = {};
@@ -75,12 +65,10 @@ class Club {
     return new Promise((resolve, reject) => {
       connection.query(`
         SELECT
-        c.id, short_id, username, club_name, email, verified, session_token, confirm_token,
+        c.id, short_id, club_name, phone, session_token, confirm_token,
         city, state, address, geolat, geolng, country
-        FROM clubs AS c
-        INNER JOIN club_geolocations AS cg
-        ON cg.club_id = c.id
-        WHERE c.id = ?
+        FROM clubs
+        WHERE id = ?
       `, [id], (err, results, field) => {
         connection.release();
         if (err) throw err;
@@ -212,188 +200,140 @@ class Club {
     });
   }
 
-  static async resetSessionTokenWithOldToken(token) {
-    const connection = await db.getConnection();
-    const newToken = Club.generateToken();
+  // static async changeInfo(club, data) {
+  //   const { password, info } = data;
+  //   {
+  //     const error = ClubValidation.validateInfo(info);
+  //     if (error) throw error;
+  //   }
+  //   try {
+  //     const isPassword = await bcrypt.isPassword(password, club.password_digest);
+  //   } catch (_e) {
+  //     return Promise.reject({ password: "Password is incorrect" });
+  //   }
+  //   const connection = await db.getConnection();
+  //   return new Promise((resolve, reject) => {
+  //     connection.beginTransaction((tError) => {
+  //       if (tError) throw tError;
+  //       if (info.email && club.email !== info.email) {
+  //         connection.query(`UPDATE clubs
+  //           SET email = ?, verified = 0, confirm_token = ?
+  //           WHERE id = ?`, [info.email, Club.generateToken(), club.id], (err, results, field) => {
+  //           if (err) {
+  //             connection.rollback();
+  //             connection.release();
+  //             if (err.code === 'ER_DUP_ENTRY') {
+  //               if (err.sqlMessage.match(/email/)) {
+  //                 return reject({ email: 'Email has been taken' });
+  //               }
+  //             }
+  //             throw err;
+  //           }
+  //           if (results.affectedRows > 0) {
+  //             resolve(true);
+  //           } else {
+  //             reject({ email: 'Failed to update email.' });
+  //           }
+  //         });
+  //       } else {
+  //         resolve(true);
+  //       }
+  //      });
+  //   }).then(() => {
+  //     return new Promise((resolve, reject) => {
+  //       if (club.address !== info.address ||
+  //         club.city !== info.city ||
+  //         club.state !== info.state ||
+  //         club.country !== info.country
+  //       ) {
+  //         connection.query(`
+  //           UPDATE club_geolocations
+  //           SET address = ?, city = ?, state = ?, country = ?, geolat = ?, geolng = ?
+  //           WHERE club_id = ?`,
+  //           [info.address, info.city, info.state, info.country, info.geolat, info.gelng, club.id],
+  //           (err, results, field) => {
+  //             if (err) {
+  //               connection.rollback();
+  //               connection.release();
+  //               throw err;
+  //             }
+  //             connection.commit();
+  //             connection.release();
+  //             if (results.affectedRows > 0) {
+  //               resolve(true);
+  //             } else {
+  //               reject({ info: 'Failed to update info.' });
+  //             }
+  //           });
+  //       } else {
+  //         connection.commit();
+  //         connection.release();
+  //         resolve(true);
+  //       }
+  //     });
+  //   })
+  // }
+
+  // static async changePassword(club, data) {
+  //   const { oldPassword, newPassword } = data;
+  //   if (newPassword.length < 8) {
+  //     return Promise.reject({ newPassword: "Password must have at least 8 characters." });
+  //   }
+
+  //   if (oldPassword === newPassword) {
+  //     return Promise.resolve();
+  //   }
+
+  //   const connection = await db.getConnection();
+  //   try {
+  //     console.log(club);
+  //     const isPassword = await bcrypt.isPassword(oldPassword, club.password_digest);
+  //   } catch (e) {
+  //     console.log(e);
+  //     return Promise.reject({ oldPassword: "Old password is incorrect." });
+  //   }
+  //   const digest = await bcrypt.generatePasswordDigest(newPassword);
+  //   return new Promise((resolve, reject) => {
+  //     connection.query(`
+  //       UPDATE clubs
+  //       SET password_digest = ?
+  //       WHERE id = ?`, [digest, club.id], (err, results, field) => {
+  //       connection.release();
+  //       if (err) throw(err);
+  //       if (results.affectedRows > 0) {
+  //         resolve(true);
+  //       } else {
+  //         // Raven.captureException({
+  //         //   logging_reason: 'Exploits',
+  //         //   error_description: 'Users attempted to call change password directly.'
+  //         // });
+  //         reject({ user: 'User doesn\'t exist.' });
+  //       }
+  //     });
+  //   });
+  // }
+
+
+  static async updateInformation(conn, info, clubId) {
+    let connection = conn;
+    if (conn) {
+      connection = await db.getConnection();
+    }
     return new Promise((resolve, reject) => {
+      const fields = [];
+      const values = [];
+      ['club_name', 'phone', 'city', 'state', 'address', 'geolat', 'geolng'].forEach((field) => {
+        const fieldKey = camelCase(field);
+        if (info[fieldKey]) {
+          fields.push(`${field} = ?`);
+          values.push(info[fieldKey]);
+        }
+      });
+
+      const stmt = `UPDATE clubs SET ${fields.join(', ')}`;
       connection.query(`
-        UPDATE clubs SET session_token = ?
-        WHERE session_token = ?
-      `, [newToken, token], (err, results, field) => {
-        connection.release();
-        if (err) throw err;
-        if (results.affectedRows > 0) {
-          resolve(newToken);
-        } else {
-          reject({ token: 'Session token might have expired.' });
-        }
-      });
-    });
-  }
-
-
-  static async changeInfo(club, data) {
-    const { password, info } = data;
-    {
-      const error = ClubValidation.validateInfo(info);
-      if (error) throw error;
-    }
-    try {
-      const isPassword = await Club.isPassword(password, club.password_digest);
-    } catch (_e) {
-      return Promise.reject({ password: "Password is incorrect" });
-    }
-    const connection = await db.getConnection();
-    return new Promise((resolve, reject) => {
-      connection.beginTransaction((tError) => {
-        if (tError) throw tError;
-        if (info.email && club.email !== info.email) {
-          connection.query(`UPDATE clubs
-            SET email = ?, verified = 0, confirm_token = ?
-            WHERE id = ?`, [info.email, Club.generateToken(), club.id], (err, results, field) => {
-            if (err) {
-              connection.rollback();
-              connection.release();
-              if (err.code === 'ER_DUP_ENTRY') {
-                if (err.sqlMessage.match(/email/)) {
-                  return reject({ email: 'Email has been taken' });
-                }
-              }
-              throw err;
-            }
-            if (results.affectedRows > 0) {
-              resolve(true);
-            } else {
-              reject({ email: 'Failed to update email.' });
-            }
-          });
-        } else {
-          resolve(true);
-        }
-       });
-    }).then(() => {
-      return new Promise((resolve, reject) => {
-        if (club.address !== info.address ||
-          club.city !== info.city ||
-          club.state !== info.state ||
-          club.country !== info.country
-        ) {
-          connection.query(`
-            UPDATE club_geolocations
-            SET address = ?, city = ?, state = ?, country = ?, geolat = ?, geolng = ?
-            WHERE club_id = ?`,
-            [info.address, info.city, info.state, info.country, info.geolat, info.gelng, club.id],
-            (err, results, field) => {
-              if (err) {
-                connection.rollback();
-                connection.release();
-                throw err;
-              }
-              connection.commit();
-              connection.release();
-              if (results.affectedRows > 0) {
-                resolve(true);
-              } else {
-                reject({ info: 'Failed to update info.' });
-              }
-            });
-        } else {
-          connection.commit();
-          connection.release();
-          resolve(true);
-        }
-      });
-    })
-  }
-
-  static async changePassword(club, data) {
-    const { oldPassword, newPassword } = data;
-    if (newPassword.length < 8) {
-      return Promise.reject({ newPassword: "Password must have at least 8 characters." });
-    }
-
-    if (oldPassword === newPassword) {
-      return Promise.resolve();
-    }
-
-    const connection = await db.getConnection();
-    try {
-      console.log(club);
-      const isPassword = await Club.isPassword(oldPassword, club.password_digest);
-    } catch (e) {
-      console.log(e);
-      return Promise.reject({ oldPassword: "Old password is incorrect." });
-    }
-    const digest = await Club.generatePasswordDigest(newPassword);
-    return new Promise((resolve, reject) => {
-      connection.query(`
-        UPDATE clubs
-        SET password_digest = ?
-        WHERE id = ?`, [digest, club.id], (err, results, field) => {
-        connection.release();
-        if (err) throw(err);
-        if (results.affectedRows > 0) {
-          resolve(true);
-        } else {
-          // Raven.captureException({
-          //   logging_reason: 'Exploits',
-          //   error_description: 'Users attempted to call change password directly.'
-          // });
-          reject({ user: 'User doesn\'t exist.' });
-        }
-      });
-    });
-  }
-
-  static async create(user) {
-    const connection = await db.getConnection();
-    const digest = await Club.generatePasswordDigest(user.password);
-    const isPassword = await Club.isPassword(user.password, digest);
-    return new Promise((resolve, reject) => {
-      connection.beginTransaction((tError) => {
-        if (tError) {
-          connection.release();
-          throw tError;
-        }
-        connection.query(`
-         INSERT INTO clubs
-         (short_id, username, email, club_name, password_digest, session_token, confirm_token)
-         VALUES
-         (?, ?, ?, ?, ?, ?, ?)`,
-         [
-           shortid.generate(), user.username.toLowerCase(), user.email,
-           user.clubName, digest, Club.generateToken(), Club.generateToken()
-         ],
-         (err, results, field) => {
-            if (err) {
-              connection.release();
-              // not just username now.
-              // email, club_name
-              console.log(err);
-              if (err.code === 'ER_DUP_ENTRY') {
-                if (err.sqlMessage.match(/email/)) {
-                  return reject({ email: 'Email has been taken' });
-                } else if (err.sqlMessage.match(/username/)) {
-                  return reject({ username: 'Username has been taken' });
-                } else if (err.sqlMessage.match(/club_name/)) {
-                  return reject({ clubName: 'Club name has been taken' });
-                }
-              }
-              throw err;
-            }
-            resolve(results.insertId);
-          });
-      });
-    }).then(clubId => Club.insertGeolocations(connection, user, clubId));
-  }
-
-  static insertGeolocations(connection, user, clubId) {
-    return new Promise((resolve, reject) => {
-      connection.query(`
-        INSERT INTO club_geolocations
-        (city, state, address, club_id)
-        VALUES (?, ?, ?, ?)
-      `, [user.city, user.state, user.address, clubId], (err, results, field) => {
+        ${stmt} WHERE id = ?
+      `, [...values, clubId], (err, results, field) => {
         if (err) {
           connection.rollback();
           connection.release();
@@ -401,81 +341,84 @@ class Club {
         }
         connection.commit();
         connection.release();
-        console.log('inserted geolocations');
         resolve(clubId);
       });
     });
   }
 
-  static async resetSessionToken(id) {
-    const token = Club.generateToken();
-    const connection = await db.getConnection();
-    return new Promise((resolve, reject) => {
-      connection.query(`
-       UPDATE clubs
-       SET session_token = ?
-       WHERE id = ?`, [token, id], (err, results, field) => {
-        connection.release();
-        if (err) throw(err);
-        if (results.affectedRows > 0) {
-          resolve(token);
-        } else {
-          reject({ token: 'Session token might have expired.' });
-        }
-      });
-    });
-  }
-
-  static async findBySessionToken(sessionToken) {
-    // check if I need all the fields
-    if (!sessionToken) {
-      return Promise.reject({ token: 'Auth token is required.' });
+  static async initialInformation(userId, info, conn) {
+    // should present an option to select whether it is a club or player..?
+    // in the meantime, all web signups are clubs
+    // without clubName means init page
+    let connection = conn;
+    if (!conn) {
+      connection = await db.getConnection();
     }
-    const connection = await db.getConnection();
+    let city = '';
+    let state = '';
+    let country = '';
+    if (info.address.terms.length === 4) {
+      [, city, state, country] = info.address.terms.map(t => t.value);
+    } else if (info.address.terms.length === 5) {
+      [, , city, state, country] = info.address.terms.map(t => t.value);
+    }
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT c.id, short_id, username, club_name,
-          email, verified, token, confirm_token, password_digest,
-          updated_at, created_on, city, state, address,
-          geolat, geolng, country
-        FROM clubs AS c
-        INNER JOIN club_geolocations AS cg
-        ON cg.club_id = c.id
-        WHERE c.session_token = ?
-      `, [sessionToken], (err, results, field) => {
-        connection.release();
-        if (err) throw(err);
-        if (results.length > 0) {
-          const club = Club.formatClubRow(results[0]);
-          return resolve(club);
+        UPDATE clubs SET
+        club_name = ?, phone = ?, address = ?,
+        city = ?, state = ?, country = ?,
+        geolat = ?, geolng = ?
+        WHERE user_id = ? AND EXISTS (
+          SELECT * FROM (SELECT * FROM clubs WHERE user_id = ? AND club_name IS NULL) AS c
+        );
+      `, [
+        info.clubName, info.phone, info.address.description,
+        city, state, country,
+        info.lat, info.lng, userId, userId
+      ], (err, results, field) => {
+        if (err) {
+          if (conn) {
+            connection.rollback();
+          }
+          connection.release();
+          throw(err);
+        }
+        if (conn) {
+          connection.commit();
         } else {
-          return reject({ token: 'Session token might have expired.' });
+          connection.release();
+        }
+        console.log(results);
+        if (results.affectedRows === 0) {
+          reject({ info: 'Failed to update' });
+        } else {
+          resolve(userId);
         }
       });
     });
   }
 
-  static async resetPasswordWithToken(token, newPassword) {
-    const connection = await db.getConnection();
-    return Club.generatePasswordDigest(newPassword)
-      .then((digest) => {
-        return new Promise((resolve, reject) => {
-          connection.query(`
-           UPDATE clubs
-           SET password_digest = ?, token = ?
-           WHERE token = ?
-          `, [digest, "", token], (err, results, field) => {
-            connection.release();
-            if (err) throw(err);
-            if (results.affectedRows > 0) {
-              resolve(results);
-            } else {
-              reject({ token: 'Session token might have expired.' });
-            }
-          });
-        });
-      });
-  }
+  // static async resetPasswordWithToken(token, newPassword) {
+  //   const connection = await db.getConnection();
+  //   return bcrypt.generatePasswordDigest(newPassword)
+  //     .then((digest) => {
+  //       return new Promise((resolve, reject) => {
+  //         connection.query(`
+  //          UPDATE clubs
+  //          SET password_digest = ?, token = ?
+  //          WHERE token = ?
+  //         `, [digest, "", token], (err, results, field) => {
+  //           connection.release();
+  //           if (err) throw(err);
+  //           if (results.affectedRows > 0) {
+  //             resolve(results);
+  //           } else {
+  //             reject({ token: 'Session token might have expired.' });
+  //           }
+  //         });
+  //       });
+  //     });
+  // }
 
   static async findBasicInfo(geolocation) {
     const connection = await db.getConnection();
@@ -494,38 +437,7 @@ class Club {
         }
         const digest = results[0].password_digest;
         try {
-          const isPassword = await Club.isPassword(password, digest);
-        } catch (e) {
-          return reject({
-            username: 'Username or password is not correct.',
-            password: 'Username or password is not correct.'
-          });
-        }
-        const club = Club.formatClubRow(results[0]);
-        delete club.password_digest;
-        return resolve(club);
-      });
-    });
-  }
-
-  static async findByUsernameAndPassword(username, password) {
-    const connection = await db.getConnection();
-    return new Promise((resolve, reject) => {
-      connection.query(`
-       SELECT * FROM clubs WHERE username = ?
-      `, [username], async (err, results, field) => {
-        connection.release();
-        if (err) throw(err);
-
-        if (results.length === 0) {
-          return reject({
-            username: 'Username or password is not correct.',
-            password: 'Username or password is not correct.'
-          });
-        }
-        const digest = results[0].password_digest;
-        try {
-          const isPassword = await Club.isPassword(password, digest);
+          const isPassword = await bcrypt.isPassword(password, digest);
         } catch (e) {
           return reject({
             username: 'Username or password is not correct.',
@@ -575,6 +487,30 @@ class Club {
         }
       });
     });
+  }
+
+  static async createInitial(userId, conn) {
+    let connection = conn;
+    if (conn) {
+      connection = await db.getConnection();
+    }
+    return new Promise((resolve, reject) => {
+      connection.query(`
+       INSERT INTO clubs (user_id) VALUES (?);
+      `, [userId], (err, results, field) => {
+          if (!conn) connection.release();
+          if (err) {
+            if (conn) {
+              connection.rollback();
+              connection.release();
+            }
+            throw err;
+          }
+
+        return resolve(true);
+      });
+    });
+
   }
 }
 
