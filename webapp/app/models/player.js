@@ -277,7 +277,7 @@ class Player {
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT p.id, COALESCE(ph.won, 0) AS promoted
+        SELECT p.id, ph.won
         FROM players AS p
         LEFT OUTER JOIN (
           SELECT won, ph1.player_id FROM player_histories AS ph1
@@ -291,6 +291,7 @@ class Player {
           WHERE ph1.club_id = ?
         ) AS ph
         ON ph.player_id = p.id
+        WHERE ph.won = 1
       `, [clubId], (err, results, fields) => {
         connection.release();
         if (err) throw err;

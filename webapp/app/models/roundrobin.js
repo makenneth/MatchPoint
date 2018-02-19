@@ -396,6 +396,7 @@ class RoundRobin {
     const calculation = new ScoreCalculation(roundrobin.players, roundrobin.selected_schema, results);
     const [sortedPlayers, winners] = calculation.sortPlayers();
     const [scoreChange, ratingChange] = calculation.calculateScoreChange();
+
     const promises = sortedPlayers.map((player) => {
       const rc = ratingChange[player.id.toString()];
       const change = rc + (rc > 24 ? rc - 24 : 0);
@@ -430,11 +431,11 @@ class RoundRobin {
         player_histories
         (player_id, old_rating, rating_change, rating, club_id, roundrobin_id, result, change_date, won)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE rating_change = ?, rating = ?, result = ?
+        ON DUPLICATE KEY UPDATE rating_change = ?, rating = ?, result = ?, won = ?
       `, [
         playerId, oldRating, change, oldRating + change,
         clubId, id, resultJSON, date, isWinner,
-        change, oldRating + change, resultJSON
+        change, oldRating + change, resultJSON, isWinner
       ],
       (err, results, field) => {
         if (err) throw err;
