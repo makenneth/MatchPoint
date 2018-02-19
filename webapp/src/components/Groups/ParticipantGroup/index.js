@@ -54,7 +54,11 @@ const ParticipantGroup = (props) => {
                   {
                     playerList.filter((g, k) => k !== props.groupId).map(group => (
                       group.map((swapee) => (
-                        <MenuItem key={swapee.id} value={swapee.id} primaryText={swapee.name} />
+                        <MenuItem
+                          key={swapee && swapee.id}
+                          value={swapee && swapee.id}
+                          primaryText={swapee && swapee.name}
+                        />
                       ))
                     ))
                   }
