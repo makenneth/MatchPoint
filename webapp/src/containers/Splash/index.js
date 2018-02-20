@@ -30,7 +30,7 @@ import './styles.scss';
 @connect(({ splash: { page } }) => ({ page }), { setPage })
 class Splash extends Component {
   componentWillUnmount() {
-    this.props.setPage(0);
+    this.props.setPage(3);
   }
   render() {
     const content = (() => {

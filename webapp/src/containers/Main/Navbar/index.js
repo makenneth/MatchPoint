@@ -10,7 +10,7 @@ import { open, close, setTab, preSetTab } from 'redux/modules/navbar';
 import './styles.scss';
 
 @connect(
-  ({ auth: { club, loading }, navbar }) => ({ club, navbar, loading }),
+  ({ auth: { user, loading }, navbar }) => ({ user, navbar, loading }),
   { openLogin, logIn, logOut, open, close, setTab, preSetTab, setPage }
 )
 export default class Navbar extends Component {
@@ -29,8 +29,8 @@ export default class Navbar extends Component {
       this.props.navbar !== nextProps.navbar || this.state !== nextState) {
       return true;
     }
-    if ((!this.props.club && nextProps.club) ||
-      (!nextProps.club.id && this.props.club && this.props.club.id)) {
+    if ((!this.props.user && nextProps.user) ||
+      (!nextProps.user.id && this.props.user && this.props.user.id)) {
       return true;
     }
     return false;
@@ -72,7 +72,7 @@ export default class Navbar extends Component {
   slideNav() {
     const { tab, opened } = this.props.navbar;
 
-    if (this.props.club.id) {
+    if (this.props.user.id) {
       return (<Drawer
         open={opened}
         openSecondary={Boolean(true)}
@@ -152,7 +152,7 @@ export default class Navbar extends Component {
 
   normalNav() {
     const tab = this.props.navbar.tab;
-    if (this.props.club.id) {
+    if (this.props.user.id) {
       return (<ul className="nav">
         <li
           onClick={() => this.handleLink('/club/profile', 4)}
@@ -195,11 +195,12 @@ export default class Navbar extends Component {
     const { loading } = this.props;
     return (<div
       className={`nav-bar ${this.props.pathname === '/' ||
+        this.props.pathname === '/reset' ||
         this.props.pathname === '/activate/success' ? 'no-color' : 'color'}`
       }
     >
       <div>
-        <div className="logo" onClick={() => this.handleLink(this.props.club.id ? '/club' : '/', 0)}>
+        <div className="logo" onClick={() => this.handleLink(this.props.user.id ? '/club' : '/', 0)}>
           MatchPoints
         </div>
         {!loading && !expanded && <div className="collapsed-icon" onClick={this.props.open}>&#9776;</div>}

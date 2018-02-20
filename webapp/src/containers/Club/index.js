@@ -4,10 +4,10 @@ import { connect } from 'react-redux';
 
 import './styles.scss';
 
-@connect(({ auth: { club } }) => ({ club }))
+@connect(({ auth: { user } }) => ({ user }))
 export default class Club extends Component {
   render() {
-    if (!this.props.club) {
+    if (!this.props.user) {
       return (<div className="overlay">
         <div className="loading">
           <CircularProgress size={2} />

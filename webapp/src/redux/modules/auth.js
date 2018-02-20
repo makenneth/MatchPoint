@@ -5,7 +5,7 @@ import ActionTypes from 'redux/actionTypes';
 import { startLoad, stopLoad } from 'redux/modules/main';
 
 const initialState = {
-  club: {},
+  user: {},
   error: null,
   loading: false,
   loaded: false,
@@ -21,11 +21,11 @@ export default (state = initialState, action) => {
     //   };
 
     // case ACTIVATE_CLUB:
-    //   if (state.club._id) {
+    //   if (state.user._id) {
     //     return {
     //       ...state,
-    //       club: {
-    //         ...state.club,
+    //       user: {
+    //         ...state.user,
     //         confirmed: true,
     //       },
     //     };
@@ -45,7 +45,7 @@ export default (state = initialState, action) => {
         ...state,
         loading: true,
         loaded: false,
-        club: {},
+        user: {},
       };
 
     case ActionTypes.LOG_IN_SUCCESS:
@@ -55,7 +55,7 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
         loaded: true,
-        club: action.payload.club,
+        user: action.payload.user,
       };
 
     case ActionTypes.LOG_IN_FAILURE:
@@ -80,10 +80,11 @@ export default (state = initialState, action) => {
         loading: false,
       };
 
-    case ActionTypes.CHANGE_INFO_SUCCESS:
+    // case ActionTypes.CHANGE_INFO_SUCCESS:
+    case ActionTypes.CHANGE_PASSWORD_SUCCESS:
       return {
         ...state,
-        club: action.payload.club,
+        user: action.payload.user,
       };
 
     default:
@@ -97,10 +98,10 @@ function loadAuthRequest() {
   };
 }
 
-function loadAuthSuccess(club) {
+function loadAuthSuccess(user) {
   return {
     type: ActionTypes.LOAD_AUTH_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -133,10 +134,10 @@ function logInRequest() {
   };
 }
 
-function logInSuccess(club) {
+function logInSuccess(user) {
   return {
     type: ActionTypes.LOG_IN_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -155,7 +156,7 @@ export function logIn(user) {
       body: JSON.stringify({ user }),
     }).then(
       (res) => {
-        dispatch(logInSuccess(res.club));
+        dispatch(logInSuccess(res.user));
         browserHistory.push('/club');
       },
       err => dispatch(logInFailure(err))
@@ -169,10 +170,10 @@ function signUpRequest() {
   };
 }
 
-function signUpSuccess(club) {
+function signUpSuccess(user) {
   return {
     type: ActionTypes.SIGN_UP_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -241,6 +242,6 @@ export function activateClub() {
       browserHistory.push('/club');
       dispatch(stopLoad());
       dispatch(setPage(0));
-    });
+    }, 500);
   };
 }

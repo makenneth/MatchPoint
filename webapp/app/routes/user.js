@@ -8,5 +8,6 @@ const router = express.Router();
 router
   .get("/", Users.findBySessionToken)
   .post("/", jsonParser, csrfProtection, Users.create)
+  .patch("/", jsonParser, csrfProtection, Users.update)
 
 export default router;

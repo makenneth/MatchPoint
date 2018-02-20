@@ -135,7 +135,7 @@ class PlayerForm extends Component {
         </div>
         {
           isLoading && <CircularProgress
-            size={0.5}
+            size={2}
             color="#aaa"
           />
         }

@@ -15,7 +15,7 @@ function ClubHelper() {
         "_s",
         sessionToken,
         { maxAge: 14 * 24 * 60 * 60 * 1000, httpOnly: true, domain: process.env.DOMAIN }
-      ).send({ club: rest });
+      ).send({ user: rest });
     }
   };
 }

@@ -167,7 +167,7 @@ class HoursTable extends Component {
   }
 
   renderDayRow(day, dayIdx) {
-    return (<div className="hours-table-container--row">
+    return (<div className="hours-table-container--row" key={`row${dayIdx}`}>
       <div className="hours-table-container--label">{dayNames[dayIdx]}</div>
       {
         <div className="hours-table-container--hours-rows" key={dayIdx}>

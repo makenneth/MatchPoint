@@ -518,7 +518,7 @@ class RoundRobin {
         SELECT id, club_id, date, short_id, finalized, num_players
         FROM roundrobins
         WHERE club_id IN (?)
-        ORDER BY club_id
+        ORDER BY club_id, date DESC
       `, [clubIds], (err, results, fields) => {
         connection.release();
         if (err) throw err;

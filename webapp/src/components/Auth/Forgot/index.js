@@ -10,7 +10,7 @@ export default class Forgot extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      field: '',
+      field: 'testuser',
       error: '',
       success: null,
     };
@@ -56,7 +56,7 @@ export default class Forgot extends Component {
             (<RaisedButton
               label="Back to Main Page"
               backgroundColor="#EF6C00"
-              labelColor="white"
+              labelColor="#FFFFFF"
               onClick={() => this.props.setPage(0)}
             />)
         }
@@ -75,7 +75,7 @@ export default class Forgot extends Component {
               {!isLoading && <RaisedButton
                 label="Reset Password"
                 backgroundColor="#1565C0"
-                labelColor="white"
+                labelColor="#FFFFFF"
                 style={{ marginTop: '10px' }}
                 onClick={this.handleSubmit}
               />}

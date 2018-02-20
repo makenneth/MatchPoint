@@ -13,8 +13,8 @@ import ErrorPage from './errorPage';
 export default ({ getState, dispatch }) => {
   const requireNotLoggedin = (nextState, replace, callback) => {
     const checkAuth = () => {
-      const { club } = getState().auth;
-      if (club.id) {
+      const { user } = getState().auth;
+      if (user.id) {
         replace('/club');
       }
       callback();
@@ -29,8 +29,8 @@ export default ({ getState, dispatch }) => {
 
   const requireLoggedIn = (nextState, replace, callback) => {
     const checkAuth = () => {
-      const { club } = getState().auth;
-      if (!club.id) {
+      const { user } = getState().auth;
+      if (!user.id) {
         replace('/');
       }
       callback();
@@ -44,8 +44,8 @@ export default ({ getState, dispatch }) => {
   };
 
   const requireConfirmed = (nextState, replace, callback) => {
-    const { club } = getState().auth;
-    if (!club.verified) {
+    const { user } = getState().auth;
+    if (!user.verified) {
       replace('/club/confirm');
     }
 
@@ -53,23 +53,23 @@ export default ({ getState, dispatch }) => {
   };
 
   const requireNotConfirmed = (nextState, replace, callback) => {
-    const { club } = getState().auth;
-    if (club.verified) {
+    const { user } = getState().auth;
+    if (user.verified) {
       replace('/club');
     }
 
     callback();
   };
   const requiredInit = (nextState, replace, callback) => {
-    const { club } = getState().auth;
-    if (!club.clubName) {
+    const { user } = getState().auth;
+    if (!user.clubName) {
       replace('/club/info');
     }
     callback();
   };
   const requiredNotInit = (nextState, replace, callback) => {
-    const { club } = getState().auth;
-    if (club.clubName) {
+    const { user } = getState().auth;
+    if (user.clubName) {
       replace('/club/sessions/new');
     }
     callback();

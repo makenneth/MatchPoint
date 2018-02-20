@@ -36,10 +36,10 @@ app.use("/favicon.ico", (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, "..", "public")));
-// app.use("/api/clubs", Routes.club);
+app.use("/api/clubs", Routes.club);
 app.use("*", (req, res, next) => {
   if (!req.cookies._d) {
-    res.cookie('_d', Token.generateToken(16), { maxAge: 60 * 60 * 24 * 30, httpOnly: true });
+    res.cookie('_d', Token.generateToken(16), { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });
   }
   next();
 });
@@ -47,7 +47,7 @@ app.use("/api/users", Routes.user);
 app.use("/api/upload", Routes.upload);
 app.use("/api/my", (req, res, next) => {
   console.log(req.cookies);
-  User.findBySessionToken(req.cookies._s, req.cookies._d)
+  User.findBySessionToken(req.cookies._s, req.cookies._d, false)
     .then(
       (user) => {
         console.log('found user', user);

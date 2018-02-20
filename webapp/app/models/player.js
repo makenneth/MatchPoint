@@ -50,10 +50,10 @@ class Player {
       connection.query(`
         DELETE FROM players WHERE id = ? AND EXISTS (
           SELECT * FROM (SELECT * FROM players) AS p
-          INNER JOIN club_players AS cp
-          ON cp.player_id = p.id
+          INNER JOIN user_players AS up
+          ON up.player_id = p.id
           INNER JOIN clubs AS c
-          ON c.id = cp.club_id
+          ON c.id = up.club_id
           WHERE p.id = ? AND c.id = ?
         )
       `, [id, id, clubId], (err, results, field) => {

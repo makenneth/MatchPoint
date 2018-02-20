@@ -124,11 +124,11 @@ export default class LogInForm extends Component {
           <RaisedButton
             label="Log In"
             backgroundColor="#1565C0"
-            labelColor="white"
+            labelColor="#FFFFFF"
             style={{ marginRight: '10px' }}
             onClick={this.handleSubmit}
           />
-          <RaisedButton label="Guest" backgroundColor="#EF6C00" labelColor="white" onClick={this.guestLogIn} />
+          <RaisedButton label="Guest" backgroundColor="#EF6C00" labelColor="#FFFFFF" onClick={this.guestLogIn} />
           <input type="submit" style={{ display: 'none' }} />
         </div>}
         {!this.props.loading && <div className="forgot-password">

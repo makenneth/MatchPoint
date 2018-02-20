@@ -52,7 +52,7 @@ export default class ClubQuery extends Component {
               <MenuItem
                 key={i}
                 value={id}
-                primaryText={clubs[id].club_name}
+                primaryText={clubs[id].clubName}
               />
             ))
           }
@@ -78,7 +78,7 @@ export default class ClubQuery extends Component {
       <div className="club-result-body">
         {
           selectedClub && (<div className="club-info-container">
-            <h1>Club: {selectedClub.club_name}</h1>
+            <h1>Club: {selectedClub.clubName}</h1>
             <div>Location: {`${selectedClub.city}, ${selectedClub.state}`}</div>
           </div>)
         }

@@ -11,26 +11,31 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case ActionTypes.FETCH_CLUB_HOURS_REQUEST:
+    case ActionTypes.FETCH_CLUB_DETAIL_REQUEST:
       return {
         ...state,
         isLoading: true,
         isLoaded: false,
       };
 
-    case ActionTypes.FETCH_CLUB_HOURS_SUCCESS:
+    case ActionTypes.FETCH_CLUB_DETAIL_SUCCESS:
       return {
         ...state,
         isLoading: false,
         isLoaded: true,
-        roundrobinHours: action.payload.roundrobinHours,
-        operationHours: action.payload.operationHours,
+        ...action.payload,
       };
 
-    case ActionTypes.FETCH_CLUB_HOURS_FAILURE:
+    case ActionTypes.FETCH_CLUB_DETAIL_FAILURE:
       return {
         ...state,
         isLoading: false,
+      };
+
+    case ActionTypes.CHANGE_INFO_SUCCESS:
+      return {
+        ...state,
+        ...action.payload.user,
       };
 
     case ActionTypes.ADD_CLUB_HOUR_SUCCESS: {
@@ -84,32 +89,32 @@ export default (state = initialState, action) => {
   }
 };
 
-function fetchClubHoursRequest() {
+function fetchClubDetailRequest() {
   return {
-    type: ActionTypes.FETCH_CLUB_HOURS_REQUEST,
+    type: ActionTypes.FETCH_CLUB_DETAIL_REQUEST,
   };
 }
 
-function fetchClubHoursSuccess(result) {
+function fetchClubDetailSuccess(result) {
   return {
-    type: ActionTypes.FETCH_CLUB_HOURS_SUCCESS,
+    type: ActionTypes.FETCH_CLUB_DETAIL_SUCCESS,
     payload: { ...result },
   };
 }
 
-function fetchClubHoursFailure(err) {
+function fetchClubDetailFailure(err) {
   return {
-    type: ActionTypes.FETCH_CLUB_HOURS_FAILURE,
+    type: ActionTypes.FETCH_CLUB_DETAIL_FAILURE,
     payload: { err },
   };
 }
 
-export function fetchClubHours() {
+export function fetchClubDetail() {
   return (dispatch) => {
-    dispatch(fetchClubHoursRequest());
-    return request('/api/my/hours').then(
-      res => dispatch(fetchClubHoursSuccess(res.hours)),
-      err => dispatch(fetchClubHoursFailure(err))
+    dispatch(fetchClubDetailRequest());
+    return request('/api/my/detail').then(
+      res => dispatch(fetchClubDetailSuccess(res.club)),
+      err => dispatch(fetchClubDetailFailure(err))
     );
   };
 }
