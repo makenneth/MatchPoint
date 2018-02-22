@@ -211,8 +211,19 @@ class Player {
         INNER JOIN user_players AS up
         ON up.player_id = p.id
         INNER JOIN (
-          SELECT phs1.rating, phs1.player_id
-          FROM player_histories AS phs1
+          SELECT phs1.id, phs1.rating, phs1.player_id
+          FROM (
+            SELECT ph1.id, rating, ph1.club_id, ph1.player_id, ph1.change_date
+            FROM player_histories AS ph1
+            INNER JOIN (
+              SELECT MAX(id) AS id, club_id, player_id, change_date
+              FROM player_histories
+              WHERE club_id = ?
+              GROUP BY player_id, club_id, change_date
+            ) AS ph2
+            ON ph1.id = ph2.id AND ph1.player_id = ph2.player_id
+            WHERE ph1.club_id = ?
+          ) AS phs1
           INNER JOIN (
             SELECT club_id, player_id, MAX(change_date) AS max_date
             FROM player_histories
@@ -224,8 +235,8 @@ class Player {
              phs1.club_id = phs2.club_id
         ) AS ph
         ON ph.player_id = p.id
-        WHERE up.club_id = ?
-      `, [clubId, clubId], (err, results, field) => {
+        WHERE up.club_id = ?;
+      `, [clubId, clubId, clubId, clubId], (err, results, field) => {
         connection.release();
         if (err) throw(err);
         const data = results.map(row => Player.formatPlayer(row));
@@ -273,7 +284,7 @@ class Player {
     console.log('finding');
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT p.id, COALESCE(ph.won, 0) AS promoted
+        SELECT p.id, ph.won
         FROM players AS p
         LEFT OUTER JOIN (
           SELECT won, ph1.player_id FROM player_histories AS ph1
@@ -287,6 +298,7 @@ class Player {
           WHERE ph1.club_id = ?
         ) AS ph
         ON ph.player_id = p.id
+        WHERE ph.won = 1
       `, [clubId], (err, results, fields) => {
         connection.release();
         if (err) {

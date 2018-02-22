@@ -1,10 +1,5 @@
 version: '3'
 services:
-  redis-server:
-    image: "redis:alpine"
-    ports:
-      - "${REDIS_PORT}:6379"
-
   web:
     image: web-app
     build: .
@@ -24,5 +19,5 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - WEB_HOST=${WEB_HOST}
       - WEBSOCKET_SERVER=${WEBSOCKET_SERVER}
-      - EMAIL_USER=noreplymatchpoints@gmail.com
-      - EMAIL_PASS=matchpointsorg
+      - EMAIL_USER=matchpoints.noreply@gmail.com
+      - EMAIL_PASS=Lalala4321.
