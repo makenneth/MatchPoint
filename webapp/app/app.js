@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import db from './utils/connection';
 import Token from './helpers/token';
-import { app, csrfProtection, jsonParser } from "./helpers/appModules";
+import { app, csrfProtection, jsonParser, client } from "./helpers/appModules";
 import ClubHelper from "./helpers/clubHelper";
 import ClubModel from "./models/club";
 import User from "./models/user";
@@ -18,6 +18,7 @@ app.use((err, req, res, next) => {
   try {
     next();
   } catch (e) {
+    client.set(`issue:${Date.now}`, JSON.stringify(e));
     // Raven.captureException(JSON.stringify(e));
     res.status(500).send({ error_description: "Internal Server Error", error: e });
   }

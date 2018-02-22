@@ -1,5 +1,6 @@
 import ClubHelper from "../helpers/clubHelper";
 import { Club, User } from "../models";
+import { client } from "../helpers/appModules";
 import { user as UserValidation } from "../validations";
 import Mailer from '../helpers/mailer';
 import Clubs from '../controllers/club';
@@ -53,23 +54,27 @@ export default {
 
   create: async (req, res, next) => {
     const { user } = req.body;
-    console.log(req.baseUrl);
+    client.set(`steps:${Date.now}`, 'at create');
     // if (req.baseUrl === '/api') {
     //   type = 'club';
     // } else if (req.baseUrl === '/m/api') {
     //   type = 'user';
     // }
     {
+      client.set(`steps:${Date.now}`, 'at validate');
       const [isValid, error] = UserValidation.validate(user);
       if (!isValid) {
+        client.set(`error:${Date.now}`, JSON.stringify(error));
         console.log('validation', error);
         return next({ code: 422, message: error });
       }
     }
     let userId;
     try {
+      client.set(`steps:${Date.now}`, 'at create');
       userId = await User.create('club', user, req.cookies._d);
     } catch (err) {
+      client.set(`error:${Date.now}`, JSON.stringify(error));
       console.log('after create', err);
       if (err.username || err.email) {
         return next({ code: 422, message: err });
@@ -78,6 +83,7 @@ export default {
       }
     }
     try {
+      client.set(`steps:${Date.now}`, `at find by Id ${userId}`);
       const user = await User.findById(userId, req.cookies._d, false);
       console.log('created', user);
       new Mailer(user).sendConfirmationEmail();
