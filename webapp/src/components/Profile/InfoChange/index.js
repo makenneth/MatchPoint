@@ -78,7 +78,6 @@ export default class ContactInfo extends Component {
       if (clubName !== this.props.user.clubName) {
         data.clubName = clubName;
       }
-
       if (phone !== this.props.user.phone) {
         data.phone = phone;
       }
@@ -112,23 +111,22 @@ export default class ContactInfo extends Component {
   validate() {
     const errors = {};
     let isValid = true;
-    const { clubName = '', address = '', phone = '' } = this.props.user;
     if (this.state.password.length === 0) {
       errors.password = 'Password is required';
       isValid = false;
     }
 
-    if (clubName !== this.state.clubName && clubName.length === 0) {
+    if (this.state.clubName.length === 0) {
       errors.clubName = 'Club name cannot be empty.';
       isValid = false;
     }
 
-    if (address !== this.state.address && address.length === 0) {
+    if (this.state.address.length === 0) {
       errors.address = 'Address cannot be empty.';
       isValid = false;
     }
 
-    if (phone !== this.state.phone && phone.length === 0) {
+    if (this.state.phone.length === 0) {
       errors.phone = 'Phone cannot be empty.';
       isValid = false;
     }
