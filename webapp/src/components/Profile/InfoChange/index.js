@@ -112,7 +112,7 @@ export default class ContactInfo extends Component {
   validate() {
     const errors = {};
     let isValid = true;
-    const { clubName, address, phone } = this.props.user;
+    const { clubName = '', address = '', phone = '' } = this.props.user;
     if (this.state.password.length === 0) {
       errors.password = 'Password is required';
       isValid = false;
