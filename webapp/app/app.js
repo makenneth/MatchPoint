@@ -18,7 +18,7 @@ app.use((err, req, res, next) => {
   try {
     next();
   } catch (e) {
-    client.set(`issue:${Date.now}`, JSON.stringify(e));
+    client.set(`issue:${Date.now()}`, JSON.stringify(e));
     // Raven.captureException(JSON.stringify(e));
     res.status(500).send({ error_description: "Internal Server Error", error: e });
   }
