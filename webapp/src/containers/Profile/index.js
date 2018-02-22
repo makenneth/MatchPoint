@@ -9,12 +9,12 @@ import { addressAutoComplete, clearPredictions } from 'redux/modules/autocomplet
 import { setMessage } from 'redux/modules/main';
 import { enableTutorial, disableTutorial, isTutorialEnabled } from 'redux/modules/tutorial';
 import { updateClubHour, addClubHour, deleteClubHour } from 'redux/modules/hour';
-import { fetchClubDetail } from 'redux/modules/clubDetail';
+import { fetchClubDetail } from 'redux/modules/ownClubDetail';
 import './styles.scss';
 
 @connect(
-  ({ auth: { user }, autocomplete, passwordChange, infoChange, clubDetail, hour }) =>
-    ({ user, autocomplete, passwordChange, infoChange, clubDetail, hour }),
+  ({ auth: { user }, autocomplete, passwordChange, infoChange, ownClubDetail, hour }) =>
+    ({ user, autocomplete, passwordChange, infoChange, ownClubDetail, hour }),
   {
     changePassword,
     changeInfo,
@@ -36,7 +36,7 @@ export default class Profile extends Component {
   }
 
   componentWillMount() {
-    if (!this.props.clubDetail.isLoaded && !this.props.clubDetail.isLoading) {
+    if (!this.props.ownClubDetail.isLoaded && !this.props.ownClubDetail.isLoading) {
       this.props.fetchClubDetail();
     }
   }
@@ -95,7 +95,7 @@ export default class Profile extends Component {
           <InfoChange
             infoChange={this.props.infoChange}
             autocomplete={this.props.autocomplete}
-            user={this.props.clubDetail}
+            user={this.props.ownClubDetail}
             submitChange={this.props.changeInfo}
             setMessage={this.props.setMessage}
             addressAutoComplete={this.props.addressAutoComplete}
@@ -107,7 +107,7 @@ export default class Profile extends Component {
             updateClubHour={this.props.updateClubHour}
             addClubHour={this.props.addClubHour}
             deleteClubHour={this.props.deleteClubHour}
-            hoursState={this.props.clubDetail}
+            hoursState={this.props.ownClubDetail}
             hourState={this.props.hour}
           />
         </CardText>}

@@ -71,6 +71,7 @@ export default (state = initialState, action) => {
     case ActionTypes.LOG_OUT_REQUEST:
       return {
         ...state,
+        user: {},
         loading: true,
       };
 
@@ -187,7 +188,6 @@ function signUpFailure(error) {
 export function signUp(user) {
   return (dispatch) => {
     dispatch(signUpRequest());
-    console.log(user);
     return request('/api/users', {
       method: 'POST',
       body: JSON.stringify({ user }),
@@ -229,6 +229,7 @@ export function logOut() {
     }).then(
       () => {
         dispatch(logOutSuccess());
+        browserHistory.push('/');
       },
       err => dispatch(logOutFailure(err))
     );
@@ -239,9 +240,8 @@ export function activateClub() {
   return (dispatch) => {
     dispatch(startLoad());
     setTimeout(() => {
-      browserHistory.push('/club');
       dispatch(stopLoad());
-      dispatch(setPage(0));
-    }, 500);
+      dispatch(setPage(1));
+    }, 1000);
   };
 }

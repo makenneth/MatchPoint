@@ -7,4 +7,5 @@ export Sessions from './Sessions';
 export Session from './Session';
 export RecordTableContainer from './RecordTableContainer';
 export Query from './Query';
+export ClubInfo from './ClubInfo';
 export InformationForm from './Information';

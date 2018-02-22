@@ -114,7 +114,6 @@ export default {
     // }
     //   return next({ code: 500, message: err });
     // }
-
   },
 
   findBySessionToken: (req, res, next) => {

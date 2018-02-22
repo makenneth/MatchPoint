@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { browserHistory } from 'react-router';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
@@ -39,6 +40,12 @@ export default class InformationForm extends Component {
           },
         });
       }
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (!this.props.error && !this.props.isLoading && prevProps.isLoading) {
+      browserHistory.push('/club');
     }
   }
 
@@ -157,7 +164,7 @@ export default class InformationForm extends Component {
           />
         </div>}
         {this.props.loading && <CircularProgress
-          size={0.5}
+          size={25}
           color="#aaa"
           style={{ marginTop: '10px' }}
           className="circular-progress"

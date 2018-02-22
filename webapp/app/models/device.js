@@ -9,9 +9,10 @@ function Device() {
       }
       return new Promise((resolve, reject) => {
         connection.query(`
-          SELECT ud.*, st.session_token FROM user_devices AS ud
+          SELECT ud.*, st.session_token
+          FROM user_devices AS ud
           INNER JOIN session_tokens as st
-          ON st.device_id = ud.device_id
+          ON st.device_id = ud.device_id AND st.user_id = ud.user_id
           WHERE ud.device_id = ? AND ud.user_id = ?;
         `, [deviceId, userId], (err, results, fields) => {
           if (!conn) connection.release();

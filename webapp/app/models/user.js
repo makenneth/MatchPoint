@@ -3,6 +3,7 @@ import Token from '../helpers/token';
 import db from '../utils/connection';
 import bcrypt from "../helpers/bcrypt";
 import Session from "./session";
+import Club from "./club";
 import Device from './device';
 import { camelCase } from 'lodash';
 
@@ -80,7 +81,7 @@ const User = {
     // if deviceId not present - cookie disabled then we should not add the device
     if (deviceId) {
       const _ = await Device.addDevice(userId, deviceId, connection)
-      const token = await Session.insertToken(deviceId, connection);
+      const token = await Session.insertToken(userId, deviceId, connection);
     }
     connection.commit();
     connection.release();
@@ -93,7 +94,6 @@ const User = {
 
   findBySessionToken: async function(token, deviceId, secure = true) {
     const connection = await db.getConnection();
-    console.log(token, deviceId);
     return new Promise((resolve, reject) => {
       connection.query(`
         SELECT u.*, COALESCE(c.id, p.id) AS account_id, COALESCE(c.club_name, NULL) AS club_name
@@ -110,7 +110,7 @@ const User = {
         INNER JOIN user_devices AS ud
         ON ud.user_id = u.id
         INNER JOIN session_tokens AS st
-        ON st.device_id = ud.device_id
+        ON st.device_id = ud.device_id AND st.user_id = ud.user_id
         WHERE ud.device_id = ? AND st.session_token = ?
       `, [deviceId, token], (err, results, fields) => {
         connection.release();
@@ -172,7 +172,6 @@ const User = {
         if (results.length === 0) {
           return reject({ user: 'User not found.' });
         }
-        console.log(secure);
         return resolve(format(results[0], secure));
       });
     });
@@ -182,8 +181,18 @@ const User = {
     const connection = await db.getConnection();
     const user = await new Promise((resolve, reject) => {
       connection.query(`
-        SELECT * FROM users
-        WHERE username = ?;
+        SELECT u.*, COALESCE(c.id, p.id) AS account_id, COALESCE(c.club_name, NULL) AS club_name
+        FROM users AS u
+        LEFT JOIN clubs AS c
+        ON u.account_type = 'club' AND u.id = c.user_id
+        LEFT JOIN (
+          SELECT p.id AS id, up.user_id AS user_id
+          FROM players AS p
+          INNER JOIN user_players AS up
+          ON p.id = up.player_id
+        ) AS p
+        ON u.account_type = 'player' AND u.id = p.user_id
+        WHERE u.username = ?
       `, [username], (err, results, fields) => {
         connection.release();
         if (err) throw err;

@@ -10,7 +10,7 @@ export default class Forgot extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      field: 'testuser',
+      field: '',
       error: '',
       success: null,
     };
@@ -81,9 +81,10 @@ export default class Forgot extends Component {
               />}
               {
                 isLoading && <CircularProgress
-                  size={0.5}
+                  size={25}
+                  thickness={2}
                   color="#aaa"
-                  style={{ marginTop: '10px' }}
+                  style={{ marginTop: '15px' }}
                 />
               }
             </div>)

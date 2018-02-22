@@ -34,6 +34,7 @@ export default {
     let user;
     try {
       user = await User.findByUsernameAndPassword(data.username.toLowerCase(), data.password);
+      console.log('create', user);
     } catch (err) {
       if (err.password || err.username) {
         return next({ code: 404, message: err });
@@ -47,13 +48,14 @@ export default {
     if (!token) {
       try {
         const _ = await Device.addDevice(user.id, req.cookies._d);
-        const token = await Session.insertToken(req.cookies._d);
+        const token = await Session.insertToken(user.id, req.cookies._d);
         user.sessionToken = token;
       } catch (e) {
         return next({ code: 500, message: e });
       }
     }
     try {
+      console.log('log in', user);
       ClubHelper.logIn(user, res);
     } catch (e) {
       return next({ code: 500, message: e });

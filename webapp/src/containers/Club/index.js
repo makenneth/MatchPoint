@@ -10,7 +10,7 @@ export default class Club extends Component {
     if (!this.props.user) {
       return (<div className="overlay">
         <div className="loading">
-          <CircularProgress size={2} />
+          <CircularProgress size={50} color="e0e0e0" />
         </div>
       </div>);
     }

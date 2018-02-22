@@ -5,6 +5,7 @@ import TimePicker from 'material-ui/TimePicker';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import Plus from 'react-icons/lib/fa/plus';
+import MdSchedule from 'react-icons/lib/md/schedule';
 // import Check from 'react-icons/lib/md/check';
 import Clear from 'react-icons/lib/md/clear';
 import Delete from 'react-icons/lib/md/delete';
@@ -22,6 +23,7 @@ class HoursTable extends Component {
     hours: PropTypes.array,
     hourState: PropTypes.object,
     type: PropTypes.string,
+    readOnly: PropTypes.bool,
   };
 
   state = {
@@ -31,24 +33,28 @@ class HoursTable extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { isLoading, type, hourType } = this.props.hourState;
-    if (hourType === this.props.type && isLoading &&
-      !nextProps.hourState.isLoading && !nextProps.hourState.error) {
-      if (type === 'ADD') {
-        this.setState({ newRow: null });
-      } else if (type === 'UPDATE') {
-        this.setState({ editingRow: null });
+    if (!this.props.readOnly) {
+      if (hourType === this.props.type && isLoading &&
+        !nextProps.hourState.isLoading && !nextProps.hourState.error) {
+        if (type === 'ADD') {
+          this.setState({ newRow: null });
+        } else if (type === 'UPDATE') {
+          this.setState({ editingRow: null });
+        }
       }
     }
   }
 
   addRow = () => {
-    this.setState({
-      newRow: {
-        day: 0,
-        open: new Date(),
-        close: new Date(),
-      },
-    });
+    if (!this.props.readOnly) {
+      this.setState({
+        newRow: {
+          day: 0,
+          open: new Date(),
+          close: new Date(),
+        },
+      });
+    }
   }
 
   cancelAddRow = () => {
@@ -56,14 +62,16 @@ class HoursTable extends Component {
   }
 
   beginUpdatePeriod = (i, j) => {
-    const period = this.props.hours[i][j];
-    this.setState({
-      editingRow: {
-        ...period,
-        open: new Date(period.open),
-        close: new Date(period.close),
-      },
-    });
+    if (!this.props.readOnly) {
+      const period = this.props.hours[i][j];
+      this.setState({
+        editingRow: {
+          ...period,
+          open: new Date(period.open),
+          close: new Date(period.close),
+        },
+      });
+    }
   }
 
   updateNewDay = (day) => {
@@ -94,12 +102,16 @@ class HoursTable extends Component {
   }
 
   handleSubmitNewRow = () => {
-    this.props.addClubHour(this.props.type, this.state.newRow);
+    if (!this.props.readOnly) {
+      this.props.addClubHour(this.props.type, this.state.newRow);
+    }
   }
 
   handleUpdateClubHour = () => {
-    const updated = this.state.editingRow;
-    this.props.updateClubHour(updated.id, updated);
+    if (!this.props.readOnly) {
+      const updated = this.state.editingRow;
+      this.props.updateClubHour(updated.id, updated);
+    }
   }
 
   renderSessionTime(session, dayIdx, periodIdx, editingData, isNew) {
@@ -139,12 +151,12 @@ class HoursTable extends Component {
       <span>{moment(session.open).format('h:mm A')}</span>
       <span>-</span>
       <span>{moment(session.close).format('h:mm A')}</span>
-      <span className="buttons">
+      {!this.props.readOnly && <span className="buttons">
         <Edit
           style={{ cursor: 'pointer' }}
           onClick={() => this.beginUpdatePeriod(dayIdx, periodIdx)}
         />
-      </span>
+      </span>}
     </div>);
   }
 
@@ -180,23 +192,25 @@ class HoursTable extends Component {
 
   render() {
     const { newRow } = this.state;
+    const { readOnly } = this.props;
     return (
       <div className="hours-table-container">
         <h2 className="hours-table-container--title">
+          <MdSchedule />
           {this.props.title}
         </h2>
         <div className="hours-table-container--header hours-table-container--row">
           <div>Day</div>
           <div>Hours</div>
           <span className="plus-button">
-            {!newRow && <Plus onClick={this.addRow} />}
+            {!readOnly && !newRow && <Plus onClick={this.addRow} />}
           </span>
         </div>
         <div className="hours-table-container--body">
           {this.props.hours.map((day, i) => this.renderDayRow(day, i))}
         </div>
         {
-          newRow && <div className="hours-table-container--new-row">
+          !readOnly && newRow && <div className="hours-table-container--new-row">
             <SelectField
               name="weekday-selector"
               onChange={(e, idx, val) => this.updateNewDay(val)}

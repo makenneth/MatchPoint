@@ -45,5 +45,6 @@
   },
   "globals": {
     "$": true,
+    "google": true,
   }
 }

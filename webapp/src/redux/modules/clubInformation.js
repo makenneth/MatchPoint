@@ -54,7 +54,6 @@ function configureInitInformationFailure(error) {
 export function configureInitInformation(info) {
   return (dispatch) => {
     dispatch(configureInitInformationRequest());
-    console.log('data');
     return request('/api/my/info', {
       method: 'POST',
       body: JSON.stringify({ info }),

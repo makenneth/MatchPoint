@@ -4,7 +4,7 @@ import {
   Main, Splash, Club,
   NewRoundrobin, Sessions,
   Session, Query, Profile,
-  PDFGenerator, InformationForm,
+  PDFGenerator, InformationForm, ClubInfo,
 } from 'containers';
 import { Confirmation, Loading } from 'components';
 import { isAuthLoaded, loadAuth } from 'redux/modules/auth';
@@ -20,9 +20,9 @@ export default ({ getState, dispatch }) => {
       callback();
     };
 
-    if (getState().auth.isLoaded) {
+    if (getState().auth.loaded) {
       checkAuth();
-    } else if (!getState().auth.isLoading) {
+    } else if (!getState().auth.loading) {
       dispatch(loadAuth()).then(checkAuth);
     }
   };
@@ -36,9 +36,9 @@ export default ({ getState, dispatch }) => {
       callback();
     };
 
-    if (getState().auth.isLoaded) {
+    if (getState().auth.loaded) {
       checkAuth();
-    } else if (!getState().auth.isLoading) {
+    } else if (!getState().auth.loading) {
       dispatch(loadAuth()).then(checkAuth);
     }
   };
@@ -101,6 +101,7 @@ export default ({ getState, dispatch }) => {
           </Route>
         </Route>
       </Route>
+      <Route path="clubs/:id" component={ClubInfo} />
       <Route path="results" component={Query} />
       <Route path="reset" component={Splash} />
       <Route path="activate/*" component={Splash} />

@@ -144,9 +144,10 @@ export default class LogInForm extends Component {
           </a>
         </div>}
         {this.props.loading && <CircularProgress
-          size={0.5}
+          size={25}
+          thickness={2}
           color="#aaa"
-          style={{ marginTop: '10px' }}
+          style={{ marginTop: '15px' }}
           className="circular-progress"
         />}
       </form>

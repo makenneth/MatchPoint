@@ -117,6 +117,12 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
       };
+
+    case ActionTypes.CLEAR_QUERY:
+      return {
+        ...initialState,
+      };
+
     default:
       return state;
   }
@@ -130,7 +136,6 @@ export function setClub(id) {
 }
 
 export function setDate(id) {
-  console.log('setdate', id);
   return {
     type: ActionTypes.SET_QUERY_DATE,
     payload: { id },
@@ -205,3 +210,9 @@ export function fetchAllClubs() {
 export const hasLoaded = (state) => {
   return state.query.loaded;
 };
+
+export function clearQuery() {
+  return {
+    type: ActionTypes.CLEAR_QUERY,
+  };
+}

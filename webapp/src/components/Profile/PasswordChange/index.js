@@ -152,7 +152,8 @@ export default class PasswordChange extends Component {
       />
       {
         isLoading && <CircularProgress
-          size={0.5}
+          size={25}
+          thickness={2}
           color="#aaa"
           style={{ marginTop: '20px' }}
         />

@@ -127,9 +127,10 @@ export default class ForgotReset extends Component {
           />}
           {
             isLoading && <CircularProgress
-              size={0.5}
+              size={25}
+              thickness={2}
               color="#aaa"
-              style={{ marginTop: '10px' }}
+              style={{ marginTop: '15px' }}
             />
           }
         </div>

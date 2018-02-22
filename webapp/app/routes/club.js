@@ -7,6 +7,8 @@ const router = express.Router();
 
 router
   .get("/all", Clubs.all)
-  .get("/:clubId/sessions/:id", Roundrobins.get);
+  .get("/:clubId/sessions/:id", Roundrobins.get)
+  .get("/", Clubs.search)
+  .get("/:id", Clubs.detail);
 
 export default router;

@@ -171,4 +171,15 @@ export default {
       next({ code: 500, message: e });
     }
   },
+
+  search: async (req, res, next) => {
+    const search = req.query.search;
+    console.log('search', search);
+    try {
+      const clubs = await Club.search(search);
+      res.status(200).send({ clubs });
+    } catch (e) {
+      next({ code: 500, message: e });
+    }
+  },
 };

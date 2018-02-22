@@ -28,7 +28,7 @@ function User() {
       });
     },
 
-    insertToken: async function(deviceId, conn) {
+    insertToken: async function(userId, deviceId, conn) {
       let connection = conn;
       if (!connection) {
         connection = await db.getConnection();
@@ -38,9 +38,9 @@ function User() {
       return new Promise((resolve, reject) => {
         connection.query(`
           INSERT INTO session_tokens
-          (device_id, session_token)
-          VALUES (?, ?);
-        `, [deviceId, sessionToken], (err, results, fields) => {
+          (user_id, device_id, session_token)
+          VALUES (?, ?, ?);
+        `, [userId, deviceId, sessionToken], (err, results, fields) => {
           if (!conn) connection.release();
           if (err) {
             if (conn) {

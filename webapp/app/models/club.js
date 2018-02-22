@@ -268,6 +268,26 @@ class Club {
       });
     });
   }
+
+  static async search(search) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+        SELECT id, club_name, city, state
+        FROM clubs
+        WHERE LOWER(club_name) LIKE ? OR LOWER(address) LIKE ?;
+      `, [`%${search.toLowerCase()}%`, `%${search.toLowerCase()}%`], (err, results, field) => {
+        connection.release();
+        if (err) throw err;
+        if (results.length > 0) {
+          const clubs = results.map(result => Club.format(result));
+          resolve(clubs);
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  }
 }
 
 export default Club;
