@@ -69,7 +69,7 @@ export default class FileUploader extends Component {
   loader() {
     return (this.state.processing && (<div className="overlay">
       <div className="loading">
-        <CircularProgress size={2} />
+        <CircularProgress size={25} />
       </div>
     </div>));
   }

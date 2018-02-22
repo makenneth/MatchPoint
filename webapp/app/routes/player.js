@@ -1,11 +1,11 @@
 import express from "express";
-import { csrfProtection } from "../helpers/appModules";
+import { csrfProtection, jsonParser } from "../helpers/appModules";
 import Players from '../controllers/player';
 
 const router = express.Router();
 router.route("/players")
   .get(Players.getPlayers)
-  .post(csrfProtection, Players.createPlayer);
+  .post(csrfProtection, jsonParser, Players.createPlayer);
 
 // router.route("/players/active").get((req, res, next) => {
 //   // not tested...
@@ -18,7 +18,7 @@ router.route("/players")
 
 router.route("/players/:id")
   .delete(csrfProtection, Players.deletePlayer)
-  .patch(csrfProtection, Players.updatePlayer);
+  .patch(csrfProtection, jsonParser, Players.updatePlayer);
 
 router.route("/players/promotion")
   .get(Players.getPromotedPlayers);

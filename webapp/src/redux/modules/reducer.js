@@ -16,7 +16,10 @@ import tutorial from './tutorial';
 import players from './players';
 import activePlayers from './activePlayers';
 import autocomplete from './autocomplete';
-import hours from './hours';
+import clubInformation from './clubInformation';
+import ownClubDetail from './ownClubDetail';
+import clubDetailSearch from './clubDetailSearch';
+import clubSearch from './clubSearch';
 import hour from './hour';
 import { passwordChange, infoChange } from './profile';
 
@@ -37,9 +40,12 @@ export default combineReducers({
   tutorial,
   players,
   activePlayers,
-  hours,
+  ownClubDetail,
+  clubDetailSearch,
+  clubSearch,
   hour,
   autocomplete,
+  clubInformation,
   passwordChange,
   infoChange,
 });

@@ -14,9 +14,6 @@ export default class SignUpForm extends Component {
       username: '',
       password: '',
       passwordRepeat: '',
-      clubName: '',
-      state: '',
-      city: '',
       errors: {},
     };
   }
@@ -31,18 +28,6 @@ export default class SignUpForm extends Component {
     const emailRegex = new RegExp('.+@.+..+', 'i');
     let isValid = true;
     const errors = {};
-    if (this.state.clubName.length === 0) {
-      errors.clubName = 'Club name cannot be empty';
-      isValid = false;
-    }
-    if (this.state.city.length === 0) {
-      errors.city = 'City cannot be empty';
-      isValid = false;
-    }
-    if (this.state.state.length === 0) {
-      errors.state = 'State cannot be empty';
-      isValid = false;
-    }
 
     if (!/^[0-9a-z]+$/.test(this.state.username)) {
       errors.username = 'Username can only contain alphanumeric characters.';
@@ -116,36 +101,6 @@ export default class SignUpForm extends Component {
         <div>
           <TextField
             type="text"
-            value={this.state.clubName}
-            floatingLabelText="Club Name"
-            onChange={e => this.updateField('clubName', e)}
-            errorText={errors.clubName}
-            required
-          />
-        </div>
-        <div>
-          <TextField
-            type="text"
-            value={this.state.city}
-            floatingLabelText="City"
-            onChange={e => this.updateField('city', e)}
-            errorText={errors.city}
-            required
-          />
-        </div>
-        <div>
-          <TextField
-            type="text"
-            value={this.state.state}
-            floatingLabelText="State"
-            onChange={e => this.updateField('state', e)}
-            errorText={errors.state}
-            required
-          />
-        </div>
-        <div>
-          <TextField
-            type="text"
             value={this.state.username}
             floatingLabelText="Username"
             onChange={e => this.updateField('username', e)}
@@ -184,15 +139,16 @@ export default class SignUpForm extends Component {
           />
         </div>
         {loading && <CircularProgress
-          size={0.5}
+          size={25}
+          thickness={2}
           color="#aaa"
-          style={{ marginTop: '10px' }}
+          style={{ marginTop: '15px' }}
           className="circular-progress"
         />}
         {!loading && <div className="button-div">
           <RaisedButton
             backgroundColor="#00796B"
-            labelColor="white"
+            labelColor="#fff"
             onClick={this.handleSubmit}
             label="Sign Up"
           />

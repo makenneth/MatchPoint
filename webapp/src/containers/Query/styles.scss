@@ -25,11 +25,11 @@
   height: 100%;
 
   > div {
-    @include light-box-shadow;
-    overflow: auto;
+    /*@include light-box-shadow;*/
+    /*overflow: auto;*/
 
     > div:last-child {
-      @include container-box-shadow;
+      /*@include container-box-shadow;*/
     }
   }
 
@@ -40,9 +40,10 @@
 
 .name-select-div {
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   justify-content: space-between;
   position: relative;
+  margin-bottom: 20px;
 
   > *:first-child {
     margin-right: 20px;
@@ -62,6 +63,15 @@
   > div {
     margin-top: 10px;
   }
+
+  a {
+    color: black;
+    text-decoration: underline;
+
+    &:hover {
+      color: rgba(black, 0.7);
+    }
+  }
 }
 
 .club-result-top-container {
@@ -75,7 +85,7 @@
   }
 }
 
-@media (min-width: 335px) and (min-device-width: 335px) {
+@media (max-width: 335px) and (max-device-width: 335px) {
   .name-select-div {
     display: flex;
     flex-direction: column;

@@ -49,7 +49,6 @@
       font-size: 28px;
       cursor: pointer;
       color: white;
-      flex: 1;
       @include reg-transition-no-delay(color, 0.5s, ease-in-out)
     }
 
@@ -128,6 +127,96 @@
       height: 5px;
       left: 0;
       box-shadow: inset 0px 4px 8px -3px rgba(17, 17, 17, .16);
+    }
+  }
+
+  .club-search-autocomplete {
+    display: flex;
+    justify-content: center;
+    flex: 1;
+    margin: 0 20px;
+    /*max-width: 80px;*/
+
+    svg {
+      position: relative;
+      color: #555;
+      margin-right: 5px;
+      font-size: 20px;
+      top: 1px;
+    }
+
+    &--input {
+      display: flex;
+      max-width: 200px;
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      padding: 6px 12px;
+      align-items: center;
+    }
+
+    input {
+      background: transparent;
+      width: 100%;
+      border: 0;
+      outline: none;
+      border-radius: 3px;
+      color: #555;
+      font-size: 14px;
+
+      &::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+        color: rgba(0, 0, 0, 0.3);
+      }
+      &::-moz-placeholder { /* Firefox 19+ */
+        color: rgba(0, 0, 0, 0.3);
+      }
+      &:-ms-input-placeholder { /* IE 10+ */
+        color: rgba(0, 0, 0, 0.3);
+      }
+      &:-moz-placeholder { /* Firefox 18- */
+        color: rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    .suggestions {
+      top: calc(100% + 5px);
+      z-index: 5;
+      padding: 10px 0;
+      width: 200px;
+
+      li {
+        font-size: 13px;
+        padding: 5px 10px;
+
+        div:first-child {
+          font-size: 14px;
+          margin-bottom: 3px;
+        }
+      }
+    }
+  }
+
+  &.no-color {
+    .club-search-autocomplete {
+      svg {
+        color: #eee;
+      }
+      input {
+        background: transparent;
+        color: #eee;
+
+        &::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+          color: #eee;
+        }
+        &::-moz-placeholder { /* Firefox 19+ */
+          color: #eee;
+        }
+        &:-ms-input-placeholder { /* IE 10+ */
+          color: #eee;
+        }
+        &:-moz-placeholder { /* Firefox 18- */
+          color: #eee;
+        }
+      }
     }
   }
 }

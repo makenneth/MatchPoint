@@ -9,12 +9,12 @@ import { addressAutoComplete, clearPredictions } from 'redux/modules/autocomplet
 import { setMessage } from 'redux/modules/main';
 import { enableTutorial, disableTutorial, isTutorialEnabled } from 'redux/modules/tutorial';
 import { updateClubHour, addClubHour, deleteClubHour } from 'redux/modules/hour';
-import { fetchClubHours } from 'redux/modules/hours';
+import { fetchClubDetail } from 'redux/modules/ownClubDetail';
 import './styles.scss';
 
 @connect(
-  ({ auth: { club }, autocomplete, passwordChange, infoChange, hours, hour }) =>
-    ({ club, autocomplete, passwordChange, infoChange, hours, hour }),
+  ({ auth: { user }, autocomplete, passwordChange, infoChange, ownClubDetail, hour }) =>
+    ({ user, autocomplete, passwordChange, infoChange, ownClubDetail, hour }),
   {
     changePassword,
     changeInfo,
@@ -26,18 +26,18 @@ import './styles.scss';
     updateClubHour,
     addClubHour,
     deleteClubHour,
-    fetchClubHours,
+    fetchClubDetail,
   }
 )
 export default class Profile extends Component {
   constructor(props) {
     super(props);
-    this.state = { tab: 2 };
+    this.state = { tab: 0 };
   }
 
   componentWillMount() {
-    if (!this.props.hours.isLoaded && !this.props.hours.isLoading) {
-      this.props.fetchClubHours();
+    if (!this.props.ownClubDetail.isLoaded && !this.props.ownClubDetail.isLoading) {
+      this.props.fetchClubDetail();
     }
   }
 
@@ -83,47 +83,47 @@ export default class Profile extends Component {
             onClick={() => this.setTab(3)}
           />
         </CardActions>
-        <CardText style={{ display: this.state.tab === 0 ? 'block' : 'none' }}>
+        {this.state.tab === 0 && <CardText style={{ overflowY: 'auto' }}>
           <PasswordChange
-            club={this.props.club}
+            user={this.props.user}
             submitChange={this.props.changePassword}
             setMessage={this.props.setMessage}
             passwordChange={this.props.passwordChange}
           />
-        </CardText>
-        <CardText style={{ display: this.state.tab === 1 ? 'block' : 'none', overflowY: 'auto' }}>
+        </CardText>}
+        {this.state.tab === 1 && <CardText style={{ overflowY: 'auto' }}>
           <InfoChange
             infoChange={this.props.infoChange}
             autocomplete={this.props.autocomplete}
-            club={this.props.club}
+            user={this.props.ownClubDetail}
             submitChange={this.props.changeInfo}
             setMessage={this.props.setMessage}
             addressAutoComplete={this.props.addressAutoComplete}
             clearPredictions={this.props.clearPredictions}
           />
-        </CardText>
-        <CardText style={{ display: this.state.tab === 2 ? 'block' : 'none', overflowY: 'auto' }}>
+        </CardText>}
+        {this.state.tab === 2 && <CardText style={{ overflowY: 'auto' }}>
           <OperationInfo
             updateClubHour={this.props.updateClubHour}
             addClubHour={this.props.addClubHour}
             deleteClubHour={this.props.deleteClubHour}
-            hoursState={this.props.hours}
+            hoursState={this.props.ownClubDetail}
             hourState={this.props.hour}
           />
-        </CardText>
-        <CardText style={{ display: this.state.tab === 3 ? 'block' : 'none' }}>
+        </CardText>}
+        {this.state.tab === 3 && <CardText style={{ overflowY: 'auto' }}>
           <div className="setting-container">
             <div className={tutorialEnabled ? 'enabled' : 'disabled'}>
               <span>Tutorial:</span>{tutorialEnabled ? 'Enabled' : 'Disabled'}
               <RaisedButton
                 label={tutorialEnabled ? 'Disable' : 'Enable'}
                 onClick={this.handleToggleTutorial}
-                labelColor="white"
+                labelColor="#FFFFFF"
                 style={{ marginLeft: '30px' }}
               />
             </div>
           </div>
-        </CardText>
+        </CardText>}
       </Card>
     </div>);
   }

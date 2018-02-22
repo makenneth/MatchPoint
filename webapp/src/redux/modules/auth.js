@@ -5,7 +5,7 @@ import ActionTypes from 'redux/actionTypes';
 import { startLoad, stopLoad } from 'redux/modules/main';
 
 const initialState = {
-  club: {},
+  user: {},
   error: null,
   loading: false,
   loaded: false,
@@ -21,11 +21,11 @@ export default (state = initialState, action) => {
     //   };
 
     // case ACTIVATE_CLUB:
-    //   if (state.club._id) {
+    //   if (state.user._id) {
     //     return {
     //       ...state,
-    //       club: {
-    //         ...state.club,
+    //       user: {
+    //         ...state.user,
     //         confirmed: true,
     //       },
     //     };
@@ -41,12 +41,11 @@ export default (state = initialState, action) => {
     case ActionTypes.LOAD_AUTH_REQUEST:
     case ActionTypes.LOG_IN_REQUEST:
     case ActionTypes.SIGN_UP_REQUEST:
-    case ActionTypes.LOG_OUT_REQUEST:
       return {
         ...state,
         loading: true,
         loaded: false,
-        club: {},
+        user: {},
       };
 
     case ActionTypes.LOG_IN_SUCCESS:
@@ -56,7 +55,7 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
         loaded: true,
-        club: action.payload.club,
+        user: action.payload.user,
       };
 
     case ActionTypes.LOG_IN_FAILURE:
@@ -69,6 +68,12 @@ export default (state = initialState, action) => {
         error: action.payload.error,
       };
 
+    case ActionTypes.LOG_OUT_REQUEST:
+      return {
+        ...state,
+        user: {},
+        loading: true,
+      };
 
     case ActionTypes.LOG_OUT_SUCCESS:
       return {
@@ -76,10 +81,11 @@ export default (state = initialState, action) => {
         loading: false,
       };
 
-    case ActionTypes.CHANGE_INFO_SUCCESS:
+    // case ActionTypes.CHANGE_INFO_SUCCESS:
+    case ActionTypes.CHANGE_PASSWORD_SUCCESS:
       return {
         ...state,
-        club: action.payload.club,
+        user: action.payload.user,
       };
 
     default:
@@ -93,10 +99,10 @@ function loadAuthRequest() {
   };
 }
 
-function loadAuthSuccess(club) {
+function loadAuthSuccess(user) {
   return {
     type: ActionTypes.LOAD_AUTH_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -110,9 +116,9 @@ function loadAuthFailure(error) {
 export function loadAuth() {
   return (dispatch) => {
     dispatch(loadAuthRequest());
-    return request('/api/clubs').then(
+    return request('/api/users').then(
       (res) => {
-        dispatch(loadAuthSuccess(res.club));
+        dispatch(loadAuthSuccess(res.user));
       },
       err => dispatch(loadAuthFailure(err))
     );
@@ -120,7 +126,7 @@ export function loadAuth() {
 }
 
 export const isAuthLoaded = (state) => {
-  return state.loading && state.loaded;
+  return !state.loading && state.loaded;
 };
 
 function logInRequest() {
@@ -129,10 +135,10 @@ function logInRequest() {
   };
 }
 
-function logInSuccess(club) {
+function logInSuccess(user) {
   return {
     type: ActionTypes.LOG_IN_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -151,8 +157,8 @@ export function logIn(user) {
       body: JSON.stringify({ user }),
     }).then(
       (res) => {
+        dispatch(logInSuccess(res.user));
         browserHistory.push('/club');
-        dispatch(logInSuccess(res.club));
       },
       err => dispatch(logInFailure(err))
     );
@@ -165,10 +171,10 @@ function signUpRequest() {
   };
 }
 
-function signUpSuccess(club) {
+function signUpSuccess(user) {
   return {
     type: ActionTypes.SIGN_UP_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -182,14 +188,14 @@ function signUpFailure(error) {
 export function signUp(user) {
   return (dispatch) => {
     dispatch(signUpRequest());
-    return request('/api/clubs', {
+    return request('/api/users', {
       method: 'POST',
       body: JSON.stringify({ user }),
     }).then(
       (res) => {
         dispatch(setPage(0));
-        browserHistory.push('/club');
         dispatch(signUpSuccess(res.user));
+        browserHistory.push('/club/info');
       },
       err => dispatch(signUpFailure(err))
     );
@@ -223,6 +229,7 @@ export function logOut() {
     }).then(
       () => {
         dispatch(logOutSuccess());
+        browserHistory.push('/');
       },
       err => dispatch(logOutFailure(err))
     );
@@ -233,9 +240,8 @@ export function activateClub() {
   return (dispatch) => {
     dispatch(startLoad());
     setTimeout(() => {
-      browserHistory.push('/club');
       dispatch(stopLoad());
-      dispatch(setPage(0));
-    });
+      dispatch(setPage(1));
+    }, 1000);
   };
 }

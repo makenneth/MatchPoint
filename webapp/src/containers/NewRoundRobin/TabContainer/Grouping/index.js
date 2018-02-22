@@ -185,7 +185,7 @@ export default class Grouping extends Component {
         errorStyle={{ color: errorColor }}
       >
         {
-          schemata[0].length > 0 ?
+          schemata && schemata[0].length > 0 ?
             schemata.map(schema => (
               <MenuItem
                 key={schema}

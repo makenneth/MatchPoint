@@ -1,0 +1,44 @@
+.club-information-container {
+  margin: 0 auto;
+  padding: 20px;
+  margin-top: 80px;
+  width: 80%;
+  max-width: 600px;
+
+  &--body {
+    margin-top: 20px;
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 25px;
+    }
+  }
+
+  &--row {
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+
+    svg {
+      font-size: 18px;
+      margin-right: 5px;
+    }
+  }
+
+  &--hours {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    flex-flow: row wrap;
+
+    > div:first-child {
+      margin-right: 20px;
+    }
+  }
+
+  #map {
+    width: 100%;
+    height: 230px;
+    margin-bottom: 20px;
+  }
+}

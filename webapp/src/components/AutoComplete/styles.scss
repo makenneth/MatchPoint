@@ -1,0 +1,39 @@
+.address-container {
+  position: relative;
+  width: 100%;
+
+  .suggestions {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background-color: white;
+    position: absolute;
+    z-index: 5;
+    padding: 15px 0;
+    transform-origin: top left;
+    transform: scaleY(0);
+    translate: transform 0.3s ease-in-out;
+    box-shadow:
+      rgba(0, 0, 0, 0.12) 0px 1px 6px,
+      rgba(0, 0, 0, 0.12) 0px 1px 4px;
+
+    li {
+      font-size: 15px;
+      cursor: pointer;
+      padding: 10px 20px;
+      background-color: transparent;
+      transition: background-color 0.3s ease-in-out;
+      color: #555;
+
+      &:hover {
+        background-color: #e4e4e4;
+        color: #ffa000;
+      }
+    }
+
+    &.open {
+      display: flex;
+      transform: scaleY(1);
+    }
+  }
+}

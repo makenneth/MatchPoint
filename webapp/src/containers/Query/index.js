@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Tabs, Tab } from 'material-ui/Tabs';
+// import { Tabs, Tab } from 'material-ui/Tabs';
 import { fetchAllClubs } from 'redux/modules/query';
 import ClubQuery from './ClubQuery';
 
@@ -25,7 +25,7 @@ export default class Query extends Component {
 
   render() {
     return (<div className={`result-query-container${this.props.loading ? ' loading' : ''}`}>
-      <Tabs
+{/*      <Tabs
         value={this.state.tab}
         onChange={this.handleTabChange}
         style={{
@@ -39,10 +39,10 @@ export default class Query extends Component {
           height: '100%',
         }}
       >
-        <Tab label="Club" value={0} className="tab-menu-tab">
-          <ClubQuery />
-        </Tab>
-      </Tabs>
+        <Tab label="Club" value={0} className="tab-menu-tab">*/}
+      <ClubQuery />
+{/*        </Tab>
+      </Tabs>*/}
     </div>);
   }
 }

@@ -4,26 +4,28 @@ import PlayerValidation from "../validations/player";
 
 export default {
   getPromotedPlayers: async (req, res, next) => {
+    console.log('get promotoed');
     try {
-      const promoted = await Player.findPromotedPlayers(req.club.id);
+      const promoted = await Player.findPromotedPlayers(req.user.accountId);
       res.status(200).send({ promoted });
     } catch (e) {
-      return next({ code: 500, message, e });
+      console.log(e);
+      next({ code: 500, message, e });
     }
   },
 
   getPlayers: (req, res, next) => {
-    const clubId = req.club.id;
+    const { accountId } = req.user;
 
-    client.get(`players:${clubId}`, (err, reply) => {
+    client.get(`players:${accountId}`, (err, reply) => {
       if (err) throw err;
       if (!reply) {
-        Player.findPlayers(clubId)
+        Player.findPlayers(accountId)
           .then((players) => {
             res.status(200).send({ players });
             try {
               const json = JSON.stringify(players);
-              client.setex(`players:${clubId}`, 24*60*60, json);
+              client.setex(`players:${accountId}`, 24*60*60, json);
             } catch (e) {
               next({ code: 500, messgae: e });
             }
@@ -40,10 +42,14 @@ export default {
   },
 
   createPlayer: (req, res, next) => {
-    const clubId = req.club.id;
+    console.log('at create Player');
+    const clubId = req.user.accountId;
     const data = req.body.player;
+    console.log(data);
     const [hasError, err] = PlayerValidation(data);
+    console.log('after validate');
     if (hasError) {
+      console.log(err);
       return next({ code: 422, message: err });
     }
 
@@ -66,7 +72,7 @@ export default {
   },
 
   updatePlayer: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const id = req.params.id;
     const player = req.body.player;
 
@@ -92,7 +98,7 @@ export default {
   },
 
   deletePlayer: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const playerId = req.params.id;
     Player.removePlayer(clubId, playerId)
       .then(

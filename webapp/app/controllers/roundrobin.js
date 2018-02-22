@@ -4,7 +4,7 @@ import { clearAllSessionCache } from '../helpers/redisHelpers';
 
 export default {
   authorizedGet: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const id = req.params.id;
     client.get(`sessions:${id}`, (err, reply) => {
       if (!reply) {
@@ -71,23 +71,24 @@ export default {
 
   postResult: async (req, res, next) => {
     const id = req.params.id;
+    const clubId = req.user.accountId;
     const { date, results } = req.body;
     let roundrobin;
     try {
-      roundrobin = await RoundRobin.findDetail(req.club.id, id);
+      roundrobin = await RoundRobin.findDetail(clubId, id);
     } catch (e) {
       console.log(e);
       next({ code: 500, message: e });
     }
-    RoundRobin.postResult(req.club.id, roundrobin, results)
+    RoundRobin.postResult(clubId, roundrobin, results)
       .then(async () => {
         try {
-          const clear = await clearAllSessionCache(req.club.id);
+          const clear = await clearAllSessionCache(clubId);
         } catch (e) {
           console.warn(e);
         }
-        client.del(`players:${req.club.id}`);
-        client.del(`sessions:${req.club.id}`);
+        client.del(`players:${clubId}`);
+        client.del(`sessions:${clubId}`);
         return res.status(204).send();
       }).catch((err) => {
         console.log(err);
@@ -97,7 +98,7 @@ export default {
   },
 
   update: async (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const id = req.params.id;
     const data = req.body.session;
     RoundRobin.update(clubId, id, data.id, data.players, data.date, data.selectedSchema)
@@ -125,7 +126,7 @@ export default {
   },
 
   create: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const data = req.body.session;
     RoundRobin.create(clubId, data.players, data.date, data.selectedSchema)
       .then(
@@ -145,16 +146,17 @@ export default {
 
   delete: (req, res, next) => {
     const id = req.params.id;
-    RoundRobin.delete(req.club.id, id)
+    const clubId = req.user.accountId;
+    RoundRobin.delete(clubId, id)
       .then(async () => {
         try {
-          const clear = await clearAllSessionCache(req.club.id);
+          const clear = await clearAllSessionCache(clubId);
         } catch (e) {
           console.warn(e);
         }
-        client.del(`sessions:${req.club.id}`);
-        client.del(`players:${req.club.id}`);
-        client.del(`session:${req.club.id}:${id}`);
+        client.del(`sessions:${clubId}`);
+        client.del(`players:${clubId}`);
+        client.del(`session:${clubId}:${id}`);
         return res.status(200).send({ id });
       }).catch((err) => {
         console.log(err);
@@ -164,7 +166,7 @@ export default {
 
 
   getEditStatus: (req, res, next) => {
-    RoundRobin.findEditStatus(req.club.id, req.params.id)
+    RoundRobin.findEditStatus(req.user.accountId, req.params.id)
       .then(
         (editable) => {
           res.status(200).send({ editable });
@@ -176,7 +178,7 @@ export default {
   },
 
   getLatestDate: (req, res, next) => {
-    RoundRobin.findLatestDate(req.club.id)
+    RoundRobin.findLatestDate(req.user.accountId)
       .then(
         (date) => {
           res.status(200).send({ date });
@@ -192,7 +194,7 @@ export default {
   },
 
   all: (req, res, err) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     client.get(`sessions:${clubId}`, (err, reply) => {
       if (err) throw err;
       if (!reply) {

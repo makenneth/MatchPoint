@@ -4,91 +4,22 @@ import Hour from "../models/hour";
 import Mailer from "../helpers/mailer";
 import ClubHelper from "../helpers/clubHelper";
 import ClubValidation from "../validations/club";
+import * as GoogleApi from '../helpers/googleApi';
+
+function parseLocation(info) {
+  let city = '';
+  let state = '';
+  let country = '';
+  if (info.address.terms.length === 4) {
+    [, city, state, country] = info.address.terms.map(t => t.value);
+  } else if (info.address.terms.length === 5) {
+    [, , city, state, country] = info.address.terms.map(t => t.value);
+  }
+
+  return [city, state, country];
+}
 
 export default {
-  get: (req, res, next) => {
-    Club.findBySessionToken(req.cookies.matchpoint_session)
-      .then(
-        club => {
-          delete club.password_digest;
-          delete club.confirm_token;
-          delete club.token;
-          res.status(200).send({ club })
-        },
-        err => next({ code: 404, message: err }),
-      )
-      .catch(err => next({ code: 500, message: err }));
-  },
-
-  create: async (req, res, next) => {
-    const user = req.body.user;
-    {
-      const err = ClubValidation.validate(user);
-      if (err) {
-        console.log(err);
-        return next({ code: 422, message: err });
-      }
-    }
-    let userId;
-    try {
-      userId = await Club.create(user);
-    } catch (err) {
-      if (err.username || err.clubName || err.email) {
-        return next({ code: 422, message: err });
-      } else {
-        return next({ code: 500, message: err });
-      }
-    }
-    try {
-      const club = await Club.detail(userId);
-      new Mailer(club).sendConfirmationEmail();
-      ClubHelper.logIn(club, res);
-    } catch (e) {
-      return next({ code: 500, message: e });
-    }
-  },
-
-
-  update:  async (req, res, next) => {
-    const data = req.body.data;
-    const type = req.query.type;
-    // const club = req.club;
-    console.log(data);
-    try {
-      if (type === "password") {
-        const ok = await Club.changePassword(req.club, data);
-      } else if (type === "info") {
-        if (data.info.address !== req.club.address) {
-          const { lat, lng } = await GoogleApi.getGeoCode(data.info.address);
-          console.log(lat, lng)
-          data.lat = lat;
-          data.lng = lng;
-        }
-        const ok = await Club.changeInfo(req.club, data);
-      }
-    } catch (err) {
-      console.log(err);
-      if (err.password || err.city || err.state || err.address || err.email) {
-        return next({ code: 422, message: err });
-      }
-
-      return next({ code: 500, message: err });
-    }
-
-    try {
-      const club = await Club.detail(req.club.id);
-      if (club.email !== req.club.email) {
-        new Mailer(club).sendConfirmationEmail();
-      }
-      delete club.password_digest;
-      delete club.session_token;
-      delete club.confirm_token;
-      return res.status(200).send({ club });
-    } catch (e) {
-      return next({ code: 500, message: e });
-    }
-  },
-
   all: (req, res, next) => {
     const { geolocation } = req.query;
     Club.all(geolocation)
@@ -118,7 +49,7 @@ export default {
   },
 
   createHour: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const { hours, type } = req.body;
     Hour.createHour(clubId, type, hours)
       .then(async (id) => {
@@ -134,7 +65,7 @@ export default {
   },
 
   updateHour: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const hourId = req.params.hourId;
     const { hours } = req.body;
     Hour.updateHour(clubId, hourId, hours)
@@ -146,7 +77,7 @@ export default {
   },
 
   deleteHour: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     const hourId = req.params.hourId;
     Hour.deleteHour(clubId, hourId)
       .then(() => {
@@ -157,12 +88,98 @@ export default {
   },
 
   getHours: (req, res, next) => {
-    const clubId = req.club.id;
+    const clubId = req.user.accountId;
     Hour.getHours(clubId)
       .then((hours) => {
         res.status(200).send({ hours });
       }).catch((err) => {
         next({ code: 500, message: err });
       });
+  },
+
+  setInitInfo: async (req, res, next) => {
+    const userId = req.user.id;
+    const { info } = req.body;
+    let lat;
+    let lng;
+    try {
+      const result = await GoogleApi.getGeoCode(info.address.description);
+      lat = result.lat;
+      lng = result.lng;
+    } catch (e) {
+      console.log(e);
+      return res.status(500).send({ message: e });
+    }
+    const [city, state, country] = parseLocation(info);
+    Club.updateInformation(userId, {
+      ...info, lat, lng,
+      city, state, country,
+      address: info.address.description,
+    }).then(
+      () => {
+        console.log('success');
+        res.status(200).send({ success: true });
+      },
+      (err) => {
+        console.log(err);
+        next({ code: 400, message: err });
+      }
+    );
+  },
+
+  updateInfo: async (req, res, next) => {
+    const userId = req.user.id;
+    const { info } = req.body.data;
+    const data = { ...info };
+    if (!Object.keys(data).length) {
+      const user = await Club.detail(req.user.accountId);
+      return res.status(200).send({ user });
+    }
+    if (info.address) {
+      try {
+        const result = await GoogleApi.getGeoCode(info.address.description);
+        data.lat = result.lat;
+        data.lng = result.lng;
+      } catch (e) {
+        console.log(e);
+        return res.status(500).send({ message: e });
+      }
+      const [city, state, country] = parseLocation(info);
+      data.city = city;
+      data.state = state;
+      data.country = country;
+      data.address = info.address.description;
+    }
+    Club.updateInformation(userId, data).then(
+      async () => {
+        const user = await Club.detail(req.user.accountId);
+        res.status(200).send({ user });
+      },
+      (err) => {
+        console.log(err);
+        next({ code: 400, message: err });
+      }
+    );
+  },
+
+  detail: async (req, res, next) => {
+    let id = req.user ? req.user.accountId : req.params.id;
+    try {
+      const club = await Club.detail(id);
+      res.status(200).send({ club });
+    } catch (e) {
+      next({ code: 500, message: e });
+    }
+  },
+
+  search: async (req, res, next) => {
+    const search = req.query.search;
+    console.log('search', search);
+    try {
+      const clubs = await Club.search(search);
+      res.status(200).send({ clubs });
+    } catch (e) {
+      next({ code: 500, message: e });
+    }
   },
 };

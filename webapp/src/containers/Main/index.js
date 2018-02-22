@@ -37,7 +37,7 @@ export default class Main extends Component {
               className={`overlay${this.props.spinnerMode === 'transparent' ? ' transparent' : ''}`}
             >
               <div className="loading">
-                <CircularProgress size={2} />
+                <CircularProgress size={50} />
               </div>
             </div>)
         }

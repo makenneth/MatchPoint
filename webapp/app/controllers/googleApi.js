@@ -9,5 +9,5 @@ export default {
       console.log(e);
       next({ code: 500, message: e });
     }
-  }
+  },
 };

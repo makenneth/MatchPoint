@@ -1,4 +1,4 @@
-import Club from "../models/club";
+import User from "../models/user";
 import URLSafeBase64 from "urlsafe-base64";
 import crypto from "crypto";
 import Mailer from "../helpers/mailer";
@@ -6,7 +6,7 @@ import Mailer from "../helpers/mailer";
 export default {
   activate: (req, res, next) => {
     const token = req.query.token;
-    Club.confirm(token)
+    User.confirm(token)
       .then(
         () => res.redirect("/activate/success"),
         message => {
@@ -19,14 +19,14 @@ export default {
     const email = req.query.email;
     const username = req.query.username;
     if (!email && !username) {
-      return next({ code: 400 })
+      return next({ code: 400 });
     }
     try {
-      const club = await Club.resetPassword({ email, username });
-      const ok2 = new Mailer(club).sendResetEmail();
-      res.status(204).send();
+      const token = await User.resetPassword(email || username);
+      const user = await User.findByResetToken(token);
+      new Mailer({ ...user, token }).sendResetEmail();
+      res.status(200).send({ success: true });
     } catch (e) {
-      console.log(e);
       if (e.user) {
         next({ code: 404, message: e });
       } else {
@@ -35,22 +35,27 @@ export default {
     }
   },
 
-  reset: (req, res, next) => {
+  reset: async (req, res, next) => {
     const { token, newPassword } = req.body;
-    Club.resetPasswordWithToken(token, newPassword)
+    console.log(token, newPassword);
+    const user = await User.findByResetToken(token);
+    console.log('user', user);
+    User.resetPasswordWithToken(token, newPassword)
       .then(
-        (club) => {
-          Club.resetSessionToken(club.sessionToken);
+        async () => {
+          const ok1 = await User.clearAllSessionTokens(user.id);
+          await new Mailer(user).sendFinishedResetEmail();
           res.status(200).send({ success: true });
         },
         (err) => {
           next({ code: 404, message: err });
         }
-      );
+      ).catch(err => next({ code: 500, message: err }));
+
   },
 
   resend: (req, res, next) => {
-    new Mailer(req.club).sendConfirmationEmail()
+    new Mailer(req.user).sendConfirmationEmail()
       .then(
         () => {
           res.status(200).send({ status: "An email has been sent to your inbox." });

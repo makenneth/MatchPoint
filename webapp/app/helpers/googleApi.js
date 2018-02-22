@@ -5,6 +5,7 @@ export async function getPredictions(query) {
   const googleApiUrl = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
   const response = await request(`${googleApiUrl}?types=address&key=${apiKey}&input=${query}`);
   const data = JSON.parse(response);
+  console.log(data);
   if (data.status === 'OK') {
     const predictions = data.predictions.map(p => ({
       terms: p.terms,
@@ -14,6 +15,7 @@ export async function getPredictions(query) {
   }
   return [];
 }
+
 export async function getGeoCode(address) {
   const apiKey = 'AIzaSyDgjXJPSkK2rnYCMuVpxUpVc9WmrVixbaM';
   const googleApiUrl = 'https://maps.googleapis.com/maps/api/geocode/json';

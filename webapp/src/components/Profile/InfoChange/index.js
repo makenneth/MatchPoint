@@ -1,25 +1,19 @@
 import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import AutoComplete from 'material-ui/AutoComplete';
 import CircularProgress from 'material-ui/CircularProgress';
-import MdInfoOutline from 'react-icons/lib/md/info-outline';
-import countries from 'constants/countries';
-import AddressAutoComplete from './AutoComplete';
+import AddressAutoComplete from 'components/AutoComplete';
 import './styles.scss';
 
 export default class ContactInfo extends Component {
   constructor(props) {
     super(props);
 
-    const club = props.club;
+    const user = props.user;
     this.state = {
-      email: club.email || '',
-      address: club.address || '',
-      city: club.city || '',
-      state: club.state || '',
-      country: club.country || '',
+      clubName: user.clubName || '',
+      address: user.address || '',
+      phone: user.phone || '',
       password: '',
       errors: {},
       predictionUsed: null,
@@ -34,23 +28,15 @@ export default class ContactInfo extends Component {
         this.props.setMessage('Info has been changed successfully.');
         this.setState({
           password: '',
-          email: success.email || '',
-          address: success.address || '',
-          city: success.city || '',
-          state: success.state || '',
-          country: success.country || '',
+          clubName: nextProps.user.clubName || '',
+          address: nextProps.user.address || '',
+          phone: nextProps.user.phone || '',
           predictionUsed: null,
           addressFocused: false,
           errors: {},
         });
-        if (!success.verified && this.props.club.verified) {
-          browserHistory.push('/club/confirm');
-        }
-      } else {
-        if (error.password || error.email ||
-          error.address || error.state ||
-          error.city || error.country
-        ) {
+      } else if (error) {
+        if (error.password || error.address || error.phone || error.clubName) {
           this.setState({ errors: error });
         } else {
           this.props.setMessage('Please try again later.');
@@ -73,40 +59,35 @@ export default class ContactInfo extends Component {
 
   selectPrediction = (prediction) => {
     this.props.clearPredictions();
-    const { description, terms } = prediction;
-    if (terms.length === 4) {
-      const [, city, state, country] = terms;
-      this.setState({
-        predictionUsed: prediction,
-        address: description,
-        city: city.value,
-        state: state.value,
-        country: country.value,
-      });
-    } else if (terms.length === 5) {
-      const [, , city, state, country] = terms;
-      this.setState({
-        predictionUsed: prediction,
-        address: description,
-        city: city.value,
-        state: state.value,
-        country: country.value,
-      });
-    } else {
-      this.setState({
-        predictionUsed: prediction,
-        address: description,
-      });
-    }
+    const { description } = prediction;
+    this.setState({
+      predictionUsed: prediction,
+      address: description,
+    });
   }
 
   handleSubmit = (event) => {
     event.preventDefault();
-    // eslint-disable-next-line no-unused-vars
-    const { errors, password, ...others } = this.state;
 
     if (this.validate()) {
-      this.props.submitChange(others, password);
+      const { password, predictionUsed, clubName, phone, address } = this.state;
+      const data = {};
+      if (address !== this.props.user.address) {
+        data.address = predictionUsed;
+      }
+      if (clubName !== this.props.user.clubName) {
+        data.clubName = clubName;
+      }
+
+      if (phone !== this.props.user.phone) {
+        data.phone = phone;
+      }
+      if (Object.keys(data).length > 0) {
+        this.props.submitChange(data, password);
+      } else {
+        this.setState({ password: '' });
+        this.props.setMessage('Info has been changed successfully.');
+      }
     }
   }
 
@@ -131,29 +112,24 @@ export default class ContactInfo extends Component {
   validate() {
     const errors = {};
     let isValid = true;
-    if (this.state.state.length === 0) {
-      errors.state = 'State cannot be empty.';
-      isValid = false;
-    }
-
-    if (this.state.city.length === 0) {
-      errors.city = 'City cannot be empty.';
-      isValid = false;
-    }
-
-    if (this.state.country.length === 0) {
-      errors.country = 'Country cannot be empty.';
-      isValid = false;
-    }
-
+    const { clubName, address, phone } = this.props.user;
     if (this.state.password.length === 0) {
       errors.password = 'Password is required';
       isValid = false;
     }
 
-    const emailRegex = new RegExp('.+@.+..+', 'i');
-    if (!emailRegex.test(this.state.email)) {
-      errors.email = 'Not a valid email';
+    if (clubName !== this.state.clubName && clubName.length === 0) {
+      errors.clubName = 'Club name cannot be empty.';
+      isValid = false;
+    }
+
+    if (address !== this.state.address && address.length === 0) {
+      errors.address = 'Address cannot be empty.';
+      isValid = false;
+    }
+
+    if (phone !== this.state.phone && phone.length === 0) {
+      errors.phone = 'Phone cannot be empty.';
       isValid = false;
     }
 
@@ -162,12 +138,31 @@ export default class ContactInfo extends Component {
     }
     return isValid;
   }
+
   render() {
     const { predictions } = this.props.autocomplete;
     const { addressFocused } = this.state;
     const { isLoading } = this.props.infoChange;
 
     return (<form onSubmit={this.handleSubmit} style={{ overflow: 'initial' }}>
+      <TextField
+        hintText="Club Name"
+        floatingLabelText="Club Name"
+        value={this.state.clubName}
+        onChange={e => this.handleChange('clubName', e.target.value)}
+        errorText={this.state.errors.clubName}
+        type="clubName"
+        fullWidth={Boolean(true)}
+      />
+      <TextField
+        hintText="Phone"
+        floatingLabelText="Phone"
+        value={this.state.phone}
+        onChange={e => this.handleChange('phone', e.target.value)}
+        errorText={this.state.errors.phone}
+        type="phone"
+        fullWidth={Boolean(true)}
+      />
       <AddressAutoComplete
         selectPrediction={this.selectPrediction}
         onClickOutside={this.handleAddressClickOutisde}
@@ -178,48 +173,6 @@ export default class ContactInfo extends Component {
         addressFocused={addressFocused}
         predictions={predictions}
       />
-      <TextField
-        floatingLabelText="City"
-        value={this.state.city}
-        onChange={e => this.handleChange('city', e.target.value)}
-        errorText={this.state.errors.city}
-        type="text"
-        fullWidth={Boolean(true)}
-      />
-      <TextField
-        floatingLabelText="State"
-        value={this.state.state}
-        onChange={e => this.handleChange('state', e.target.value)}
-        errorText={this.state.errors.state}
-        type="text"
-        fullWidth={Boolean(true)}
-      />
-      <AutoComplete
-        floatingLabelText="Country"
-        searchText={this.state.country}
-        onChange={e => this.handleUpdateInput('country', e.target.value)}
-        errorText={this.state.errors.country}
-        dataSource={countries}
-        fullWidth={Boolean(true)}
-        filter={AutoComplete.fuzzyFilter}
-        maxSearchResults={5}
-      />
-      <div className="email-input-container">
-        <TextField
-          floatingLabelText="Email"
-          value={this.state.email}
-          onChange={e => this.handleChange('email', e.target.value)}
-          errorText={this.state.errors.email}
-          type="email"
-          fullWidth={Boolean(true)}
-        />
-        <div className="hint-text">
-          <MdInfoOutline />
-          <div className="tooltip">
-            You will be required to re-verify your email address.
-          </div>
-        </div>
-      </div>
       <TextField
         hintText="Password"
         floatingLabelText="Password"
@@ -233,13 +186,14 @@ export default class ContactInfo extends Component {
         type="submit"
         label="Change Information"
         backgroundColor="#1565C0"
-        labelColor="white"
+        labelColor="#FFFFFF"
         style={{ marginRight: '10px', marginTop: '10px' }}
         onClick={this.handleSubmit}
       />}
       {
         isLoading && <CircularProgress
-          size={0.5}
+          size={25}
+          thickness={2}
           color="#aaa"
           style={{ marginTop: '20px' }}
         />

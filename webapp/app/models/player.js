@@ -1,4 +1,5 @@
 import shortid from "shortid";
+import { camelCase } from 'lodash';
 import db from '../utils/connection';
 
 class Player {
@@ -12,7 +13,7 @@ class Player {
     const player = {};
     fields.forEach(field => {
       if (row[field]) {
-        player[field] = row[field];
+        player[camelCase(field)] = row[field];
       }
     });
 
@@ -49,10 +50,10 @@ class Player {
       connection.query(`
         DELETE FROM players WHERE id = ? AND EXISTS (
           SELECT * FROM (SELECT * FROM players) AS p
-          INNER JOIN club_players AS cp
-          ON cp.player_id = p.id
+          INNER JOIN user_players AS up
+          ON up.player_id = p.id
           INNER JOIN clubs AS c
-          ON c.id = cp.club_id
+          ON c.id = up.club_id
           WHERE p.id = ? AND c.id = ?
         )
       `, [id, id, clubId], (err, results, field) => {
@@ -78,7 +79,13 @@ class Player {
         }
         connection.query(`
           UPDATE players AS p
-          SET name = ? WHERE id = ?
+          SET name = ?
+          WHERE id = ? AND EXISTS (
+            SELECT id FROM clubs AS c
+            INNER JOIN user_players AS up
+            ON up.club_id = c.id
+            WHERE up.player_id = ? AND c.id = ?
+          )
         `, [player.name, id, id, clubId], (err, results, field) => {
           if (err) {
             connection.rollback();
@@ -134,13 +141,13 @@ class Player {
           resolve(results.insertId);
         });
       });
-    }).then((id) => Player.createClubPlayer(connection, clubId, id, player.rating));
+    }).then((id) => Player.createClubPlayers(connection, clubId, id, player.rating));
   }
 
-  static createClubPlayer(connection, clubId, id, rating) {
+  static createClubPlayers(connection, clubId, id, rating) {
     return new Promise((resolve, reject) => {
       connection.query(`
-        INSERT INTO club_players (club_id, player_id)
+        INSERT INTO user_players (club_id, player_id)
         VALUES (?, ?)
       `, [clubId, id], (err, results, field) => {
         if (err) {
@@ -201,8 +208,8 @@ class Player {
       connection.query(`
         SELECT p.id, p.short_id, ph.rating, p.name, p.created_on, p.updated_at
         FROM players AS p
-        INNER JOIN club_players AS cp
-        ON cp.player_id = p.id
+        INNER JOIN user_players AS up
+        ON up.player_id = p.id
         INNER JOIN (
           SELECT phs1.id, phs1.rating, phs1.player_id
           FROM (
@@ -228,7 +235,7 @@ class Player {
              phs1.club_id = phs2.club_id
         ) AS ph
         ON ph.player_id = p.id
-        WHERE cp.club_id = ?;
+        WHERE up.club_id = ?;
       `, [clubId, clubId, clubId, clubId], (err, results, field) => {
         connection.release();
         if (err) throw(err);
@@ -239,7 +246,6 @@ class Player {
   }
 
   static async find(clubId, id) {
-    console.log('find', id, clubId);
     const connection = await db.getConnection();
     return new Promise((resolve, reject) => {
       connection.query(`
@@ -275,6 +281,7 @@ class Player {
 
   static async findPromotedPlayers(clubId) {
     const connection = await db.getConnection();
+    console.log('finding');
     return new Promise((resolve, reject) => {
       connection.query(`
         SELECT p.id, ph.won
@@ -294,7 +301,10 @@ class Player {
         WHERE ph.won = 1
       `, [clubId], (err, results, fields) => {
         connection.release();
-        if (err) throw err;
+        if (err) {
+          console.log('err', err);
+          throw err;
+        }
 
         resolve(results.map(result => Player.formatPlayer(result)));
       });

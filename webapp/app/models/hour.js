@@ -50,7 +50,6 @@ export default (function() {
       });
     },
 
-
     getHour: async function(clubId, hourId) {
       const connection = await db.getConnection();
       return new Promise((resolve, reject) => {

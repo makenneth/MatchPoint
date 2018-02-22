@@ -148,7 +148,7 @@ export default class RecordTableContainer extends Component {
         <Tab label={editable ? 'Enter Result' : 'Results'} value={0} className="tab-menu-tab">
           {editable && <RaisedButton
             backgroundColor="#E64A19"
-            labelColor="white"
+            labelColor="#FFFFFF"
             label="Calculate Score"
             onTouchTap={this.handleCalculate}
           />}

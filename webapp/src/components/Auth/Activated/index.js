@@ -13,7 +13,7 @@ export default class Activated extends Component {
           style={{ marginTop: '10px' }}
           label="Back to Main Page"
           backgroundColor="#EF6C00"
-          labelColor="white"
+          labelColor="#FFFFFF"
           onClick={() => {
             if (this.props.homepage) {
               this.props.setPage(0);

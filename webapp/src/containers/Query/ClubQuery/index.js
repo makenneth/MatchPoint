@@ -1,13 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import CircularProgress from 'material-ui/CircularProgress';
 import moment from 'moment';
-import { setClub, setDate, fetchRoundRobinDetail } from 'redux/modules/query';
+import {
+  setClub, setDate,
+  fetchRoundRobinDetail,
+} from 'redux/modules/query';
 import { ClubQueryDetail } from 'components';
 
-@connect(({ query }) => ({ query }), { setClub, setDate, fetchRoundRobinDetail })
+@connect(
+  ({ query }) => ({ query }),
+  { setClub, setDate, fetchRoundRobinDetail }
+)
 export default class ClubQuery extends Component {
   changeDate = (e, i, session) => {
     if (session) {
@@ -52,7 +59,7 @@ export default class ClubQuery extends Component {
               <MenuItem
                 key={i}
                 value={id}
-                primaryText={clubs[id].club_name}
+                primaryText={clubs[id].clubName}
               />
             ))
           }
@@ -78,8 +85,8 @@ export default class ClubQuery extends Component {
       <div className="club-result-body">
         {
           selectedClub && (<div className="club-info-container">
-            <h1>Club: {selectedClub.club_name}</h1>
-            <div>Location: {`${selectedClub.city}, ${selectedClub.state}`}</div>
+            <Link to={`/clubs/${selectedClub.id}`}>{selectedClub.clubName}</Link>
+            <div>{selectedRoundrobin && moment(selectedRoundrobin.date).utc().format('MMMM DD, YYYY')}</div>
           </div>)
         }
         <ClubQueryDetail
@@ -90,7 +97,7 @@ export default class ClubQuery extends Component {
         {loading && <div className="overlay">
           <CircularProgress
             color="#555"
-            size={1}
+            size={30}
             style={{
               margin: '0',
               position: 'absolute',

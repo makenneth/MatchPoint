@@ -11,7 +11,7 @@ const CHANNEL_EVENTS = {
 };
 
 export default function startWebsocket() {
-  const [, token] = document.cookie.match(/matchpoint_session=(.*?)(;|$)/);
+  const [, token] = document.cookie.match(/_s=(.*?)(;|$)/);
   socket = new Socket('ws://localhost:4000/socket', {
     params: { session_token: token },
   });

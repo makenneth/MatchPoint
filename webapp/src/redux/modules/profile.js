@@ -56,7 +56,7 @@ export function infoChange(state = {
         ...state,
         error: null,
         isLoading: false,
-        success: action.payload.club,
+        success: action.payload.user,
       };
 
     case ActionTypes.CHANGE_INFO_FAILURE:
@@ -78,10 +78,10 @@ function changePasswordRequest() {
   };
 }
 
-function changePasswordSuccess(club) {
+function changePasswordSuccess(user) {
   return {
     type: ActionTypes.CHANGE_PASSWORD_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -92,14 +92,14 @@ function changePasswordFailure(error) {
   };
 }
 
-export function changePassword(oldPassword, newPassword) {
+export function changePassword(oldPassword, newPassword, email) {
   return (dispatch) => {
     dispatch(changePasswordRequest());
     return request('/api/my?type=password', {
       method: 'PATCH',
-      body: JSON.stringify({ data: { oldPassword, newPassword } }),
+      body: JSON.stringify({ data: { oldPassword, newPassword, email } }),
     }).then(
-      res => dispatch(changePasswordSuccess(res.club)),
+      res => dispatch(changePasswordSuccess(res.user)),
       err => dispatch(changePasswordFailure(err))
     );
   };
@@ -111,10 +111,10 @@ function changeInfoRequest() {
   };
 }
 
-function changeInfoSuccess(club) {
+function changeInfoSuccess(user) {
   return {
     type: ActionTypes.CHANGE_INFO_SUCCESS,
-    payload: { club },
+    payload: { user },
   };
 }
 
@@ -132,7 +132,7 @@ export function changeInfo(info, password) {
       method: 'PATCH',
       body: JSON.stringify({ data: { password, info } }),
     }).then(
-      res => dispatch(changeInfoSuccess(res.club)),
+      res => dispatch(changeInfoSuccess(res.user)),
       err => dispatch(changeInfoFailure(err))
     );
   };

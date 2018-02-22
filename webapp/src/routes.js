@@ -1,6 +1,11 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-import { Main, Splash, Club, NewRoundrobin, Sessions, Session, Query, Profile, PDFGenerator } from 'containers';
+import {
+  Main, Splash, Club,
+  NewRoundrobin, Sessions,
+  Session, Query, Profile,
+  PDFGenerator, InformationForm, ClubInfo,
+} from 'containers';
 import { Confirmation, Loading } from 'components';
 import { isAuthLoaded, loadAuth } from 'redux/modules/auth';
 import ErrorPage from './errorPage';
@@ -8,50 +13,68 @@ import ErrorPage from './errorPage';
 export default ({ getState, dispatch }) => {
   const requireNotLoggedin = (nextState, replace, callback) => {
     const checkAuth = () => {
-      const { club } = getState().auth;
-      if (club.id) {
+      const { user } = getState().auth;
+      if (user.id) {
         replace('/club');
       }
       callback();
     };
 
-    if (isAuthLoaded(getState().auth)) {
+    if (getState().auth.loaded) {
       checkAuth();
-    } else {
+    } else if (!getState().auth.loading) {
       dispatch(loadAuth()).then(checkAuth);
     }
   };
 
   const requireLoggedIn = (nextState, replace, callback) => {
     const checkAuth = () => {
-      const { club } = getState().auth;
-      if (!club.id) {
+      const { user } = getState().auth;
+      if (!user.id) {
         replace('/');
       }
       callback();
     };
 
-    if (isAuthLoaded(getState().auth)) {
+    if (getState().auth.loaded) {
       checkAuth();
-    } else {
+    } else if (!getState().auth.loading) {
       dispatch(loadAuth()).then(checkAuth);
     }
   };
 
   const requireConfirmed = (nextState, replace, callback) => {
-    const { club } = getState().auth;
-    if (!club.verified) {
+    const { user } = getState().auth;
+    if (!user.verified) {
       replace('/club/confirm');
     }
+
     callback();
   };
+
   const requireNotConfirmed = (nextState, replace, callback) => {
-    const { club } = getState().auth;
-    if (club.verified) {
+    const { user } = getState().auth;
+    if (user.verified) {
       replace('/club');
+    }
+
+    callback();
+  };
+  const requiredInit = (nextState, replace, callback) => {
+    const { user } = getState().auth;
+    if (!user.clubName) {
+      replace('/club/info');
     }
     callback();
   };
+  const requiredNotInit = (nextState, replace, callback) => {
+    const { user } = getState().auth;
+    if (user.clubName) {
+      replace('/club/sessions/new');
+    }
+    callback();
+  };
+
   return (
     <Route path="/" component={Main}>
       <Route onEnter={requireNotLoggedin}>
@@ -61,18 +84,24 @@ export default ({ getState, dispatch }) => {
       <Route onEnter={requireLoggedIn}>
         <Route path="club" component={Club}>
           <Route onEnter={requireConfirmed}>
-            <IndexRoute component={NewRoundrobin} />
-            <Route path="profile" component={Profile} />
-            <Route path="sessions" component={Sessions} />
-            <Route path="sessions/new" component={NewRoundrobin} />
-            <Route path="sessions/:id" component={Session} />
-            <Route path="pdf" component={PDFGenerator} />
+            <Route onEnter={requiredInit}>
+              <IndexRoute component={NewRoundrobin} />
+              <Route path="profile" component={Profile} />
+              <Route path="sessions" component={Sessions} />
+              <Route path="sessions/new" component={NewRoundrobin} />
+              <Route path="sessions/:id" component={Session} />
+              <Route path="pdf" component={PDFGenerator} />
+            </Route>
+            <Route onEnter={requiredNotInit}>
+              <Route path="info" component={InformationForm} />
+            </Route>
           </Route>
           <Route onEnter={requireNotConfirmed}>
             <Route path="confirm" component={Confirmation} />
           </Route>
         </Route>
       </Route>
+      <Route path="clubs/:id" component={ClubInfo} />
       <Route path="results" component={Query} />
       <Route path="reset" component={Splash} />
       <Route path="activate/*" component={Splash} />

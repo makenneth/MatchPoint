@@ -24,8 +24,7 @@ export default class ForgotReset extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.reset.isLoading &&
-      !nextProps.reset.isLoading &&
-      !nextProps.reset.error
+      !nextProps.reset.isLoading
     ) {
       this.timeout = setTimeout(() => {
         browserHistory.push('/');
@@ -86,7 +85,7 @@ export default class ForgotReset extends Component {
           <RaisedButton
             label="Back to Main Page"
             primary={Boolean(true)}
-            labelColor="white"
+            labelColor="#FFFFFF"
             onClick={() => {
               clearTimeout(this.timeout);
               browserHistory.push('/');
@@ -122,15 +121,16 @@ export default class ForgotReset extends Component {
           {!isLoading && <RaisedButton
             label="Reset Password"
             backgroundColor="#1565C0"
-            labelColor="white"
+            labelColor="#FFFFFF"
             style={{ marginRight: '10px', marginTop: '10px' }}
             onClick={this.handleSubmit}
           />}
           {
             isLoading && <CircularProgress
-              size={0.5}
+              size={25}
+              thickness={2}
               color="#aaa"
-              style={{ marginTop: '10px' }}
+              style={{ marginTop: '15px' }}
             />
           }
         </div>
