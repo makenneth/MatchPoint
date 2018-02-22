@@ -1,5 +1,5 @@
 require('dotenv').config();
-var mysql = require('mysql');
+import mysql from 'mysql';
 
 const pool = mysql.createPool({
   connectionLimit: 50,
@@ -10,4 +10,4 @@ const pool = mysql.createPool({
   database: process.env.DB || 'matchpoints',
 });
 
-module.exports = pool;
+export default pool;

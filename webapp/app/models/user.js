@@ -2,6 +2,7 @@ import shortid from "shortid";
 import Token from '../helpers/token';
 import db from '../utils/connection';
 import bcrypt from "../helpers/bcrypt";
+import { client } from "../helpers/appModules";
 import Session from "./session";
 import Club from "./club";
 import Device from './device';
@@ -41,12 +42,14 @@ const User = {
     const connection = await db.getConnection();
     const digest = await bcrypt.generatePasswordDigest(info.password);
     const userId = await new Promise((resolve, reject) => {
+      client.set(`steps:${Date.now()}:transaction begin`, '123');
       connection.beginTransaction((tError) => {
         if (tError) {
+          client.set(`steps:${Date.now()}:transaction error`, JSON.stringify(tError));
           connection.release();
           throw tError;
         }
-
+        client.set(`steps:${Date.now()}:query`, '123');
         connection.query(`
           INSERT INTO users (
             account_type, email, username,
@@ -74,11 +77,10 @@ const User = {
         });
       });
     });
-    console.log(userId, 'created')
+
     if (type === 'club') {
       const clubId = await Club.createInitial(userId, connection);
     }
-    // if deviceId not present - cookie disabled then we should not add the device
     if (deviceId) {
       const _ = await Device.addDevice(userId, deviceId, connection)
       const token = await Session.insertToken(userId, deviceId, connection);

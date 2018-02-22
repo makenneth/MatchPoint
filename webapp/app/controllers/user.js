@@ -55,20 +55,13 @@ export default {
   create: async (req, res, next) => {
     const { user } = req.body;
     client.set(`steps:${Date.now()}`, `at create ${JSON.stringify(user)}`);
-    // if (req.baseUrl === '/api') {
-    //   type = 'club';
-    // } else if (req.baseUrl === '/m/api') {
-    //   type = 'user';
-    // }
     try {
-      {
-        client.set(`steps:${Date.now()}`, 'at validate');
-        const [isValid, error] = UserValidation.validate(user);
-        if (!isValid) {
-          client.set(`error:validation:${Date.now()}`, JSON.stringify(error));
-          console.log('validation', error);
-          return next({ code: 422, message: error });
-        }
+      client.set(`steps:${Date.now()}`, 'at validate');
+      const [isValid, error] = UserValidation.validate(user);
+      if (!isValid) {
+        client.set(`error:validation:${Date.now()}`, JSON.stringify(error));
+        console.log('validation', error);
+        return next({ code: 422, message: error });
       }
       let userId;
       try {
