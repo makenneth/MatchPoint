@@ -205,8 +205,6 @@ class Club {
     });
     const stmt = `UPDATE clubs SET ${fields.join(', ')}`;
     return new Promise((resolve, reject) => {
-      console.log('stmt', stmt);
-      console.log('values', values);
       connection.query(` ${stmt} WHERE user_id = ?;`, [...values, userId], (err, results, field) => {
       // connection.query(`
       //   UPDATE clubs SET

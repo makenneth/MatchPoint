@@ -1,6 +1,6 @@
 import Club from "../models/club";
 import Hour from "../models/hour";
-// import { client } from "../helpers/appModules";
+import { client } from "../helpers/appModules";
 import Mailer from "../helpers/mailer";
 import ClubHelper from "../helpers/clubHelper";
 import ClubValidation from "../validations/club";
@@ -138,8 +138,8 @@ export default {
     if (info.address) {
       try {
         const result = await GoogleApi.getGeoCode(info.address.description);
-        data.lat = result.lat;
-        data.lng = result.lng;
+        data.geolat = result.lat;
+        data.geolng = result.lng;
       } catch (e) {
         console.log(e);
         return res.status(500).send({ message: e });
@@ -150,6 +150,7 @@ export default {
       data.country = country;
       data.address = info.address.description;
     }
+
     Club.updateInformation(userId, data).then(
       async () => {
         const user = await Club.detail(req.user.accountId);
