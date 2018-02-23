@@ -177,7 +177,7 @@ export default {
       // if (!reply && !err) {
         try {
           const club = await Club.detail(id);
-          const json = JSON.stringify(club);
+          // const json = JSON.stringify(club);
           // client.set(`club:query:${id}`, json);
           res.status(200).send({ club });
         } catch (e) {
