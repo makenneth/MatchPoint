@@ -104,8 +104,11 @@ export default {
     let lng;
     try {
       const result = await GoogleApi.getGeoCode(info.address.description);
-      lat = result.lat;
-      lng = result.lng;
+      geolat = result.lat;
+      geolng = result.lng;
+      if (!geolat || !geolng) {
+        return next({ code: 400, message: 'Cannot get geocode of address.' });
+      }
     } catch (e) {
       console.log(e);
       return res.status(500).send({ message: e });
@@ -140,6 +143,9 @@ export default {
         const result = await GoogleApi.getGeoCode(info.address.description);
         data.geolat = result.lat;
         data.geolng = result.lng;
+        if (!geolat || !geolng) {
+          return next({ code: 400, message: 'Cannot get geocode of address.' });
+        }
       } catch (e) {
         console.log(e);
         return res.status(500).send({ message: e });
