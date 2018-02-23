@@ -113,6 +113,7 @@ class Club {
         SELECT id, club_name, email, phone
         city, state, address, geolat, geolng, country
         FROM clubs
+        WHERE club_name IS NOT NULL
       `, async (err, results, field) => {
         connection.release();
         if (err) throw(err);
@@ -129,6 +130,7 @@ class Club {
         SELECT id, club_name, phone
         city, state, address, geolat, geolng, country
         FROM clubs
+        WHERE club_name IS NOT NULL
       `, async (err, results, field) => {
         connection.release();
         if (err) {
