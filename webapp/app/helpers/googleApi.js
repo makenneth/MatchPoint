@@ -1,4 +1,5 @@
 import request from 'request-promise';
+import { client } from "../helpers/appModules";
 
 export async function getPredictions(query) {
   const apiKey = 'AIzaSyD6ANrl7aamAgPdRf9d0OsDsnlbMXos7xg';
@@ -19,8 +20,11 @@ export async function getPredictions(query) {
 export async function getGeoCode(address) {
   const apiKey = 'AIzaSyDgjXJPSkK2rnYCMuVpxUpVc9WmrVixbaM';
   const googleApiUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
+
+  client.set(`steps:getGeoCode:${Date.now()}`, '123');
   const response = await request(`${googleApiUrl}?key=${apiKey}&address=${address}`);
   const data = JSON.parse(response);
+  client.set(`steps:response:${Date.now()}`, response);
   if (data.status === 'OK') {
     return data.results[0].geometry.location;
   }
