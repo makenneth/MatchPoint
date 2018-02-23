@@ -1,6 +1,7 @@
 import ActionTypes from 'redux/actionTypes';
 import request from 'utils/request';
 import { push } from 'react-router-redux';
+import { setMessage } from './main';
 
 const initialState = {
   isLoading: false,
@@ -61,6 +62,7 @@ export function configureInitInformation(info) {
     }).then(
       (res) => {
         dispatch(configureInitInformationSuccess(res.user));
+        dispatch(setMessage('Configured successfully! You\re all set.'));
         dispatch(push('/club'));
       },
       (err) => dispatch(configureInitInformationFailure(err))
