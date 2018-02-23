@@ -100,8 +100,8 @@ export default {
   setInitInfo: async (req, res, next) => {
     const userId = req.user.id;
     const { info } = req.body;
-    let lat;
-    let lng;
+    let geolat;
+    let geolng;
     try {
       const result = await GoogleApi.getGeoCode(info.address.description);
       geolat = result.lat;
@@ -115,7 +115,7 @@ export default {
     }
     const [city, state, country] = parseLocation(info);
     Club.updateInformation(userId, {
-      ...info, lat, lng,
+      ...info, geolat, geolng,
       city, state, country,
       address: info.address.description,
     }).then(
@@ -143,7 +143,7 @@ export default {
         const result = await GoogleApi.getGeoCode(info.address.description);
         data.geolat = result.lat;
         data.geolng = result.lng;
-        if (!geolat || !geolng) {
+        if (!data.geolat || !data.geolng) {
           return next({ code: 400, message: 'Cannot get geocode of address.' });
         }
       } catch (e) {
