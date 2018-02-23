@@ -170,7 +170,7 @@ export default {
     );
   },
 
-  detail: (req, res, next) => {
+  detail: async (req, res, next) => {
     let id = req.user ? req.user.accountId : req.params.id;
     // client.get(`club:query:${id}`, async (err, reply) => {
       // console.log(err, reply);
