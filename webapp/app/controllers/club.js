@@ -173,22 +173,25 @@ export default {
   detail: (req, res, next) => {
     let id = req.user ? req.user.accountId : req.params.id;
     client.get(`club:query:${id}`, async (err, reply) => {
-      if (!reply || !err) {
+      console.log(err, reply);
+      if (!reply && !err) {
         try {
           const club = await Club.detail(id);
-          res.status(200).send({ club });
           const json = JSON.stringify(club);
           client.set(`club:query:${id}`, json);
+          res.status(200).send({ club });
         } catch (e) {
           next({ code: 500, message: e });
         }
-      } else {
+      } else if (reply) {
         try {
           const club = JSON.parse(reply);
           res.status(200).send({ club });
         } catch (e) {
           next({ code: 500, message: e });
         }
+      } else {
+        next({ code: 500, message: err });
       }
     });
   },
