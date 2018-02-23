@@ -1,5 +1,6 @@
 import ActionTypes from 'redux/actionTypes';
 import request from 'utils/request';
+import { push } from 'react-router-redux';
 
 const initialState = {
   isLoading: false,
@@ -58,7 +59,10 @@ export function configureInitInformation(info) {
       method: 'POST',
       body: JSON.stringify({ info }),
     }).then(
-      (res) => dispatch(configureInitInformationSuccess(res.info)),
+      (res) => {
+        dispatch(configureInitInformationSuccess(res.info));
+        dispatch(push('/club'));
+      },
       (err) => dispatch(configureInitInformationFailure(err))
     );
   };
