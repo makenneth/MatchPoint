@@ -42,14 +42,11 @@ const User = {
     const connection = await db.getConnection();
     const digest = await bcrypt.generatePasswordDigest(info.password);
     const userId = await new Promise((resolve, reject) => {
-      client.set(`steps:${Date.now()}:transaction begin`, '123');
       connection.beginTransaction((tError) => {
         if (tError) {
-          client.set(`steps:${Date.now()}:transaction error`, JSON.stringify(tError));
           connection.release();
           throw tError;
         }
-        client.set(`steps:${Date.now()}:query`, '123');
         connection.query(`
           INSERT INTO users (
             account_type, email, username,
@@ -70,6 +67,7 @@ const User = {
                 return reject({ clubName: 'Club name has been taken' });
               }
             } else {
+              // client.set(`steps:${Date.now()}:after query error`, JSON.stringify(err));
               throw err;
             }
           }

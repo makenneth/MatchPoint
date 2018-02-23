@@ -54,21 +54,17 @@ export default {
 
   create: async (req, res, next) => {
     const { user } = req.body;
-    client.set(`steps:${Date.now()}`, `at create ${JSON.stringify(user)}`);
+    // client.set(`steps:${Date.now()}`, `at create ${JSON.stringify(user)}`);
     try {
-      client.set(`steps:${Date.now()}`, 'at validate');
       const [isValid, error] = UserValidation.validate(user);
       if (!isValid) {
-        client.set(`error:validation:${Date.now()}`, JSON.stringify(error));
         console.log('validation', error);
         return next({ code: 422, message: error });
       }
       let userId;
       try {
-        client.set(`steps:${Date.now()}`, 'at create');
         userId = await User.create('club', user, req.cookies._d);
       } catch (err) {
-        client.set(`error:${Date.now()}`, JSON.stringify(error));
         console.log('after create', err);
         if (err.username || err.email) {
           return next({ code: 422, message: err });
@@ -77,7 +73,6 @@ export default {
         }
       }
       try {
-        client.set(`steps:${Date.now()}`, `at find by Id ${userId}`);
         const user = await User.findById(userId, req.cookies._d, false);
         console.log('created', user);
         new Mailer(user).sendConfirmationEmail();
