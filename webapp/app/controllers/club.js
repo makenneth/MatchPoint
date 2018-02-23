@@ -119,9 +119,9 @@ export default {
       city, state, country,
       address: info.address.description,
     }).then(
-      () => {
-        console.log('success');
-        res.status(200).send({ success: true });
+      async () => {
+        const user = await Club.detail(req.user.accountId);
+        res.status(200).send({ user });
       },
       (err) => {
         console.log(err);

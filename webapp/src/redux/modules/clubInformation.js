@@ -38,10 +38,10 @@ function configureInitInformationRequest() {
     type: ActionTypes.CONFIG_INIT_INFORMATION_REQUEST,
   };
 }
-function configureInitInformationSuccess(info) {
+function configureInitInformationSuccess(user) {
   return {
     type: ActionTypes.CONFIG_INIT_INFORMATION_SUCCESS,
-    payload: { info },
+    payload: { user },
   };
 }
 
@@ -60,7 +60,7 @@ export function configureInitInformation(info) {
       body: JSON.stringify({ info }),
     }).then(
       (res) => {
-        dispatch(configureInitInformationSuccess(res.info));
+        dispatch(configureInitInformationSuccess(res.user));
         dispatch(push('/club'));
       },
       (err) => dispatch(configureInitInformationFailure(err))
