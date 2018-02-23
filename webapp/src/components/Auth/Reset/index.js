@@ -5,7 +5,9 @@ import { resetPassword } from 'redux/modules/reset';
 import { setMessage } from 'redux/modules/main';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import MdArrowBack from 'react-icons/lib/md/arrow-back';
 import CircularProgress from 'material-ui/CircularProgress';
+
 
 @connect(({ reset }) => ({ reset }), { resetPassword, setMessage, push })
 export default class ForgotReset extends Component {
@@ -98,7 +100,10 @@ export default class ForgotReset extends Component {
 
     return (<div className="forms">
       <form onSubmit={this.handleSubmit}>
-        <h3>Reset Your Password</h3>
+        <h3>
+          <MdArrowBack className="back" onClick={() => this.props.setPage(0)} />
+          Reset Your Password
+        </h3>
         <div>
           <TextField
             type="password"

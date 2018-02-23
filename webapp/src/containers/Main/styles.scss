@@ -587,6 +587,12 @@ form {
   }
 }
 
+svg.back {
+  font-size: 30px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
 @keyframes modalOpen {
   0% {
     opacity: 0;

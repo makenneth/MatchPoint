@@ -35,7 +35,7 @@ class Club {
     return new Promise((resolve, reject) => {
       connection.query(`
         SELECT
-        id, club_name, phone, city, state, address, geolat, geolng, country
+        id, club_name, phone, city, state, address, geolat, geolng, country, confirmed
         FROM clubs
         WHERE id = ?
       `, [id], async (err, results, field) => {
