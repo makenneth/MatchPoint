@@ -178,7 +178,7 @@ export default {
         try {
           const club = await Club.detail(id);
           const json = JSON.stringify(club);
-          client.set(`club:query:${id}`, json);
+          // client.set(`club:query:${id}`, json);
           res.status(200).send({ club });
         } catch (e) {
           next({ code: 500, message: e });
@@ -193,7 +193,7 @@ export default {
       // } else {
       //   next({ code: 500, message: err });
       // }
-    });
+    // });
   },
 
   search: async (req, res, next) => {
