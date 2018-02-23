@@ -120,6 +120,7 @@ export default {
       address: info.address.description,
     }).then(
       async () => {
+        client.del(`club:query:${req.user.accountId}`);
         const user = await Club.detail(req.user.accountId);
         res.status(200).send({ user });
       },
@@ -160,6 +161,7 @@ export default {
     Club.updateInformation(userId, data).then(
       async () => {
         const user = await Club.detail(req.user.accountId);
+        client.del(`club:query:${req.user.accountId}`);
         res.status(200).send({ user });
       },
       (err) => {
@@ -170,17 +172,29 @@ export default {
 
   detail: async (req, res, next) => {
     let id = req.user ? req.user.accountId : req.params.id;
-    try {
-      const club = await Club.detail(id);
-      res.status(200).send({ club });
-    } catch (e) {
-      next({ code: 500, message: e });
-    }
+    client.get(`club:query:${id}`, (err, reply) => {
+      if (!reply || !err) {
+        try {
+          const club = await Club.detail(id);
+          res.status(200).send({ club });
+          const json = JSON.stringify(club);
+          client.set(`club:query:${id}`, json);
+        } catch (e) {
+          next({ code: 500, message: e });
+        }
+      } else {
+        try {
+          const club = JSON.parse(reply);
+          res.status(200).send({ club });
+        } catch (e) {
+          next({ code: 500, message: e });
+        }
+      }
+    });
   },
 
   search: async (req, res, next) => {
     const search = req.query.search;
-    console.log('search', search);
     try {
       const clubs = await Club.search(search);
       res.status(200).send({ clubs });

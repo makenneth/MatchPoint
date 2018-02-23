@@ -20,7 +20,7 @@ export default class ClubInfo extends Component {
   componentWillMount() {
     const clubId = this.props.params.id;
     const { clubs, isLoading } = this.props.clubDetailSearch;
-    if (!clubs[clubId] && !isLoading) {
+    if (!isLoading) {
       this.props.clubDetailQuery(clubId);
     }
   }
@@ -29,9 +29,7 @@ export default class ClubInfo extends Component {
     if (this.props.params.id !== nextProps.params.id) {
       const { clubs } = this.props.clubDetailSearch;
       const clubId = nextProps.params.id;
-      if (!clubs[clubId]) {
-        this.props.clubDetailQuery(clubId);
-      }
+      this.props.clubDetailQuery(clubId);
     }
   }
 
