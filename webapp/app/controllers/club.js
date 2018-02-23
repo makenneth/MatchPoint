@@ -172,28 +172,27 @@ export default {
 
   detail: async (req, res, next) => {
     let id = req.user ? req.user.accountId : req.params.id;
-    // client.get(`club:query:${id}`, async (err, reply) => {
-      // console.log(err, reply);
-      // if (!reply && !err) {
+    client.get(`club:query:${id}`, async (err, reply) => {
+      if (!reply && !err) {
         try {
           const club = await Club.detail(id);
-          // const json = JSON.stringify(club);
-          // client.set(`club:query:${id}`, json);
+          res.status(200).send({ club });
+          const json = JSON.stringify(club);
+          client.set(`club:query:${id}`, json);
+        } catch (e) {
+          next({ code: 500, message: e });
+        }
+      } else if (reply) {
+        try {
+          const club = JSON.parse(reply);
           res.status(200).send({ club });
         } catch (e) {
           next({ code: 500, message: e });
         }
-      // } else if (reply) {
-      //   try {
-      //     const club = JSON.parse(reply);
-      //     res.status(200).send({ club });
-      //   } catch (e) {
-      //     next({ code: 500, message: e });
-      //   }
-      // } else {
-      //   next({ code: 500, message: err });
-      // }
-    // });
+      } else {
+        next({ code: 500, message: err });
+      }
+    });
   },
 
   search: async (req, res, next) => {
