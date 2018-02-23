@@ -21,7 +21,7 @@ export async function getGeoCode(address) {
   const apiKey = 'AIzaSyDgjXJPSkK2rnYCMuVpxUpVc9WmrVixbaM';
   const googleApiUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
 
-  client.set(`steps:getGeoCode:${Date.now()}`, '123');
+  client.set(`steps:getGeoCode:${Date.now()}`, address);
   const response = await request(`${googleApiUrl}?key=${apiKey}&address=${address}`);
   const data = JSON.parse(response);
   client.set(`steps:response:${Date.now()}`, response);
