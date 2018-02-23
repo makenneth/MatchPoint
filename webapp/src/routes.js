@@ -7,7 +7,7 @@ import {
   PDFGenerator, InformationForm, ClubInfo,
 } from 'containers';
 import { Confirmation, Loading } from 'components';
-import { isAuthLoaded, loadAuth } from 'redux/modules/auth';
+import { loadAuth } from 'redux/modules/auth';
 import ErrorPage from './errorPage';
 
 export default ({ getState, dispatch }) => {

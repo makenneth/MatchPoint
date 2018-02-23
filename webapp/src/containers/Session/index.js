@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import { asyncConnect } from 'redux-async-connect-react16';
 import {
   fetchSession, isLoaded,
@@ -24,7 +25,7 @@ import EditSession from './EditSession';
 }])
 @connect(
   ({ selectedSession }) => ({ selectedSession }),
-  { deleteSession, postResult, updateScore, updateResult, startEditSavedSession }
+  { deleteSession, postResult, updateScore, updateResult, startEditSavedSession, push }
 )
 export default class RoundrobinSession extends React.PureComponent {
   render() {
@@ -40,6 +41,7 @@ export default class RoundrobinSession extends React.PureComponent {
     return (<EditSession
       id={this.props.params.id}
       session={session}
+      push={this.props.push}
       deleteSession={this.props.deleteSession}
       updateScore={this.props.updateScore}
       startEditSavedSession={this.props.startEditSavedSession}

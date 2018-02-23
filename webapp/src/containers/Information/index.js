@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
@@ -10,17 +10,17 @@ import { clearPredictions, addressAutoComplete } from 'redux/modules/autocomplet
 import { configureInitInformation } from 'redux/modules/clubInformation';
 
 @connect(
-  ({ clubInformation: { error, loading }, autocomplete }) =>
-    ({ error, loading, autocomplete }),
-  { clearPredictions, addressAutoComplete, configureInitInformation }
+  ({ clubInformation: { error, loading }, autocomplete, auth: { user } }) =>
+    ({ error, loading, autocomplete, user }),
+  { clearPredictions, addressAutoComplete, configureInitInformation, push }
 )
 export default class InformationForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      clubName: '',
-      address: '',
-      phone: '',
+      clubName: props.user.clubName || '',
+      address: props.user.address || '',
+      phone: props.user.phone || '',
       predictionUsed: null,
       addressFocused: false,
       errors: {},
@@ -45,7 +45,7 @@ export default class InformationForm extends Component {
 
   componentDidUpdate(prevProps) {
     if (!this.props.error && !this.props.isLoading && prevProps.isLoading) {
-      browserHistory.push('/club');
+      this.props.push('/club');
     }
   }
 

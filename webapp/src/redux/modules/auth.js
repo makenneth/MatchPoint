@@ -1,5 +1,5 @@
 import request from 'utils/request';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router-redux';
 import { setPage, SET_PAGE } from 'redux/modules/splash';
 import ActionTypes from 'redux/actionTypes';
 import { startLoad, stopLoad } from 'redux/modules/main';
@@ -158,7 +158,7 @@ export function logIn(user) {
     }).then(
       (res) => {
         dispatch(logInSuccess(res.user));
-        browserHistory.push('/club');
+        dispatch(push('/club'));
       },
       err => dispatch(logInFailure(err))
     );
@@ -195,7 +195,7 @@ export function signUp(user) {
       (res) => {
         dispatch(setPage(0));
         dispatch(signUpSuccess(res.user));
-        browserHistory.push('/club/info');
+        dispatch(push('/club/info'));
       },
       err => dispatch(signUpFailure(err))
     );
@@ -229,7 +229,7 @@ export function logOut() {
     }).then(
       () => {
         dispatch(logOutSuccess());
-        browserHistory.push('/');
+        dispatch(push('/'));
       },
       err => dispatch(logOutFailure(err))
     );

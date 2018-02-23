@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router-redux';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import { connect } from 'react-redux';
@@ -12,7 +12,7 @@ import './styles.scss';
 
 @connect(
   ({ auth: { user, loading }, navbar }) => ({ user, navbar, loading }),
-  { openLogin, logIn, logOut, open, close, setTab, preSetTab, setPage }
+  { openLogin, logIn, logOut, open, close, setTab, preSetTab, setPage, push }
 )
 export default class Navbar extends Component {
   state = {
@@ -54,9 +54,7 @@ export default class Navbar extends Component {
   }
 
   handleLogout = () => {
-    this.props.logOut().then(() => {
-      browserHistory.push('/');
-    });
+    this.props.logOut();
   }
 
   handleLink(link, tab) {
@@ -65,11 +63,11 @@ export default class Navbar extends Component {
     }
 
     this.props.setTab(tab);
-    browserHistory.push(link);
+    this.props.push(link);
   }
 
   openLogin = () => {
-    browserHistory.push('/');
+    this.props.push('/');
     this.props.openLogin();
   }
 

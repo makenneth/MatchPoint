@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { asyncConnect } from 'redux-async-connect-react16';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { List, ListItem } from 'material-ui/List';
 import { fetchUserRRSessions } from 'redux/modules/sessions';
@@ -26,10 +26,10 @@ import moment from 'moment';
     return promise;
   },
 }])
-@connect(({ sessions }) => ({ sessions: sessions.sessions }), { setSession })
+@connect(({ sessions }) => ({ sessions: sessions.sessions }), { setSession, push })
 export default class RoundRobinSessions extends Component {
   handleClick = (shortid) => {
-    browserHistory.push(`/club/sessions/${shortid}`);
+    this.props.push(`/club/sessions/${shortid}`);
   }
   render() {
     const finalized = [];

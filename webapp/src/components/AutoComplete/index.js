@@ -17,7 +17,7 @@ export default class AutoComplete extends React.PureComponent {
       floatingLabelFocusStyle = {},
       customInput,
       customListItem,
-      isLoading,
+      // isLoading,
     } = this.props;
 
     return (

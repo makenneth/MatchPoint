@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import { browserHistory } from 'react-router';
 import CircularProgress from 'material-ui/CircularProgress';
 import MdInfoOutline from 'react-icons/lib/md/info-outline';
 
@@ -30,7 +29,7 @@ export default class PasswordChange extends Component {
           errors: {},
         });
         if (!success.verified && this.props.user.verified) {
-          browserHistory.push('/club/confirm');
+          this.props.push('/club/confirm');
         }
       } else {
         if (

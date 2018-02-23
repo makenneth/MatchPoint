@@ -25,24 +25,7 @@ export default class Query extends Component {
 
   render() {
     return (<div className={`result-query-container${this.props.loading ? ' loading' : ''}`}>
-{/*      <Tabs
-        value={this.state.tab}
-        onChange={this.handleTabChange}
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        tabItemContainerStyle={{ backgroundColor: 'white' }}
-        contentContainerStyle={{
-          padding: '20px',
-          height: '100%',
-        }}
-      >
-        <Tab label="Club" value={0} className="tab-menu-tab">*/}
       <ClubQuery />
-{/*        </Tab>
-      </Tabs>*/}
     </div>);
   }
 }

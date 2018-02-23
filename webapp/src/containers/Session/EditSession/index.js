@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { RecordTableContainer } from 'containers';
@@ -43,11 +42,12 @@ export default class EditSession extends Component {
   }
   handleDelete = () => {
     this.props.deleteSession(this.props.id);
-    browserHistory.push('/club/sessions');
   }
+
   handleBack = () => {
-    browserHistory.push('/club/sessions');
+    this.props.push('/club/sessions');
   }
+
   handleEdit = () => {
     if (this.props.session.date && !this.props.session.finalized) {
       this.setState({ editModalOpen: true });

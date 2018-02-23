@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { setPage } from 'redux/modules/splash';
 import { setToken } from 'redux/modules/reset';
+import { push } from 'react-router-redux';
 import {
   LogInForm, SignUpForm, ForgotForm,
   ResetForm, Activated,
@@ -27,7 +28,7 @@ import './styles.scss';
     return null;
   },
 }])
-@connect(({ splash: { page } }) => ({ page }), { setPage })
+@connect(({ splash: { page } }) => ({ page }), { setPage, push })
 class Splash extends Component {
   componentWillUnmount() {
     this.props.setPage(0);
@@ -36,23 +37,25 @@ class Splash extends Component {
     const content = (() => {
       switch (this.props.page) {
         case 1:
-          return <LogInForm setPage={this.props.setPage} />;
+          return <LogInForm setPage={this.props.setPage} push={this.props.push} />;
         case 2:
-          return <SignUpForm setPage={this.props.setPage} />;
+          return <SignUpForm setPage={this.props.setPage} push={this.props.push} />;
         case 3:
-          return <ForgotForm setPage={this.props.setPage} />;
+          return <ForgotForm setPage={this.props.setPage} push={this.props.push} />;
         case 4:
-          return <ResetForm setPage={this.props.setPage} />;
+          return <ResetForm setPage={this.props.setPage} push={this.props.push} />;
         case 5:
           return (<Activated
             setPage={this.props.setPage}
             message="Your account has been activated successfully."
+            push={this.props.push}
           />);
         case 6:
           return (<Activated
             setPage={this.props.setPage}
             homepage={Boolean(true)}
             message="The token has expired or your account has already been activated."
+            push={this.props.push}
           />);
         default:
           return (<div className="banner-text">

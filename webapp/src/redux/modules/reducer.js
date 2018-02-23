@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { reducer as reduxAsyncConnect } from 'redux-async-connect-react16';
+import { routerReducer } from 'react-router-redux';
 import auth from './auth';
 import main from './main';
 import navbar from './navbar';
@@ -48,4 +49,5 @@ export default combineReducers({
   clubInformation,
   passwordChange,
   infoChange,
+  routing: routerReducer,
 });

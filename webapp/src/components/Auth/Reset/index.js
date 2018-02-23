@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router-redux';
 import { resetPassword } from 'redux/modules/reset';
 import { setMessage } from 'redux/modules/main';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
 
-@connect(({ reset }) => ({ reset }), { resetPassword, setMessage })
+@connect(({ reset }) => ({ reset }), { resetPassword, setMessage, push })
 export default class ForgotReset extends Component {
   constructor(props) {
     super(props);
@@ -19,7 +19,7 @@ export default class ForgotReset extends Component {
   }
 
   componentDidMount() {
-    browserHistory.push('/reset');
+    this.props.push('/reset');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -27,9 +27,9 @@ export default class ForgotReset extends Component {
       !nextProps.reset.isLoading
     ) {
       this.timeout = setTimeout(() => {
-        browserHistory.push('/');
+        this.props.push('/');
         this.props.setPage(1);
-      }, 5000);
+      }, 4000);
     }
   }
 
@@ -88,7 +88,7 @@ export default class ForgotReset extends Component {
             labelColor="#FFFFFF"
             onClick={() => {
               clearTimeout(this.timeout);
-              browserHistory.push('/');
+              this.props.push('/');
               this.props.setPage(1);
             }}
           />

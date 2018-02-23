@@ -1,7 +1,7 @@
 import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
 import { startLoad, stopLoad, setMessage } from 'redux/modules/main';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router-redux';
 
 const initialState = {
   loading: false,
@@ -111,7 +111,7 @@ export function postResult(id, date, results) {
     }).then(
       () => {
         dispatch(stopLoad());
-        browserHistory.push('/club/sessions');
+        dispatch(push('/club/sessions'));
         dispatch(postResultSuccess(id));
       },
       err => {
@@ -235,6 +235,7 @@ export function deleteSession(id) {
       () => {
         dispatch(stopLoad());
         dispatch(deleteSessionSuccess(id));
+        dispatch(push('/club/sessions'));
       },
       err => {
         dispatch(stopLoad());

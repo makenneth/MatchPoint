@@ -1,6 +1,6 @@
 import request from 'utils/request';
 import ActionTypes from 'redux/actionTypes';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router-redux';
 import { Heap } from 'helpers';
 import { startLoad, stopLoad } from 'redux/modules/main';
 import { preSetTab } from 'redux/modules/navbar';
@@ -275,7 +275,7 @@ export function createSession(data) {
     }).then(
       (res) => {
         dispatch(preSetTab('/club/sessions'));
-        browserHistory.push('/club/sessions');
+        dispatch(push('/club/sessions'));
         dispatch(stopLoad());
         dispatch(createSessionSuccess(res.roundrobin));
       },

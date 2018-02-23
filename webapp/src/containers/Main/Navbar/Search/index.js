@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
+import { push } from 'react-router-redux';
 import CircularProgress from 'material-ui/CircularProgress';
 import SearchIcon from 'react-icons/lib/md/search';
 import { connect } from 'react-redux';
 import { searchClubs } from 'redux/modules/clubSearch';
 import { AutoComplete } from 'components';
 
-@connect(({ clubSearch }) => ({ clubSearch }), { searchClubs })
+@connect(({ clubSearch }) => ({ clubSearch }), { searchClubs, push })
 export default class Search extends Component {
   state = {
     searchValue: '',
@@ -27,7 +27,7 @@ export default class Search extends Component {
 
   handleClubSelect = (club) => {
     this.setState({ inputFocused: false, searchValue: club.clubName });
-    browserHistory.push(`/clubs/${club.id}`);
+    this.props.push(`/clubs/${club.id}`);
   }
 
   focus = () => {
