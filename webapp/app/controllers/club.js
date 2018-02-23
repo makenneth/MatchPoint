@@ -107,7 +107,7 @@ export default {
       geolat = result.lat;
       geolng = result.lng;
       if (!geolat || !geolng) {
-        return next({ code: 400, message: 'Cannot get geocode of address.' });
+        return next({ code: 422, message: { address: 'Cannot get geocode of address.' } });
       }
     } catch (e) {
       console.log(e);
@@ -125,7 +125,7 @@ export default {
       },
       (err) => {
         console.log(err);
-        next({ code: 400, message: err });
+        next({ code: err.clubName ? 422 : 500, message: err });
       }
     );
   },
@@ -144,7 +144,7 @@ export default {
         data.geolat = result.lat;
         data.geolng = result.lng;
         if (!data.geolat || !data.geolng) {
-          return next({ code: 400, message: 'Cannot get geocode of address.' });
+          return next({ code: 400, message: { address: 'Cannot get geocode of address.' } });
         }
       } catch (e) {
         console.log(e);
@@ -163,8 +163,7 @@ export default {
         res.status(200).send({ user });
       },
       (err) => {
-        console.log(err);
-        next({ code: 400, message: err });
+        next({ code: err.clubName ? 422 : 500, message: err });
       }
     );
   },
