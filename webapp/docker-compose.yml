@@ -21,3 +21,5 @@ services:
       - WEBSOCKET_SERVER=${WEBSOCKET_SERVER}
       - EMAIL_USER=matchpoints.noreply@gmail.com
       - EMAIL_PASS=Lalala4321.
+      - GOOGLE_SEARCH_API_KEY=${GOOGLE_SEARCH_API_KEY}
+      - GEOCODE_API_KEY=${GEOCODE_API_KEY}
