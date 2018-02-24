@@ -82,11 +82,19 @@ export default (state = initialState, action) => {
       };
 
     // case ActionTypes.CHANGE_INFO_SUCCESS:
-    case ActionTypes.CONFIG_INIT_INFORMATION_SUCCESS:
     case ActionTypes.CHANGE_PASSWORD_SUCCESS:
       return {
         ...state,
         user: action.payload.user,
+      };
+
+    case ActionTypes.CONFIG_INIT_INFORMATION_SUCCESS:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          clubName: action.club.clubName,
+        },
       };
 
     default:

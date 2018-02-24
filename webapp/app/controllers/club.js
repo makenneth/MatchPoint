@@ -124,8 +124,8 @@ export default {
     }).then(
       async () => {
         client.del(`club:query:${req.user.accountId}`);
-        const user = await Club.detail(req.user.accountId);
-        res.status(200).send({ user });
+        const club = await Club.detail(req.user.accountId);
+        res.status(200).send({ club });
       },
       (err) => {
         console.log(err);
