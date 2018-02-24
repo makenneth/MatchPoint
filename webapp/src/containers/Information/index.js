@@ -10,8 +10,8 @@ import { clearPredictions, addressAutoComplete } from 'redux/modules/autocomplet
 import { configureInitInformation } from 'redux/modules/clubInformation';
 
 @connect(
-  ({ clubInformation: { error, loading }, autocomplete, auth: { user } }) =>
-    ({ error, loading, autocomplete, user }),
+  ({ clubInformation: { error, isLoading }, autocomplete, auth: { user } }) =>
+    ({ error, isLoading, autocomplete, user }),
   { clearPredictions, addressAutoComplete, configureInitInformation, push }
 )
 export default class InformationForm extends Component {
@@ -40,12 +40,6 @@ export default class InformationForm extends Component {
           },
         });
       }
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (!this.props.error && !this.props.isLoading && prevProps.isLoading) {
-      this.props.push('/club');
     }
   }
 
@@ -154,7 +148,7 @@ export default class InformationForm extends Component {
           addressFocused={addressFocused}
           predictions={predictions}
         />
-        {!this.props.loading && <div className="button-div">
+        {!this.props.isLoading && <div className="button-div">
           <RaisedButton
             label="Save"
             backgroundColor="#1565C0"
@@ -163,7 +157,7 @@ export default class InformationForm extends Component {
             onClick={this.handleSubmit}
           />
         </div>}
-        {this.props.loading && <CircularProgress
+        {this.props.isLoading && <CircularProgress
           size={25}
           color="#aaa"
           style={{ marginTop: '10px' }}

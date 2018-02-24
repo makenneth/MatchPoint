@@ -93,7 +93,7 @@ export default (state = initialState, action) => {
         ...state,
         user: {
           ...state.user,
-          clubName: action.club.clubName,
+          clubName: action.payload.club.clubName,
         },
       };
 
