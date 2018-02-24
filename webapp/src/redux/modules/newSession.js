@@ -200,7 +200,7 @@ export default (state = initialState, action) => {
     case ActionTypes.FETCH_PROMOTED_PLAYERS_SUCCESS: {
       const promoted = {};
       action.payload.promoted.forEach(player => {
-        promoted[player.id] = !!player.promoted;
+        promoted[player.id] = true;
       });
       return {
         ...state,
