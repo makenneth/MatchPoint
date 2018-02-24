@@ -38,6 +38,11 @@ export default function Players(state = initialState, action) {
         error: action.payload.error,
       };
 
+    case ActionTypes.LOG_OUT_SUCCESS:
+      return {
+        initialState,
+      };
+
     default:
       return state;
   }

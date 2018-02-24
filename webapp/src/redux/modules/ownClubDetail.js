@@ -11,6 +11,9 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case ActionTypes.LOG_OUT_SUCCESS:
+      return initialState;
+
     case ActionTypes.FETCH_CLUB_DETAIL_REQUEST:
       return {
         ...state,

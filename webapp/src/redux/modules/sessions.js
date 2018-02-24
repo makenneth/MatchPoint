@@ -13,6 +13,7 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case ActionTypes.LOG_OUT_SUCCESS:
       return initialState;
+
     case ActionTypes.LOAD_SESSIONS_SUCCESS: {
       return {
         ...state,

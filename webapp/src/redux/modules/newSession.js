@@ -36,6 +36,16 @@ export default (state = initialState, action) => {
     //     allPlayers: action.payload,
     //   };
     // }
+
+    case ActionTypes.POST_SESSION_SUCCESS:
+    case ActionTypes.UPDATE_SESSION_SUCCESS:
+    case ActionTypes.CREATE_SESSION_SUCCESS:
+    case ActionTypes.DELETE_SESSION_SUCCESS:
+      return {
+        ...state,
+        loaded: false,
+      };
+
     case ActionTypes.START_EDIT_SAVED_SESSION: {
       const { session } = action.payload;
       const addedPlayers = session.players.reduce(
