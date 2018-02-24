@@ -39,7 +39,6 @@ export default (state = initialState, action) => {
 
     case ActionTypes.POST_SESSION_SUCCESS:
     case ActionTypes.UPDATE_SESSION_SUCCESS:
-    case ActionTypes.CREATE_SESSION_SUCCESS:
     case ActionTypes.DELETE_SESSION_SUCCESS:
       return {
         ...state,
