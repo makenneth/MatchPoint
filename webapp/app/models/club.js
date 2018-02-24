@@ -248,7 +248,7 @@ class Club {
 
   static async createInitial(userId, conn) {
     let connection = conn;
-    if (conn) {
+    if (!conn) {
       connection = await db.getConnection();
     }
     return new Promise((resolve, reject) => {
@@ -257,6 +257,7 @@ class Club {
       `, [userId], (err, results, field) => {
           if (!conn) connection.release();
           if (err) {
+            console.log('create initial error', err);
             if (conn) {
               connection.rollback();
               connection.release();

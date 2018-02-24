@@ -65,7 +65,6 @@ export default {
       try {
         userId = await User.create('club', user, req.cookies._d);
       } catch (err) {
-        console.log('after create', err);
         if (err.username || err.email) {
           return next({ code: 422, message: err });
         } else {

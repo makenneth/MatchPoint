@@ -38,7 +38,6 @@ function format(row, secure = true) {
 }
 const User = {
   create: async function(type, info, deviceId) {
-    console.log('+ create user', deviceId);
     const connection = await db.getConnection();
     const digest = await bcrypt.generatePasswordDigest(info.password);
     const userId = await new Promise((resolve, reject) => {
@@ -56,8 +55,9 @@ const User = {
           type, info.email, info.username,
           shortid(), digest, Token.generateToken()
         ], (err, results, fields) => {
-          connection.release();
           if (err) {
+            connection.rollback();
+            connection.release();
             if (err.code === 'ER_DUP_ENTRY') {
               if (err.sqlMessage.match(/email/)) {
                 return reject({ email: 'Email has been taken' });
@@ -67,6 +67,7 @@ const User = {
                 return reject({ clubName: 'Club name has been taken' });
               }
             } else {
+              console.log('after query error');
               // client.set(`steps:${Date.now()}:after query error`, JSON.stringify(err));
               throw err;
             }
@@ -75,7 +76,6 @@ const User = {
         });
       });
     });
-
     if (type === 'club') {
       const clubId = await Club.createInitial(userId, connection);
     }
@@ -150,7 +150,7 @@ const User = {
     console.log('+ findUserById', id, deviceId, secure);
     return new Promise((resolve, reject) => {
       connection.query(`
-        SELECT u.*, COALESCE(c.id, p.id) AS account_id
+        SELECT u.*, COALESCE(c.id, p.id) AS account_id, session_token
         FROM users AS u
         LEFT JOIN clubs AS c
         ON u.account_type = 'club' AND u.id = c.user_id
@@ -164,7 +164,7 @@ const User = {
         INNER JOIN user_devices AS ud
         ON ud.user_id = u.id
         INNER JOIN session_tokens AS st
-        ON st.device_id = ud.device_id
+        ON st.device_id = ud.device_id AND st.user_id = ud.user_id
         WHERE u.id = ? AND ud.device_id = ?;
       `, [id, deviceId], (err, results, fields) => {
         connection.release();

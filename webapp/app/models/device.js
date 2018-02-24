@@ -42,7 +42,11 @@ function Device() {
         `, [deviceId, userId], (err, results, fields) => {
           if (!conn) connection.release();
           if (err) {
-            if (conn) connection.rollback();
+            console.log('add device', err)
+            if (conn) {
+              connection.rollback();
+              connection.release();
+            }
             throw err;
           }
           resolve(true);
