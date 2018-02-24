@@ -52,6 +52,7 @@ export default (function() {
 
     getHour: async function(clubId, hourId) {
       const connection = await db.getConnection();
+      console.log('getHour', clubId, hourId);
       return new Promise((resolve, reject) => {
         connection.query(`
           SELECT h.*
@@ -60,8 +61,8 @@ export default (function() {
           ON h.id = ch.hour_id
           WHERE ch.club_id = ? AND h.id = ?;
         `, [clubId, hourId], async (err, results, field) => {
+          connection.release();
           if (err) {
-            connection.release();
             throw(err);
           }
           if (results.length > 0) {
@@ -102,7 +103,7 @@ export default (function() {
         });
       });
 
-      const insertToJoin = new Promise((resolve) => {
+      return new Promise((resolve) => {
         connection.query(`
           INSERT INTO club_hours
           (club_id, hour_id)
@@ -117,11 +118,9 @@ export default (function() {
           }
           connection.commit();
           connection.release();
-          resolve(true);
+          return resolve(hourId);
         });
       });
-
-      return Promise.resolve(hourId);
     },
 
     updateHour: async function(clubId, hourId, hour) {

@@ -55,6 +55,7 @@ export default {
       .then(async (id) => {
         try {
           const hour = await Hour.getHour(clubId, id);
+          client.del(`club:query:${clubId}`);
           res.status(200).send({ hour });
         } catch (e) {
           next({ code: 500, message: err });
@@ -70,6 +71,7 @@ export default {
     const { hours } = req.body;
     Hour.updateHour(clubId, hourId, hours)
       .then(() => {
+        client.del(`club:query:${clubId}`);
         res.status(200).send({ success: true });
       }).catch((err) => {
         next({ code: err.hours ? 400 : 500, message: err });
@@ -81,6 +83,7 @@ export default {
     const hourId = req.params.hourId;
     Hour.deleteHour(clubId, hourId)
       .then(() => {
+        client.del(`club:query:${clubId}`);
         res.status(200).send({ id: hourId });
       }).catch((err) => {
         next({ code: err.hours ? 400 : 500, message: err });
