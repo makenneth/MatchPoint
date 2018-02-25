@@ -4,6 +4,6 @@ import Notes from '../controllers/note';
 
 const router = express.Router();
 
-router.post("/", jsonParser, csrfProtection, Notes.update);
+router.patch("/", jsonParser, csrfProtection, Notes.update);
 
 export default router;

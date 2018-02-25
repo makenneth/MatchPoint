@@ -58,10 +58,7 @@ app.use("/api/my", (req, res, next) => {
       (err) => {
         res.status(403).send(err);
       }
-    ).catch((err) => {
-      console.warn(err);
-      res.status(500).send(err);
-    });
+    );
 });
 app.use("/api/my", Routes.currentUser);
 app.use("/api/my", Routes.player);
@@ -82,9 +79,7 @@ app.use("/m/api/my", (req, res, next) => {
       (err) => {
         res.status(403).send(err);
       }
-    ).catch((err) => {
-      res.status(500).send(err);
-    });
+    );
 });
 app.use("/m/api", Routes.mobile);
 app.use("/api/*", (req, res) => {

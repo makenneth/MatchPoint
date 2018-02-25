@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { get } from 'lodash';
 import HoursTable from './HoursTable';
 import InfoForm from './InfoForm';
 import ClubNotes from './ClubNotes';
@@ -8,12 +7,12 @@ import './styles.scss';
 export default class OperationInfo extends Component {
   render() {
     const { operationHours, roundrobinHours, isLoading } = this.props.hoursState;
-
+    console.log(this.props.user);
     return (<div className="contact-info-container">
       <InfoForm
         infoChange={this.props.infoChange}
         autocomplete={this.props.autocomplete}
-        user={this.props.ownClubDetail}
+        user={this.props.user}
         submitChange={this.props.changeInfo}
         setMessage={this.props.setMessage}
         addressAutoComplete={this.props.addressAutoComplete}
@@ -21,7 +20,8 @@ export default class OperationInfo extends Component {
       />
       <ClubNotes
         clubNotes={this.props.clubNotes}
-        note={get(this.props, ['ownClubDetail', 'notes'], [])}
+        setMessage={this.props.setMessage}
+        notes={this.props.user.notes}
         handleSubmit={this.props.updateClubNote}
       />
       <HoursTable

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import TextField from 'material-ui/TextField';
 import CircularProgress from 'material-ui/CircularProgress';
 import Edit from 'react-icons/lib/md/edit';
 import Save from 'react-icons/lib/md/check';
@@ -36,6 +35,7 @@ export default class ClubNote extends Component {
     event.preventDefault();
 
     if (this.validate()) {
+      console.log(this.props.type, this.state.note);
       this.props.handleSubmit(this.props.type, this.state.note);
     }
   }
@@ -80,7 +80,7 @@ export default class ClubNote extends Component {
               onClick={this.toggleEdit}
             />}
             {!isEditing && this.props.note && <Edit
-              style={{ color: '#66BB6A', cursor: 'pointer' }}
+              style={{ color: '#555', cursor: 'pointer' }}
               onClick={this.toggleEdit}
             />}
             {!isEditing && !this.props.note && <Plus

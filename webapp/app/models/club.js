@@ -21,11 +21,17 @@ class Club {
       'email','updated_at', 'created_on', 'phone',
       'city', 'state', 'address', 'geolat', 'geolng', 'country',
     ];
-    const club = {};
+    const club = {
+      notes: {},
+    };
     fields.forEach(field => {
       if (row[field]) {
         club[camelCase(field)] = row[field];
       }
+    });
+
+    ['direction_note', 'roundrobin_note', 'operation_note'].forEach((field) => {
+      club.notes[field.split('_')[0]] = row[field];
     });
 
     return club;
@@ -36,7 +42,9 @@ class Club {
     return new Promise((resolve, reject) => {
       connection.query(`
         SELECT
-        id, club_name, phone, city, state, address, geolat, geolng, country
+        id, club_name, phone, city, state,
+        address, geolat, geolng, country,
+        direction_note, roundrobin_note, operation_note
         FROM clubs
         WHERE id = ?
       `, [id], async (err, results, field) => {

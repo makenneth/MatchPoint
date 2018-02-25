@@ -48,18 +48,24 @@ export default class OperationInfo extends Component {
         error={errors.direction}
         type="direction"
         note={notes.direction}
+        handleSubmit={this.props.handleSubmit}
+        setMessage={this.props.setMessage}
       />
       <ClubNote
         isLoading={isLoading.roundrobin}
         error={errors.roundrobin}
         type="roundrobin"
         note={notes.roundrobin}
+        handleSubmit={this.props.handleSubmit}
+        setMessage={this.props.setMessage}
       />
       <ClubNote
         isLoading={isLoading.operation}
         error={errors.operation}
         type="operation"
         note={notes.operation}
+        handleSubmit={this.props.handleSubmit}
+        setMessage={this.props.setMessage}
       />
     </div>);
   }

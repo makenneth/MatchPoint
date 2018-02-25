@@ -87,6 +87,17 @@ export default (state = initialState, action) => {
       };
     }
 
+    case ActionTypes.UPDATE_CLUB_NOTE_SUCCESS: {
+      const { type, note } = action.payload.note;
+      return {
+        ...state,
+        notes: {
+          ...(state.notes || {}),
+          [type]: note,
+        },
+      };
+    }
+
     default:
       return state;
   }

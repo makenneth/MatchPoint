@@ -15,7 +15,8 @@ export default function ClubNotes(state = initialState, action) {
         isLoading: {
           ...state.isLoading,
           [action.payload.type]: true,
-        }
+        },
+        errors: {},
       };
 
     case ActionTypes.UPDATE_CLUB_NOTE_SUCCESS:
@@ -24,7 +25,7 @@ export default function ClubNotes(state = initialState, action) {
         isLoading: {
           ...state.isLoading,
           [action.payload.type]: false,
-        }
+        },
       };
 
     case ActionTypes.UPDATE_CLUB_NOTE_FAILURE: {
@@ -33,14 +34,15 @@ export default function ClubNotes(state = initialState, action) {
         ...state,
         isLoading: {
           ...state.isLoading,
-          [type]: true,
-        }
+          [type]: false,
+        },
         errors: {
           ...state.errors,
           [type]: error,
-        }
+        },
       };
     }
+
     default:
       return state;
   }
@@ -70,7 +72,7 @@ export function updateClubNote(type, note) {
   return (dispatch) => {
     dispatch(updateClubNoteRequest(type));
     return request('/api/my/notes', {
-      method: 'POST',
+      method: 'PATCH',
       body: JSON.stringify({ type, note }),
     }).then(
       (res) => {
