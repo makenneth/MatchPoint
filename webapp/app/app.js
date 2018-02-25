@@ -65,6 +65,7 @@ app.use("/api/my", (req, res, next) => {
 });
 app.use("/api/my", Routes.currentUser);
 app.use("/api/my", Routes.player);
+app.use("/api/my/notes", Routes.note);
 app.use("/m/api", (req, res, next) => {
   if (req.query.api_key === 'vWYg8aJHhX4aqZmtpjIxF9RYBMV79y1k') {
     return next();

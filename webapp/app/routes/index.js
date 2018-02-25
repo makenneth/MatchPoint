@@ -6,3 +6,4 @@ export upload from "./upload";
 export currentUser from "./currentUser";
 export mobile from "./mobile";
 export user from "./user";
+export note from "./note";

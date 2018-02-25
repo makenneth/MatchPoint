@@ -17,6 +17,7 @@ class Club {
   static format(row) {
     const fields = [
       'id', 'short_id', 'club_name',
+      'address_note', 'roundrobin_note', 'operation_note',
       'email','updated_at', 'created_on', 'phone',
       'city', 'state', 'address', 'geolat', 'geolng', 'country',
     ];

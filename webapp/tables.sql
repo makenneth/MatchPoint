@@ -63,6 +63,9 @@ CREATE TABLE clubs (
   address TEXT,
   geolat decimal(10, 6),
   geolng decimal(10, 6),
+  address_note TEXT,
+  roundrobin_note TEXT,
+  operation_note TEXT,
   PRIMARY KEY (id),
   FOREIGN KEY (user_id)
     REFERENCES users (id)
