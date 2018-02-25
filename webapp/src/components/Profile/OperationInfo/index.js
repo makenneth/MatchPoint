@@ -20,6 +20,7 @@ export default class OperationInfo extends Component {
         clearPredictions={this.props.clearPredictions}
       />
       <ClubNotes
+        clubNotes={this.props.clubNotes}
         note={get(this.props, ['ownClubDetail', 'notes'], [])}
         handleSubmit={this.props.updateClubNote}
       />

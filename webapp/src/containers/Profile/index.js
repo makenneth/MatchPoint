@@ -9,12 +9,19 @@ import { addressAutoComplete, clearPredictions } from 'redux/modules/autocomplet
 import { setMessage } from 'redux/modules/main';
 import { enableTutorial, disableTutorial, isTutorialEnabled } from 'redux/modules/tutorial';
 import { updateClubHour, addClubHour, deleteClubHour } from 'redux/modules/hour';
+import { updateClubNote } from 'redux/modules/clubNotes';
 import { fetchClubDetail } from 'redux/modules/ownClubDetail';
 import './styles.scss';
 
 @connect(
-  ({ auth: { user }, autocomplete, passwordChange, infoChange, ownClubDetail, hour }) =>
-    ({ user, autocomplete, passwordChange, infoChange, ownClubDetail, hour }),
+  ({
+    auth: { user }, autocomplete, passwordChange,
+    infoChange, ownClubDetail, hour, clubNotes
+  }) =>
+    ({
+      user, autocomplete, passwordChange,
+      infoChange, ownClubDetail, hour, clubNotes,
+    }),
   {
     changePassword,
     changeInfo,
@@ -27,6 +34,7 @@ import './styles.scss';
     addClubHour,
     deleteClubHour,
     fetchClubDetail,
+    updateClubNote,
   }
 )
 export default class Profile extends Component {
@@ -89,6 +97,8 @@ export default class Profile extends Component {
         </CardText>}
         {this.state.tab === 1 && <CardText style={{ overflowY: 'auto' }}>
           <OperationInfo
+            clubNotes={this.props.clubNotes}
+            updateClubNote={this.props.updateClubNote}
             infoChange={this.props.infoChange}
             autocomplete={this.props.autocomplete}
             user={this.props.ownClubDetail}

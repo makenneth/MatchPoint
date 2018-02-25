@@ -3,8 +3,8 @@ import request from 'utils/request';
 import { setMessage } from './main';
 
 const initialState = {
-  isLoading: false,
-  err: null,
+  isLoading: {},
+  errors: {},
 };
 
 export default function ClubNotes(state = initialState, action) {
@@ -12,58 +12,72 @@ export default function ClubNotes(state = initialState, action) {
     case ActionTypes.UPDATE_CLUB_NOTE_REQUEST:
       return {
         ...state,
-        isLoading: true,
+        isLoading: {
+          ...state.isLoading,
+          [action.payload.type]: true,
+        }
       };
 
     case ActionTypes.UPDATE_CLUB_NOTE_SUCCESS:
       return {
         ...state,
-        isLoading: false,
+        isLoading: {
+          ...state.isLoading,
+          [action.payload.type]: false,
+        }
       };
 
-    case ActionTypes.UPDATE_CLUB_NOTE_FAILURE:
+    case ActionTypes.UPDATE_CLUB_NOTE_FAILURE: {
+      const { type, error } = action.payload;
       return {
         ...state,
-        isLoading: false,
-        err: action.payload.error,
+        isLoading: {
+          ...state.isLoading,
+          [type]: true,
+        }
+        errors: {
+          ...state.errors,
+          [type]: error,
+        }
       };
-
+    }
     default:
       return state;
   }
 }
 
-function updateClubNoteRequest() {
+function updateClubNoteRequest(type) {
   return {
     type: ActionTypes.UPDATE_CLUB_NOTE_REQUEST,
+    payload: { type },
   };
 }
-function updateClubNoteSuccess(note) {
+function updateClubNoteSuccess(type, note) {
   return {
     type: ActionTypes.UPDATE_CLUB_NOTE_SUCCESS,
-    payload: { note },
+    payload: { type, note },
   };
 }
 
-function updateClubNoteFailure(error) {
+function updateClubNoteFailure(type, error) {
   return {
     type: ActionTypes.UPDATE_CLUB_NOTE_FAILURE,
-    payload: { error },
+    payload: { type, error },
   };
 }
 
 export function updateClubNote(type, note) {
   return (dispatch) => {
-    dispatch(updateClubNoteRequest());
+    dispatch(updateClubNoteRequest(type));
     return request('/api/my/notes', {
       method: 'POST',
       body: JSON.stringify({ type, note }),
     }).then(
       (res) => {
-        dispatch(updateClubNoteSuccess(res.note));
+        dispatch(updateClubNoteSuccess(type, res.note));
         dispatch(setMessage('Successfully added the note.'));
       },
-      (err) => dispatch(updateClubNoteFailure(err))
+      (err) => dispatch(updateClubNoteFailure(type, err))
     );
   };
 }

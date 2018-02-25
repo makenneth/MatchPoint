@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
-import NoteIcon from 'react-icons/lib/fa/sticky-note-o';
 import Edit from 'react-icons/lib/md/edit';
 import Save from 'react-icons/lib/md/check';
 import Clear from 'react-icons/lib/md/clear';
@@ -20,16 +18,16 @@ export default class ClubNote extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { error, success, isLoading } = nextProps.infoChange;
-    if (this.props.noteChange.isLoading && !isLoading) {
-      if (success) {
-        this.setState({});
-      } else if (error) {
+    const { error, isLoading } = nextProps;
+    if (this.props.isLoading && !isLoading) {
+      if (error) {
         if (error.note) {
           this.setState({ noteError: error });
         } else {
           this.props.setMessage('Please try again later.');
         }
+      } else {
+        this.setState({ isEditing: false });
       }
     }
   }
@@ -91,6 +89,14 @@ export default class ClubNote extends Component {
             />}
           </span>)
         }
+        {
+          isLoading && <CircularProgress
+            size={25}
+            thickness={2}
+            color="#aaa"
+            style={{ marginTop: '20px' }}
+          />
+        }
       </h3>
       {
         isEditing && (<div
@@ -114,14 +120,6 @@ export default class ClubNote extends Component {
             {this.props.note || 'Add a Note'}
           </div>
         )
-      }
-      {
-        isLoading && <CircularProgress
-          size={25}
-          thickness={2}
-          color="#aaa"
-          style={{ marginTop: '20px' }}
-        />
       }
     </div>);
   }

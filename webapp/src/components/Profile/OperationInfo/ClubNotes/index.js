@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import TextField from 'material-ui/TextField';
-import RaisedButton from 'material-ui/RaisedButton';
-import CircularProgress from 'material-ui/CircularProgress';
 import NoteIcon from 'react-icons/lib/fa/sticky-note-o';
 
 import ClubNote from './ClubNote';
@@ -39,7 +36,7 @@ export default class OperationInfo extends Component {
   }
 
   render() {
-    const { isLoading, notes = {} } = this.props;
+    const { clubNotes: { isLoading, errors }, notes = {} } = this.props;
 
     return (<div className="contact-info-container--notes">
       <h2 className="contact-info-container--title">
@@ -47,14 +44,20 @@ export default class OperationInfo extends Component {
         Notes
       </h2>
       <ClubNote
+        isLoading={isLoading.direction}
+        error={errors.direction}
         type="direction"
         note={notes.direction}
       />
       <ClubNote
+        isLoading={isLoading.roundrobin}
+        error={errors.roundrobin}
         type="roundrobin"
         note={notes.roundrobin}
       />
       <ClubNote
+        isLoading={isLoading.operation}
+        error={errors.operation}
         type="operation"
         note={notes.operation}
       />
