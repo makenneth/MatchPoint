@@ -159,6 +159,10 @@ const actionTypes = keymirror({
   CLUB_DETAIL_QUERY_REQUEST: null,
   CLUB_DETAIL_QUERY_SUCCESS: null,
   CLUB_DETAIL_QUERY_FAILURE: null,
+
+  UPDATE_CLUB_NOTE_REQUEST: null,
+  UPDATE_CLUB_NOTE_SUCCESS: null,
+  UPDATE_CLUB_NOTE_FAILURE: null,
 });
 
 export default actionTypes;
