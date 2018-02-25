@@ -125,12 +125,12 @@ function changeInfoFailure(error) {
   };
 }
 
-export function changeInfo(info, password) {
+export function changeInfo(info) {
   return (dispatch) => {
     dispatch(changeInfoRequest());
     return request('/api/my?type=info', {
       method: 'PATCH',
-      body: JSON.stringify({ data: { password, info } }),
+      body: JSON.stringify({ data: { info } }),
     }).then(
       res => dispatch(changeInfoSuccess(res.user)),
       err => dispatch(changeInfoFailure(err))

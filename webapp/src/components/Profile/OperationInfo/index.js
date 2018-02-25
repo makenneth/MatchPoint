@@ -16,11 +16,33 @@ export default class OperationInfo extends Component {
       clubName: user.clubName || '',
       address: user.address || '',
       phone: user.phone || '',
-      password: '',
       errors: {},
       predictionUsed: null,
       addressFocused: false,
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { error, success, isLoading } = nextProps.infoChange;
+    if (this.props.infoChange.isLoading && !isLoading) {
+      if (success) {
+        this.props.setMessage('Info has been changed successfully.');
+        this.setState({
+          clubName: nextProps.user.clubName || '',
+          address: nextProps.user.address || '',
+          phone: nextProps.user.phone || '',
+          predictionUsed: null,
+          addressFocused: false,
+          errors: {},
+        });
+      } else if (error) {
+        if (error.address || error.phone || error.clubName) {
+          this.setState({ errors: error });
+        } else {
+          this.props.setMessage('Please try again later.');
+        }
+      }
+    }
   }
 
   componentWillUnmount() {
@@ -48,7 +70,7 @@ export default class OperationInfo extends Component {
     event.preventDefault();
 
     if (this.validate()) {
-      const { password, predictionUsed, clubName, phone, address } = this.state;
+      const { predictionUsed, clubName, phone, address } = this.state;
       const data = {};
       if (address !== this.props.user.address) {
         data.address = predictionUsed;
@@ -60,9 +82,8 @@ export default class OperationInfo extends Component {
         data.phone = phone;
       }
       if (Object.keys(data).length > 0) {
-        this.props.submitChange(data, password);
+        this.props.submitChange(data);
       } else {
-        this.setState({ password: '' });
         this.props.setMessage('Info has been changed successfully.');
       }
     }
@@ -89,10 +110,6 @@ export default class OperationInfo extends Component {
   validate() {
     const errors = {};
     let isValid = true;
-    if (this.state.password.length === 0) {
-      errors.password = 'Password is required';
-      isValid = false;
-    }
 
     if (this.state.clubName.length === 0) {
       errors.clubName = 'Club name cannot be empty.';
@@ -149,15 +166,6 @@ export default class OperationInfo extends Component {
           errorText={this.state.errors.address}
           addressFocused={addressFocused}
           predictions={predictions}
-        />
-        <TextField
-          hintText="Password"
-          floatingLabelText="Password"
-          value={this.state.password}
-          onChange={e => this.handleChange('password', e.target.value)}
-          errorText={this.state.errors.password}
-          type="password"
-          fullWidth={Boolean(true)}
         />
         {!infoChange.isLoading && <RaisedButton
           type="submit"
