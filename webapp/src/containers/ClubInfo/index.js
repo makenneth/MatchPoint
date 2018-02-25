@@ -104,6 +104,10 @@ class Map extends Component {
     }
   }
 
+  componentWillUnmount() {
+    loadjs.reset();
+  }
+
   initMap = () => {
     const { lat, lng } = this.props;
     const center = { lat, lng };

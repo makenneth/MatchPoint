@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Card, CardActions, CardHeader, CardText } from 'material-ui/Card';
-import { PasswordChange, InfoChange, OperationInfo } from 'components';
+import { PasswordChange, OperationInfo } from 'components';
 import { changePassword, changeInfo } from 'redux/modules/profile';
 import { addressAutoComplete, clearPredictions } from 'redux/modules/autocomplete';
 import { setMessage } from 'redux/modules/main';
@@ -71,16 +71,12 @@ export default class Profile extends Component {
             onClick={() => this.setTab(0)}
           />
           <FlatButton
-            label="Change Info"
+            label="Operation Info"
             onClick={() => this.setTab(1)}
           />
           <FlatButton
-            label="Operation Info"
-            onClick={() => this.setTab(2)}
-          />
-          <FlatButton
             label="Settings"
-            onClick={() => this.setTab(3)}
+            onClick={() => this.setTab(2)}
           />
         </CardActions>
         {this.state.tab === 0 && <CardText style={{ overflowY: 'auto' }}>
@@ -92,7 +88,7 @@ export default class Profile extends Component {
           />
         </CardText>}
         {this.state.tab === 1 && <CardText style={{ overflowY: 'auto' }}>
-          <InfoChange
+          <OperationInfo
             infoChange={this.props.infoChange}
             autocomplete={this.props.autocomplete}
             user={this.props.ownClubDetail}
@@ -100,10 +96,6 @@ export default class Profile extends Component {
             setMessage={this.props.setMessage}
             addressAutoComplete={this.props.addressAutoComplete}
             clearPredictions={this.props.clearPredictions}
-          />
-        </CardText>}
-        {this.state.tab === 2 && <CardText style={{ overflowY: 'auto' }}>
-          <OperationInfo
             updateClubHour={this.props.updateClubHour}
             addClubHour={this.props.addClubHour}
             deleteClubHour={this.props.deleteClubHour}
@@ -111,7 +103,7 @@ export default class Profile extends Component {
             hourState={this.props.hour}
           />
         </CardText>}
-        {this.state.tab === 3 && <CardText style={{ overflowY: 'auto' }}>
+        {this.state.tab === 2 && <CardText style={{ overflowY: 'auto' }}>
           <div className="setting-container">
             <div className={tutorialEnabled ? 'enabled' : 'disabled'}>
               <span>Tutorial:</span>{tutorialEnabled ? 'Enabled' : 'Disabled'}
