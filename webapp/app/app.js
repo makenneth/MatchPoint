@@ -47,11 +47,9 @@ app.use("*", (req, res, next) => {
 app.use("/api/users", Routes.user);
 app.use("/api/upload", Routes.upload);
 app.use("/api/my", (req, res, next) => {
-  console.log(req.cookies);
   User.findBySessionToken(req.cookies._s, req.cookies._d, false)
     .then(
       (user) => {
-        console.log('found user', user);
         req.user = user;
         return next();
       },

@@ -11,6 +11,7 @@ export default {
     Note.create(clubId, type, note)
       .then(
         () => {
+          client.del(`club:query:${clubId}`);
           res.status(200).send({ note: { note, type } });
         },
         (err) => {
