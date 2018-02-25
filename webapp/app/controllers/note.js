@@ -2,7 +2,7 @@ import Note from "../models/note";
 import { client } from "../helpers/appModules";
 
 export default {
-  new: async (req, res, next) => {
+  update: async (req, res, next) => {
     const clubId = req.user.accountId;
     const { type, note } = req.body;
     if (['address', 'roundrobin', 'operation'].includes(type)) {
@@ -10,7 +10,7 @@ export default {
     }
     return Note.create(type, note)
       .then(
-        (noteId) => {
+        async (noteId) => {
           try {
             const note = await Note.find(noteId);
           } catch (e) {
