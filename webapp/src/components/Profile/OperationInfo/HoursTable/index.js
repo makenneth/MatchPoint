@@ -195,7 +195,7 @@ class HoursTable extends Component {
     const { readOnly } = this.props;
     return (
       <div className="hours-table-container">
-        <h2 className="hours-table-container--title">
+        <h2 className="contact-info-container--title">
           <MdSchedule />
           {this.props.title}
         </h2>
