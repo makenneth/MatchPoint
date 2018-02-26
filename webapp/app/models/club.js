@@ -62,6 +62,7 @@ class Club {
             reject(e);
           }
         } else {
+          connection.release();
           reject({ club: 'Club not found.' });
         }
       });

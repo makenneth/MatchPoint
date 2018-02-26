@@ -29,7 +29,7 @@ export default (function() {
     getHours: async function(clubId, conn) {
       let connection = conn;
 
-      if (!connection) {
+      if (!conn) {
         connection = await db.getConnection();
       }
       return new Promise((resolve, reject) => {
@@ -56,7 +56,6 @@ export default (function() {
 
     getHour: async function(clubId, hourId) {
       const connection = await db.getConnection();
-      console.log('getHour', clubId, hourId);
       return new Promise((resolve, reject) => {
         connection.query(`
           SELECT h.*
