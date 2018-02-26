@@ -98,7 +98,7 @@ export default class ClubNote extends Component {
         }
         {
           isLoading && <CircularProgress
-            size={25}
+            size={15}
             thickness={2}
             color="#aaa"
             style={{ marginTop: '20px' }}
