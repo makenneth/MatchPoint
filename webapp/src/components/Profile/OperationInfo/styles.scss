@@ -44,6 +44,7 @@
 
   &--note {
     margin: 20px 0;
+    padding-bottom: 5px;
   }
 
   &--note-title {
@@ -62,7 +63,8 @@
 
   &--note-error {
     position: absolute;
-    top: calc(100% + 5px);
+    top: calc(100% + 4px);
+    font-size: 13px;
     color: red;
     left: 0;
   }
@@ -71,15 +73,24 @@
     position: relative;
     padding-top: 5px;
 
+    &:not(.editing) {
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
     &.editing {
       padding: 10px;
       border: 1px solid #e0e0e0;
 
       &.error {
         border-color: red;
+        color: red;
       }
     }
 
+    &.error textarea {
+      color: red;
+    }
 
     textarea {
       width: 100%;

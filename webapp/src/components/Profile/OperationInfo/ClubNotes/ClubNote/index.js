@@ -35,13 +35,16 @@ export default class ClubNote extends Component {
     event.preventDefault();
 
     if (this.validate()) {
-      console.log(this.props.type, this.state.note);
       this.props.handleSubmit(this.props.type, this.state.note);
     }
   }
 
-  toggleEdit = () => {
-    this.setState({ isEditing: !this.state.isEditing });
+  startEdit = () => {
+    this.setState({ isEditing: true });
+  }
+
+  endEdit = () => {
+    this.setState({ isEditing: false, note: this.props.note || '' });
   }
 
   updateNote = (ev) => {
@@ -81,15 +84,15 @@ export default class ClubNote extends Component {
             />}
             {isEditing && <Clear
               style={{ color: '#EF5350', cursor: 'pointer' }}
-              onClick={this.toggleEdit}
+              onClick={this.endEdit}
             />}
             {!isEditing && this.props.note && <Edit
               style={{ color: '#555', cursor: 'pointer' }}
-              onClick={this.toggleEdit}
+              onClick={this.startEdit}
             />}
             {!isEditing && !this.props.note && <Plus
               style={{ color: '#66BB6A', cursor: 'pointer' }}
-              onClick={this.toggleEdit}
+              onClick={this.startEdit}
             />}
           </span>)
         }

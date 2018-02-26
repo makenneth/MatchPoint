@@ -37,7 +37,7 @@ export default class ClubInfo extends Component {
       <div className="club-information-container--column">
         <div className="club-information-container--note">
         <div className="club-information-container--note-type">Note about {note}:</div>
-        <p className="club-information-container--note-value">{notes[note]}</p>
+        <div className="club-information-container--note-value">{notes[note]}</div>
         </div>
       </div>
     ));
