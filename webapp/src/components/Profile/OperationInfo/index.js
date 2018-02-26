@@ -7,7 +7,7 @@ import './styles.scss';
 export default class OperationInfo extends Component {
   render() {
     const { operationHours, roundrobinHours, isLoading } = this.props.hoursState;
-    console.log(this.props.user);
+
     return (<div className="contact-info-container">
       <InfoForm
         infoChange={this.props.infoChange}

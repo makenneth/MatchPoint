@@ -60,6 +60,13 @@
     margin-left: 5px;
   }
 
+  &--note-error {
+    position: absolute;
+    top: calc(100% + 5px);
+    color: red;
+    left: 0;
+  }
+
   &--note-input {
     position: relative;
     padding-top: 5px;
@@ -67,7 +74,12 @@
     &.editing {
       padding: 10px;
       border: 1px solid #e0e0e0;
+
+      &.error {
+        border-color: red;
+      }
     }
+
 
     textarea {
       width: 100%;

@@ -48,15 +48,19 @@ export default class ClubNote extends Component {
     if (this.state.noteError) {
       this.setState({ noteError: null });
     }
-    this.setState({ note: ev.target.value });
+    const note = ev.target.value;
+    this.setState({
+      note,
+      noteError: note.length > 300 ? 'Note cannot exceed 300 characters' : null,
+    });
   }
 
   validate() {
     let isValid = true;
 
-    if (this.state.note.length > 500) {
+    if (this.state.note.length > 300) {
       isValid = false;
-      this.setState({ noteError: 'Note cannot exceed 500 characters.' });
+      this.setState({ noteError: 'Note cannot exceed 300 characters.' });
     }
 
     return isValid;
@@ -64,7 +68,7 @@ export default class ClubNote extends Component {
 
   render() {
     const { isLoading, type } = this.props;
-    const { note, isEditing } = this.state;
+    const { note, isEditing, noteError } = this.state;
 
     return (<div className="contact-info-container--note">
       <h3 className="contact-info-container--note-title">
@@ -103,7 +107,7 @@ export default class ClubNote extends Component {
           className={`
             contact-info-container--note-input
             editing
-            ${note.length > 300 ? 'error' : ''}
+            ${noteError ? 'error' : ''}
           `}
         >
           <textarea
@@ -112,6 +116,9 @@ export default class ClubNote extends Component {
             rows={5}
           />
           <span>{`${note.length}/300`}</span>
+          {noteError && <div className="contact-info-container--note-error">
+            {noteError}
+          </div>}
         </div>)
       }
       {

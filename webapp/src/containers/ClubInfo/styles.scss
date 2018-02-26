@@ -72,3 +72,10 @@
     width: 100%;
   }
 }
+
+@media only screen and (max-width: 670px) {
+  .club-information-container {
+    margin-top: 60px;
+    width: 95%;
+  }
+}
