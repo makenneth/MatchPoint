@@ -178,10 +178,10 @@ export default {
     client.get(`club:query:${id}`, async (err, reply) => {
       if (!reply && !err) {
         try {
-          const club = await Club.detail(id);
-          res.status(200).send({ club });
           const json = JSON.stringify(club);
           client.set(`club:query:${id}`, json);
+          const club = await Club.detail(id);
+          res.status(200).send({ club });
         } catch (e) {
           next({ code: 500, message: e });
         }

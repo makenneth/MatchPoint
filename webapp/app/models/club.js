@@ -17,7 +17,6 @@ class Club {
   static format(row) {
     const fields = [
       'id', 'short_id', 'club_name',
-      'address_note', 'roundrobin_note', 'operation_note',
       'email','updated_at', 'created_on', 'phone',
       'city', 'state', 'address', 'geolat', 'geolng', 'country',
     ];
@@ -50,12 +49,14 @@ class Club {
         FROM clubs
         WHERE id = ?
       `, [id], async (err, results, field) => {
-        connection.release();
-        if (err) throw err;
+        if (err) {
+          connection.release();
+          throw err;
+        }
         if (results.length > 0) {
           const club = Club.format(results[0]);
           try {
-            const hours = await Hour.getHours(id);
+            const hours = await Hour.getHours(id, connection);
             resolve({ ...club, ...hours });
           } catch (e) {
             reject(e);

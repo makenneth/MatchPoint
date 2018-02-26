@@ -26,8 +26,12 @@ export default (function() {
   }
 
   return {
-    getHours: async function(clubId) {
-      const connection = await db.getConnection();
+    getHours: async function(clubId, conn) {
+      let connection = conn;
+
+      if (!connection) {
+        connection = await db.getConnection();
+      }
       return new Promise((resolve, reject) => {
         connection.query(`
           SELECT h.*
@@ -37,8 +41,8 @@ export default (function() {
           WHERE ch.club_id = ?
           ORDER BY h.day, h.open;
         `, [clubId], async (err, results, field) => {
+          connection.release();
           if (err) {
-            connection.release();
             throw(err);
           }
           if (results.length > 0) {
