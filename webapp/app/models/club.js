@@ -31,7 +31,9 @@ class Club {
     });
 
     ['direction_note', 'roundrobin_note', 'operation_note'].forEach((field) => {
-      club.notes[field.split('_')[0]] = row[field];
+      if (row[field]) {
+        club.notes[field.split('_')[0]] = row[field];
+      }
     });
 
     return club;
@@ -44,7 +46,7 @@ class Club {
         SELECT
         id, club_name, phone, city, state,
         address, geolat, geolng, country,
-        direction_note, roundrobin_note, operation_note
+        direction_note, operation_note, roundrobin_note
         FROM clubs
         WHERE id = ?
       `, [id], async (err, results, field) => {

@@ -32,6 +32,17 @@ export default class ClubInfo extends Component {
     }
   }
 
+  renderNotes(notes) {
+    return Object.keys(notes).map(note => (
+      <div className="club-information-container--column">
+        <div className="club-information-container--note">
+        <div className="club-information-container--note-type">Note about {note}:</div>
+        <p className="club-information-container--note-value">{notes[note]}</p>
+        </div>
+      </div>
+    ));
+  }
+
   render() {
     const { clubs, isLoading } = this.props.clubDetailSearch;
     const clubId = this.props.params.id;
@@ -40,27 +51,30 @@ export default class ClubInfo extends Component {
       {club && <div className="club-information-container--body">
         <h1>{club.clubName}</h1>
         <div>
-          <div>
+          <div className="club-information-container--columns">
             <Map lat={club.geolat} lng={club.geolng} />
-            <div className="club-information-container--row">
-              <MdLocation />
-              <span>{`${club.address}`}</span>
-            </div>
-            <div className="club-information-container--row">
-              <MdDirections />
-              <a
-                href={`https://www.google.com/maps/?q=${club.geolat},${club.geolng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Get Direction
-              </a>
-            </div>
-            <div className="club-information-container--row">
-              <MdPhone />
-              <span>{club.phone}</span>
+            <div className="club-information-container--column">
+              <div className="club-information-container--row">
+                <MdLocation />
+                <span>{`${club.address}`}</span>
+              </div>
+              <div className="club-information-container--row">
+                <MdDirections />
+                <a
+                  href={`https://www.google.com/maps/?q=${club.geolat},${club.geolng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Get Direction
+                </a>
+              </div>
+              <div className="club-information-container--row">
+                <MdPhone />
+                <span>{club.phone}</span>
+              </div>
             </div>
           </div>
+          {this.renderNotes(club.notes)}
           <div className="club-information-container--hours">
             <HoursTable
               title="Operation Hours"
