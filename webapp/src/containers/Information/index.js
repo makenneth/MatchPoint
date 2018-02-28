@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router';
 import TextField from 'material-ui/TextField';
@@ -14,7 +14,7 @@ import { configureInitInformation } from 'redux/modules/clubInformation';
     ({ error, isLoading, autocomplete, user }),
   { clearPredictions, addressAutoComplete, configureInitInformation, push }
 )
-export default class InformationForm extends Component {
+export default class InformationForm extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

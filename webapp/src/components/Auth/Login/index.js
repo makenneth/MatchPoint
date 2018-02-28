@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -10,7 +10,7 @@ import { setPage } from 'redux/modules/splash';
 const style = { position: 'relative' };
 
 @connect(({ auth: { error, loading } }) => ({ error, loading }), { logIn, setPage, clearError })
-export default class LogInForm extends Component {
+export default class LogInForm extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

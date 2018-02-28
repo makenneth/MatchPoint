@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -6,7 +6,7 @@ import CircularProgress from 'material-ui/CircularProgress';
 import { signUp } from 'redux/modules/auth';
 
 @connect(({ auth: { error, loading } }) => ({ error, loading }), { signUp })
-export default class SignUpForm extends Component {
+export default class SignUpForm extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

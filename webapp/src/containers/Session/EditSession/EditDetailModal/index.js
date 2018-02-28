@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { NewRoundrobin } from 'containers';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import './styles.scss';
 
-export default class EditDetailModal extends Component {
+export default class EditDetailModal extends React.PureComponent {
   componentWillMount() {
     this.props.startEditSavedSession(this.props.session);
   }

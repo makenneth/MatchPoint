@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { push } from 'react-router-redux';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
@@ -14,7 +14,7 @@ import './styles.scss';
   ({ auth: { user, loading }, navbar }) => ({ user, navbar, loading }),
   { openLogin, logIn, logOut, open, close, setTab, preSetTab, setPage, push }
 )
-export default class Navbar extends Component {
+export default class Navbar extends React.PureComponent {
   state = {
     expanded: true,
     searchValue: '',

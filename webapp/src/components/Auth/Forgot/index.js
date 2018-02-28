@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import TextField from 'material-ui/TextField';
 import CircularProgress from 'material-ui/CircularProgress';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { resetPasswordRequest } from 'redux/modules/reset';
 
 @connect(({ reset }) => ({ reset }), { resetPasswordRequest })
-export default class Forgot extends Component {
+export default class Forgot extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

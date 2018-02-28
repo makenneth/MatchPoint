@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
 import InfoOutline from 'react-icons/lib/md/info-outline';
 import AddressAutoComplete from 'components/AutoComplete';
 
-export default class OperationInfo extends Component {
+export default class OperationInfo extends React.PureComponent {
   constructor(props) {
     super(props);
 

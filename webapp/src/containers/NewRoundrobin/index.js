@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { openEditModal, openNewModal, closeNewModal, closeEditModal } from 'redux/modules/modals';
 import {
@@ -26,7 +26,7 @@ import TabContainer from './TabContainer';
     updatePlayer,
   }
 )
-export default class NewRRSession extends Component {
+export default class NewRRSession extends React.PureComponent {
   componentWillMount() {
     if (!this.props.session.loaded && !this.props.session.loading) {
       this.props.fetchCurrentPlayers();

@@ -17,7 +17,7 @@ import { updateSessionDetail } from 'redux/modules/sessions';
 import moment from 'moment';
 
 @connect(
-  ({ auth: { club }, newSession, schemata }) => ({ club, ...newSession, ...schemata }),
+  ({ auth: { user }, newSession, schemata }) => ({ user, ...newSession, ...schemata }),
   {
     changeSchema,
     setMinAndMax,
@@ -65,7 +65,7 @@ export default class Grouping extends Component {
       return;
     }
     new PDFGenerator(
-      this.props.club.club_name,
+      this.props.user.clubName,
       this.props.addedPlayers.toPlayerList(
         this.props.selected, this.props.promoted, this.state.isPromotionEnabled
       ),

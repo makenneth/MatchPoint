@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { asyncConnect } from 'redux-async-connect-react16';
 import { push } from 'react-router-redux';
 import { connect } from 'react-redux';
@@ -27,7 +27,7 @@ import moment from 'moment';
   },
 }])
 @connect(({ sessions }) => ({ sessions: sessions.sessions }), { setSession, push })
-export default class RoundRobinSessions extends Component {
+export default class RoundRobinSessions extends React.PureComponent {
   handleClick = (shortid) => {
     this.props.push(`/club/sessions/${shortid}`);
   }

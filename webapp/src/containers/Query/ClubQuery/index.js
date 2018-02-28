@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import SelectField from 'material-ui/SelectField';
@@ -15,7 +15,7 @@ import { ClubQueryDetail } from 'components';
   ({ query }) => ({ query }),
   { setClub, setDate, fetchRoundRobinDetail }
 )
-export default class ClubQuery extends Component {
+export default class ClubQuery extends React.PureComponent {
   changeDate = (e, i, session) => {
     if (session) {
       const { selectedClub, roundrobins } = this.props.query;

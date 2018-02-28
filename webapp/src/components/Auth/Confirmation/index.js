@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { resendEmail } from 'redux/modules/profile';
 import { setMessage } from 'redux/modules/main';
@@ -6,7 +6,7 @@ import { setMessage } from 'redux/modules/main';
 import './styles.scss';
 
 @connect(() => ({}), { resendEmail, setMessage })
-export default class Confirmation extends Component {
+export default class Confirmation extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

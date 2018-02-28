@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import TimePicker from 'material-ui/TimePicker';
@@ -15,7 +15,7 @@ import './styles.scss';
 
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-class HoursTable extends Component {
+class HoursTable extends React.PureComponent {
   static propTypes = {
     updateClubHour: PropTypes.func,
     addClubHour: PropTypes.func,

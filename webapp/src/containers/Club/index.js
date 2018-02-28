@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import CircularProgress from 'material-ui/CircularProgress';
 import { connect } from 'react-redux';
 
 import './styles.scss';
 
 @connect(({ auth: { user } }) => ({ user }))
-export default class Club extends Component {
+export default class Club extends React.PureComponent {
   render() {
     if (!this.props.user) {
       return (<div className="overlay">

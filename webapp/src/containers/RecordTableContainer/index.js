@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Tabs, Tab } from 'material-ui/Tabs';
 import RaisedButton from 'material-ui/RaisedButton';
 import { RecordTableEnter, RecordTableView } from 'components';
 
-export default class RecordTableContainer extends Component {
+export default class RecordTableContainer extends React.PureComponent {
   state = {
     tab: 0,
     // storing results in state due to poor performance to update in reducer

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -12,7 +12,7 @@ import loadjs from 'loadjs';
 import './styles.scss';
 
 @connect(({ clubDetailSearch }) => ({ clubDetailSearch }), { clubDetailQuery })
-export default class ClubInfo extends Component {
+export default class ClubInfo extends React.PureComponent {
   static contextTypes = {
     router: PropTypes.any,
   };
@@ -36,8 +36,8 @@ export default class ClubInfo extends Component {
     return Object.keys(notes).map(note => (
       <div className="club-information-container--column">
         <div className="club-information-container--note">
-        <div className="club-information-container--note-type">Note about {note}:</div>
-        <div className="club-information-container--note-value">{notes[note]}</div>
+          <div className="club-information-container--note-type">Note about {note}:</div>
+          <div className="club-information-container--note-value">{notes[note]}</div>
         </div>
       </div>
     ));
@@ -110,16 +110,12 @@ export default class ClubInfo extends Component {
   }
 }
 
-class Map extends Component {
+class Map extends React.PureComponent {
   componentDidMount() {
     if (this.props.lat && this.props.lng) {
       window.initMap = this.initMap;
       loadjs('https://maps.googleapis.com/maps/api/js?key=AIzaSyDdc8AO7MIwT7Cko3gTi167pAstQYrMoQQ&callback=initMap');
     }
-  }
-
-  componentWillUnmount() {
-    loadjs.reset();
   }
 
   initMap = () => {

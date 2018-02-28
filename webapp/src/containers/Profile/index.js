@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -37,7 +37,7 @@ import './styles.scss';
     updateClubNote,
   }
 )
-export default class Profile extends Component {
+export default class Profile extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = { tab: 0 };

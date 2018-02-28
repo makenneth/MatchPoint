@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { RecordTableContainer } from 'containers';
@@ -6,7 +6,7 @@ import moment from 'moment';
 import MenuBar from './MenuBar';
 import EditDetailModal from './EditDetailModal';
 
-export default class EditSession extends Component {
+export default class EditSession extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

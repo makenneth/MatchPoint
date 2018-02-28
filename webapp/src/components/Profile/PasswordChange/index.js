@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
 import MdInfoOutline from 'react-icons/lib/md/info-outline';
 
-export default class PasswordChange extends Component {
+export default class PasswordChange extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

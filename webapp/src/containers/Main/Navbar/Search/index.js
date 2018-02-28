@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { push } from 'react-router-redux';
 import CircularProgress from 'material-ui/CircularProgress';
 import SearchIcon from 'react-icons/lib/md/search';
@@ -7,7 +7,7 @@ import { searchClubs } from 'redux/modules/clubSearch';
 import { AutoComplete } from 'components';
 
 @connect(({ clubSearch }) => ({ clubSearch }), { searchClubs, push })
-export default class Search extends Component {
+export default class Search extends React.PureComponent {
   state = {
     searchValue: '',
     inputFocused: false,

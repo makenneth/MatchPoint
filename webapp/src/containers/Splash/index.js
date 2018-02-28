@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { setPage } from 'redux/modules/splash';
 import { setToken } from 'redux/modules/reset';
@@ -29,7 +29,7 @@ import './styles.scss';
   },
 }])
 @connect(({ splash: { page } }) => ({ page }), { setPage, push })
-class Splash extends Component {
+class Splash extends React.PureComponent {
   componentWillUnmount() {
     this.props.setPage(0);
   }

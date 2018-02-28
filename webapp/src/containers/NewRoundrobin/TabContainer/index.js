@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Tabs, Tab } from 'material-ui/Tabs';
 import RaisedButton from 'material-ui/RaisedButton';
 import DatePicker from 'material-ui/DatePicker';
@@ -31,7 +31,7 @@ import Participants from './Participants';
     // restoreTempSession,
   })
 )
-export default class TabContainer extends Component {
+export default class TabContainer extends React.PureComponent {
   state = {
     tab: 0,
     sortedPlayers: [],

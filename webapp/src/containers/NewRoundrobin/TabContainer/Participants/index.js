@@ -4,26 +4,28 @@ import { PlayerList, SelectedPlayerList } from 'components';
 
 const style = { position: 'relative' };
 
-const Participants = (props) => {
-  return (<div className="player-lists">
-    <Divider style={style} />
-    <PlayerList
-      players={props.allPlayers}
-      title="All Players"
-      addedPlayers={props.addedPlayers}
-      registerPlayer={props.registerPlayer}
-      unregisterPlayer={props.unregisterPlayer}
-      activePlayers={props.activePlayers}
-    />
-    <Divider style={style} />
-    <SelectedPlayerList
-      players={props.sortedPlayers}
-      title="Selected Players"
-      addedPlayers={props.addedPlayers}
-      unregisterPlayer={props.unregisterPlayer}
-    />
-    <Divider style={style} />
-  </div>);
-};
+class Participants extends React.PureComponent {
+  render() {
+    return (<div className="player-lists">
+      <Divider style={style} />
+      <PlayerList
+        players={this.props.allPlayers}
+        title="All Players"
+        addedPlayers={this.props.addedPlayers}
+        registerPlayer={this.props.registerPlayer}
+        unregisterPlayer={this.props.unregisterPlayer}
+        activePlayers={this.props.activePlayers}
+      />
+      <Divider style={style} />
+      <SelectedPlayerList
+        players={this.props.sortedPlayers}
+        title="Selected Players"
+        addedPlayers={this.props.addedPlayers}
+        unregisterPlayer={this.props.unregisterPlayer}
+      />
+      <Divider style={style} />
+    </div>);
+  }
+}
 
 export default Participants;

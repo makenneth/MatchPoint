@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import HoursTable from './HoursTable';
 import InfoForm from './InfoForm';
 import ClubNotes from './ClubNotes';
 import './styles.scss';
 
-export default class OperationInfo extends Component {
+export default class OperationInfo extends React.PureComponent {
   render() {
     const { operationHours, roundrobinHours, isLoading } = this.props.hoursState;
 

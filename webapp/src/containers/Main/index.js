@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Tutorial } from 'components';
@@ -15,7 +15,7 @@ import './styles.scss';
     ({ loading, message, spinnerMode }),
   { clearMessage }
 )
-export default class Main extends Component {
+export default class Main extends React.PureComponent {
   static contextTypes = {
     router: PropTypes.any,
   };

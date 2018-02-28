@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
+import React from 'react';
 import CircularProgress from 'material-ui/CircularProgress';
 import Edit from 'react-icons/lib/md/edit';
 import Save from 'react-icons/lib/md/check';
 import Clear from 'react-icons/lib/md/clear';
 import Plus from 'react-icons/lib/go/plus';
 
-export default class ClubNote extends Component {
+export default class ClubNote extends React.PureComponent {
   constructor(props) {
     super(props);
 

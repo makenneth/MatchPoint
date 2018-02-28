@@ -7,32 +7,34 @@ import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
 import MenuItem from 'material-ui/MenuItem';
 
-const MenuBar = (props) => {
-  const { date, isLoading, editable, finalized } = props;
+class MenuBar extends React.PureComponent {
+  render() {
+    const { date, isLoading, editable, finalized } = this.props;
 
-  const iconMenu = (<IconMenu
-    iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
-  >
-    <MenuItem primaryText="Save" onClick={props.saveSession} />
-    {
-      date && !finalized &&
-        <MenuItem primaryText="Edit Detail" onClick={props.handleEdit} />
-    }
-    <MenuItem primaryText="Delete" onClick={props.handleDelete} />
-  </IconMenu>);
-  return (<AppBar
-    className="app-bar"
-    title={`Date: ${moment(date).format('MMMM DD, YYYY')}`}
-    iconElementLeft={
-      !isLoading ? (<IconButton
-        onClick={props.handleBack}
-        className="closeIcon"
-      >
-        <NavigationClose />
-      </IconButton>) : null
-    }
-    iconElementRight={editable && !isLoading ? iconMenu : null}
-  />);
-};
+    const iconMenu = (<IconMenu
+      iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
+    >
+      <MenuItem primaryText="Save" onClick={this.props.saveSession} />
+      {
+        date && !finalized &&
+          <MenuItem primaryText="Edit Detail" onClick={this.props.handleEdit} />
+      }
+      <MenuItem primaryText="Delete" onClick={this.props.handleDelete} />
+    </IconMenu>);
+    return (<AppBar
+      className="app-bar"
+      title={`Date: ${moment(date).format('MMMM DD, YYYY')}`}
+      iconElementLeft={
+        !isLoading ? (<IconButton
+          onClick={this.props.handleBack}
+          className="closeIcon"
+        >
+          <NavigationClose />
+        </IconButton>) : null
+      }
+      iconElementRight={editable && !isLoading ? iconMenu : null}
+    />);
+  }
+}
 
 export default MenuBar;

@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
 const rangeOfPlayers = [3, 4, 5, 6, 7];
-export default class NumOfPlayers extends Component {
+export default class NumOfPlayers extends React.PureComponent {
   handleChange = (field, e, idx, value) => {
     if (value) {
       const { min, max } = this.props;

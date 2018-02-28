@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { resetPassword } from 'redux/modules/reset';
@@ -10,7 +10,7 @@ import CircularProgress from 'material-ui/CircularProgress';
 
 
 @connect(({ reset }) => ({ reset }), { resetPassword, setMessage, push })
-export default class ForgotReset extends Component {
+export default class ForgotReset extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {

@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import { connect } from 'react-redux';
 import { activateClub } from 'redux/modules/auth';
 
 @connect(() => ({}), { activateClub })
-export default class Activated extends Component {
+export default class Activated extends React.PureComponent {
   render() {
     return (<div className="forms activated" style={{ top: '50%' }}>
       <form onSubmit={(e) => e.preventDefault()}>

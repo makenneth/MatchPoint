@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import NoteIcon from 'react-icons/lib/fa/sticky-note-o';
 
 import ClubNote from './ClubNote';
 
-export default class OperationInfo extends Component {
+export default class OperationInfo extends React.PureComponent {
   handleSubmit = (event) => {
     event.preventDefault();
 
