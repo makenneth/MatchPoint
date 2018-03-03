@@ -134,6 +134,7 @@ const actionTypes = keymirror({
   UPDATE_SESSION_DETAIL_SUCCESS: null,
   UPDATE_SESSION_DETAIL_FAILURE: null,
 
+<<<<<<< HEAD:webapp/src/redux/actionTypes/index.js
   UPDATE_CLUB_HOUR_REQUEST: null,
   DELETE_CLUB_HOUR_REQUEST: null,
   ADD_CLUB_HOUR_REQUEST: null,
@@ -163,6 +164,10 @@ const actionTypes = keymirror({
   UPDATE_CLUB_NOTE_REQUEST: null,
   UPDATE_CLUB_NOTE_SUCCESS: null,
   UPDATE_CLUB_NOTE_FAILURE: null,
+
+  INITIALIZE_SESSION_REQUEST: null,
+  INITIALIZE_SESSION_SUCCESS: null,
+  INITIALIZE_SESSION_FAILURE: null,
 });
 
 export default actionTypes;

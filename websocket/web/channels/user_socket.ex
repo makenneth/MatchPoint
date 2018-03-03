@@ -41,5 +41,5 @@ defmodule MatchPoints.UserSocket do
   #     MatchPoints.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket), do: "session:#{socket.assigns.session_name}"
 end
