@@ -10,6 +10,11 @@ body,
   height: 100%;
 }
 
+.icons {
+  cursor: pointer;
+  font-size: 24px;
+}
+
 .app-container {
   display: flex;
   flex-direction: column;

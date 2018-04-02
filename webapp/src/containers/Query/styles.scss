@@ -19,7 +19,7 @@
 
 .result-query-container {
   margin: 0 auto;
-  width: 80%;
+  width: 90%;
   padding-top: 100px;
   padding-bottom: 20px;
   height: 100%;
@@ -42,6 +42,7 @@
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
+  align-items: center;
   position: relative;
   margin-bottom: 20px;
 
@@ -85,6 +86,72 @@
   }
 }
 
+.club-query-section {
+  min-width: 800px;
+  padding: 30px 20px;
+  margin-bottom: 10px;
+  height: 100%;
+  transition: height 0.3s ease-in-out;
+
+  h2 {
+    font-weight: 500;
+    font-size: 20px;
+    color: #555;
+  }
+
+  &--title {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hint-text {
+    margin-top: 20px;
+    padding: 10px 0;
+  }
+
+  &.collapsed {
+    height: 84px;
+  }
+
+  &--body.collapsed {
+    display: none;
+  }
+}
+
+.edit-aggregate-group-modal {
+  @include light-box-shadow;
+  width: 350px;
+  padding: 40px 30px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 300;
+  background-color: white;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  &--inputs {
+    margin: 10px 0;
+  }
+}
+
+.aggregate-table-container {
+  margin-top: 10px;
+  position: relative;
+  h3 {
+    font-weight: 500;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
 @media (max-width: 335px) and (max-device-width: 335px) {
   .name-select-div {
     display: flex;
