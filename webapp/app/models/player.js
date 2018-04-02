@@ -13,7 +13,7 @@ class Player {
     ];
     const player = {};
     fields.forEach(field => {
-      if (!row[field] === undefined) {
+      if (row[field] !== undefined) {
         player[camelCase(field)] = row[field];
       }
     });

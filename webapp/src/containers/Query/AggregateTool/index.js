@@ -53,16 +53,15 @@ class AggregateQueryTool extends React.PureComponent {
     });
   }
 
-  addGroupingCriteria = (type, condition, index) => {
+  addGroupingCriteria = (type, condition) => {
     /* type [ between, above, below ] */
     this.setState({
       groups: [
-        ...this.state.groups.slice(0, index),
         {
           type,
           condition,
         },
-        ...this.state.groups.slice(index + 1),
+        ...this.state.groups,
       ],
     });
   }
@@ -120,7 +119,7 @@ class AggregateQueryTool extends React.PureComponent {
           label="Add Grouping Criteria"
           onClick={() => this.setState({ isModalOpen: true })}
         />
-        <AggregateQueryToolGroup group={playerDetail} />
+        {!groups.length && <AggregateQueryToolGroup group={playerDetail} />}
         {
           aggregateGroups.map((players, i) => (
             <AggregateQueryToolGroup
