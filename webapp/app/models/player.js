@@ -8,11 +8,12 @@ class Player {
       'id', 'short_id', 'usatt_url',
       'rating', 'name', 'updated_at',
       'created_on', 'group_id', 'pos',
-      'session_count', 'promoted',
+      'session_count', 'promoted',  'old_rating', 'rating_change',
+      'game_won', 'match_won', 'date'
     ];
     const player = {};
     fields.forEach(field => {
-      if (row[field]) {
+      if (!row[field] === undefined) {
         player[camelCase(field)] = row[field];
       }
     });

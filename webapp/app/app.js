@@ -38,6 +38,7 @@ app.use("/favicon.ico", (req, res) => {
 
 app.use(express.static(path.join(__dirname, "..", "public")));
 app.use("/api/clubs", Routes.club);
+app.use("/api/query", Routes.query);
 app.use("*", (req, res, next) => {
   if (!req.cookies._d) {
     res.cookie('_d', Token.generateToken(16), { maxAge: 1000 * 60 * 60 * 24 * 30, httpOnly: true });

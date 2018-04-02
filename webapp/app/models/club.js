@@ -6,6 +6,7 @@ import mysql from "mysql";
 import { camelCase } from 'lodash';
 import db from '../utils/connection';
 import RoundRobin from './roundrobin';
+import Player from './player';
 import Hour from './hour';
 import ClubValidation from "../validations/club";
 
@@ -299,6 +300,30 @@ class Club {
         } else {
           resolve([]);
         }
+      });
+    });
+  }
+
+  static async aggregatePlayerRecordWithinRange(clubId, startDate, endDate) {
+    const connection = await db.getConnection();
+    return new Promise((resolve, reject) => {
+      connection.query(`
+          SELECT p.name, ph.old_rating, ph.rating_change, ph.game_won, ph.match_won, ph.rating, ph.player_id AS id, r.date
+          FROM player_histories AS ph
+          INNER JOIN players AS p
+          ON ph.player_id = p.id
+          INNER JOIN roundrobins AS r
+          ON ph.roundrobin_id = r.id
+          WHERE roundrobin_id IN (
+            SELECT id
+            FROM roundrobins
+            WHERE club_id = ? AND date BETWEEN ? AND ?
+          )
+          ORDER BY player_id, date ASC;
+      `, [clubId, startDate, endDate], (err, results, field) => {
+        connection.release();
+        if (err) throw err;
+        resolve(results.map(r => Player.formatPlayer(r)));
       });
     });
   }
