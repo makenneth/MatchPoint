@@ -6,6 +6,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import { Table, TableBody, TableHeader,
   TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
+import CircularProgress from 'material-ui/CircularProgress';
 import IconButton from 'material-ui/IconButton/IconButton';
 import KeyboardArrowDown from 'react-icons/lib/md/keyboard-arrow-down';
 import KeyboardArrowUp from 'react-icons/lib/md/keyboard-arrow-up';
