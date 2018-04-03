@@ -15,12 +15,22 @@ import './styles.scss';
 
 @connect(
   ({
-    auth: { user }, autocomplete, passwordChange,
-    infoChange, ownClubDetail, hour, clubNotes
+    auth: { user },
+    autocomplete,
+    passwordChange,
+    infoChange,
+    ownClubDetail,
+    hour,
+    clubNotes,
   }) =>
     ({
-      user, autocomplete, passwordChange,
-      infoChange, ownClubDetail, hour, clubNotes,
+      user,
+      autocomplete,
+      passwordChange,
+      infoChange,
+      ownClubDetail,
+      hour,
+      clubNotes,
     }),
   {
     changePassword,

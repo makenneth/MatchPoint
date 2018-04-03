@@ -9,6 +9,10 @@ import { Table, TableBody, TableHeader,
 import IconButton from 'material-ui/IconButton/IconButton';
 import KeyboardArrowDown from 'react-icons/lib/md/keyboard-arrow-down';
 import KeyboardArrowUp from 'react-icons/lib/md/keyboard-arrow-up';
+import SwapVert from 'react-icons/lib/md/swap-vert';
+import TrendingUp from 'react-icons/lib/md/trending-up';
+import TrendingFlat from 'react-icons/lib/md/trending-flat';
+import TrendingDown from 'react-icons/lib/md/trending-down';
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton';
 import Close from 'react-icons/lib/md/close';
 
@@ -135,6 +139,19 @@ class AggregateQueryTool extends React.PureComponent {
           onClose={() => this.setState({ isModalOpen: false })}
           onSave={this.addGroupingCriteria}
         />}
+        {isLoading && <div className="overlay transparent">
+          <CircularProgress
+            color="#555"
+            size={30}
+            style={{
+              margin: '0',
+              position: 'absolute',
+              transform: 'translate(-50%)',
+              top: '50%',
+              left: '50%',
+            }}
+          />
+        </div>}
       </div>
     );
   }
@@ -144,6 +161,7 @@ class AggregateQueryToolGroup extends React.PureComponent {
   state = {
     orderBy: [
       { key: 'rating', order: 'desc' },
+      { key: 'endRating', order: 'desc' },
       { key: 'totalRatingChange', order: 'desc' },
       { key: 'totalGameWon', order: 'desc' },
       { key: 'totalMatchWon', order: 'desc' },
@@ -173,10 +191,12 @@ class AggregateQueryToolGroup extends React.PureComponent {
     return order === 'desc' ?
       <KeyboardArrowDown
         onClick={() => this.changeOrderBy(key)}
-        style={{ cursor: 'pointer', marginLeft: '5px' }} /> :
+        style={{ cursor: 'pointer', marginLeft: '5px' }}
+      /> :
       <KeyboardArrowUp
         onClick={() => this.changeOrderBy(key)}
-        style={{ cursor: 'pointer', marginLeft: '5px' }} />;
+        style={{ cursor: 'pointer', marginLeft: '5px' }}
+      />;
   }
 
   render() {
@@ -224,6 +244,10 @@ class AggregateQueryToolGroup extends React.PureComponent {
               {this.orderByIcon('rating')}
             </TableHeaderColumn>
             <TableHeaderColumn>
+              End Rating
+              {this.orderByIcon('endRating')}
+            </TableHeaderColumn>
+            <TableHeaderColumn>
               Rating Change Total
               {this.orderByIcon('totalRatingChange')}
             </TableHeaderColumn>
@@ -244,7 +268,13 @@ class AggregateQueryToolGroup extends React.PureComponent {
                 <TableRowColumn>{i + 1}</TableRowColumn>
                 <TableRowColumn>{player.name}</TableRowColumn>
                 <TableRowColumn>{player.rating}</TableRowColumn>
-                <TableRowColumn>{player.totalRatingChange}</TableRowColumn>
+                <TableRowColumn>{player.endRating}</TableRowColumn>
+                <TableRowColumn className="aggregate-table--rating-change-col">
+                  <div className="aggregate-table--rating-change">
+                    {player.totalRatingChange}
+                    <RatingProgressTooltip history={player.ratingChangeHistory} />
+                  </div>
+                </TableRowColumn>
                 <TableRowColumn>{player.totalGameWon}</TableRowColumn>
                 <TableRowColumn>{player.totalMatchWon}</TableRowColumn>
               </TableRow>
@@ -253,6 +283,32 @@ class AggregateQueryToolGroup extends React.PureComponent {
         </TableBody>
       </Table>
     </div>);
+  }
+}
+
+class RatingProgressTooltip extends React.PureComponent {
+  render() {
+    const { history } = this.props;
+    const icons = {
+      swapVert: <SwapVert style={{ marginRight: '5px' }} />,
+      trendingUp: <TrendingUp style={{ marginRight: '5px' }} />,
+      trendingFlat: <TrendingFlat style={{ marginRight: '5px' }} />,
+      trendingDown: <TrendingDown style={{ marginRight: '5px' }} />,
+    };
+    return (
+      <ul className="aggregate-table--tooltip">
+        {
+          history.map(r => (
+            <li>
+              <span style={{ marginRight: '10px', fontWeight: 500 }}>{r.date}</span>
+              {icons[r.type]}
+              <span style={{ marginRight: '5px' }}>{r.description}</span>
+              {r.change}
+            </li>
+          ))
+        }
+      </ul>
+    );
   }
 }
 

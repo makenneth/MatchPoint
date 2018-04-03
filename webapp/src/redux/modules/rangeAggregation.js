@@ -28,6 +28,7 @@ export default function RangeAggregation(state = initialState, action) {
         id: null,
         name: null,
         startRating: 0,
+        endRating: 0,
         totalRatingChange: 0,
         totalGameWon: 0,
         totalMatchWon: 0,
@@ -53,6 +54,7 @@ export default function RangeAggregation(state = initialState, action) {
         currentPlayer.totalRatingChange += row.ratingChange;
         currentPlayer.totalGameWon += row.gameWon || 0;
         currentPlayer.totalMatchWon += row.matchWon || 0;
+        currentPlayer.endRating = row.rating;
         let description;
         let type;
         if (row.result) {
@@ -65,7 +67,12 @@ export default function RangeAggregation(state = initialState, action) {
           type = row.ratingChange === 0 ? 'trendingFlat' : 'trendingDown';
           description = row.ratingChange === 0 ? 'Remained Unchanged' : 'Decreased By';
         }
-        currentPlayer.ratingChangeHistory.push({ date: row.date, type, description });
+        currentPlayer.ratingChangeHistory.push({
+          date: moment(row.date).utc().format('YYYY-MM-DD'),
+          type,
+          description,
+          change: parseInt(row.ratingChange, 10),
+        });
       }
       return {
         ...state,

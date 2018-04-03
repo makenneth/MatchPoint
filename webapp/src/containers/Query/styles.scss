@@ -152,6 +152,27 @@
     align-items: center;
   }
 }
+
+.aggregate-table {
+  &--rating-change-col {
+    &:hover .aggregate-table--tooltip {
+      display: block;
+    }
+  }
+
+  &--tooltip {
+    z-index: 1000;
+    display: none;
+    position: absolute;
+    padding: 20px;
+    @include light-box-shadow;
+    background-color: white;
+
+    li {
+      padding: 3px 0;
+    }
+  }
+}
 @media (max-width: 335px) and (max-device-width: 335px) {
   .name-select-div {
     display: flex;

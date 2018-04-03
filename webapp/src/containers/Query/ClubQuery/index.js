@@ -139,7 +139,7 @@ export default class ClubQuery extends React.PureComponent {
           }
         </div>
       </Card>
-      {loading && <div className="overlay">
+      {loading && <div className="overlay transparent">
         <CircularProgress
           color="#555"
           size={30}
