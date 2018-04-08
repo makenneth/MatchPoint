@@ -87,6 +87,7 @@ app.use("/api/*", (req, res) => {
 });
 app.use("/session", Routes.session);
 app.use("/accounts", Routes.account);
+
 app.get("*", csrfProtection, (req, res) => {
   res.render("index", { csrfToken: req.csrfToken() });
 });

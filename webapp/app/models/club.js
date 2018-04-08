@@ -85,7 +85,6 @@ class Club {
       `, [id], async (err, results, field) => {
         connection.release();
         if (err) throw err;
-        console.log(results);
         if (results.length > 0) {
           const club = Club.format(results[0]);
           club.pastSessions = await RoundRobin.getPastSessions(id);
@@ -152,7 +151,6 @@ class Club {
           throw(err);
         }
         const clubs = results.map(r => Club.format(r));
-        console.log(clubs)
         const sessions = await RoundRobin.findAllBriefByClub(clubs.map(c => c.id));
         const sessionClubMap = {};
         for (const session of sessions) {

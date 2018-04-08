@@ -182,23 +182,20 @@ class Player {
 
   static async createPlayers(clubId, players) {
     const connection = await db.getConnection();
-    const promises = players.map(player => Player.createPlayer(clubId, player));
+    const players = players.map(player => (
+      [shortid.generate(), player.name]
+    ));
     return new Promise((resolve, reject) => {
-      connection.beginTransaction((tError) => {
-        if (tError) throw tError;
-        Promise.all(promises)
-          .then(
-            (players) => {
-              connection.commit();
-              connection.release();
-              resolve(players);
-            },
-            (error) => {
-              connection.rollback();
-              connection.release();
-              reject(error);
-            }
-          );
+      if (tError) throw tError;
+      connection.query(`
+        INSERT INTO players (short_id, name)
+        VALUES ?
+      `, [shortId, players], (err, results, field) => {
+        connection.release();
+        if (err) {
+          throw(err);
+        }
+
       });
     });
   }

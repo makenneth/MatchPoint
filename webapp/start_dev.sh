@@ -12,4 +12,4 @@ export WEB_HOST=localhost
 export WEBSOCKET_SERVER=http://localhost:9000
 docker-compose build
 docker-compose down
-docker-compose up
+docker-compose up -d

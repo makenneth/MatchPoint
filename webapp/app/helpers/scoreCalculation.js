@@ -29,11 +29,15 @@ export default class ScoreCalculation {
         rating: player.rating,
         wins: 0,
         losses: 0,
+        matchWon: 0,
       };
       Object.keys(versusRecords).forEach((otherPlayer) => {
         const [wins, losses] = versusRecords[otherPlayer];
         record.wins += wins;
         record.losses += losses;
+        if (wins === 3) {
+          record.matchWon += 1;
+        }
       });
 
       return record;

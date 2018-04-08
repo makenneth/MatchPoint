@@ -275,10 +275,10 @@ class RoundRobin {
 
   static createRoundrobinPlayers(connection, id, players, schema) {
     let count = 0;
-    const promises = [];
+    const roundrobinPlayers = [];
     schema.forEach((playerPerGroup, i) => {
       players.slice(count, count + playerPerGroup).forEach((player, j) => {
-        promises.push(RoundRobin.createRoundrobinPlayer(connection, id, player.id, i, j));
+        roundrobinPlayers.push({ roundrobinId: id, playerId: player.id, groupId: i, pos: j });
       });
       count += playerPerGroup;
     });
@@ -299,6 +299,23 @@ class RoundRobin {
   }
 
   static createRoundrobinPlayer(connection, id, playerId, group, pos) {
+    return new Promise((resolve, reject) => {
+      connection.query(`INSERT INTO roundrobin_players
+        (player_id, roundrobin_id, group_id, pos)
+        VALUES (?, ?, ?, ?)
+      `, [playerId, id, group, pos],
+      (err, results, fields) => {
+        if (err) {
+          console.log(err);
+          throw err;
+        }
+        console.log('done', playerId);
+        resolve(playerId);
+      });
+    });
+  }
+
+  static createRoundrobinPlayers(connection, id, playerId, group, pos) {
     return new Promise((resolve, reject) => {
       connection.query(`INSERT INTO roundrobin_players
         (player_id, roundrobin_id, group_id, pos)
@@ -405,6 +422,7 @@ class RoundRobin {
         roundrobin.id, player.id,
         player.rating, change,
         results[player.id], !!winners[player.id],
+        rc.wins, rc.matchWon
       );
     });
     return Promise.all(promises).then(
@@ -422,20 +440,22 @@ class RoundRobin {
   }
 
   static async updatePlayer(
-    connection, clubId, id, playerId, oldRating, change, result, isWinner
+    connection, clubId, id, playerId, oldRating, change, result, isWinner, gameWon, matchWon
   ) {
     const resultJSON = JSON.stringify(result);
     const date = new Date();
     return new Promise((resolve, reject) => {
       connection.query(`INSERT INTO
         player_histories
-        (player_id, old_rating, rating_change, rating, club_id, roundrobin_id, result, change_date, won)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE rating_change = ?, rating = ?, result = ?, won = ?
+        (player_id, old_rating, rating_change, rating, club_id,
+        roundrobin_id, result, change_date, won, game_won, match_won)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE rating_change = ?, rating = ?, result = ?, won = ?, game_won = ?, match_won = ?
       `, [
         playerId, oldRating, change, oldRating + change,
         clubId, id, resultJSON, date, isWinner,
-        change, oldRating + change, resultJSON, isWinner
+        gameWon, matchWon
+        change, oldRating + change, resultJSON, isWinner, gameWon, matchWon
       ],
       (err, results, field) => {
         if (err) throw err;

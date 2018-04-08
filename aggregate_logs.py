@@ -43,14 +43,12 @@ parser = OptionParser()
 parser.add_option("-c", "--config", dest="config_file",
                   help="specify config file", metavar="config_file")
 
-# run every five minutes to append to elasticsearch
+# run every minute to append to elasticsearch
 if __name__ == '__main__':
   (options, args) = parser.parse_args()
   if not options.config_file:
     raise Error("config file required")
   client = Elasticsearch()
   client.indices.create(index="error_logs", ignore=400)
-  # results = client.search(index="error_logs", doc_type="document", body={"query": {"match_all": {}}})
-  # print(results)
   AggregateLog(client, options.config_file).aggregate()
 
