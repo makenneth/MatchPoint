@@ -454,7 +454,7 @@ class RoundRobin {
       `, [
         playerId, oldRating, change, oldRating + change,
         clubId, id, resultJSON, date, isWinner,
-        gameWon, matchWon
+        gameWon, matchWon,
         change, oldRating + change, resultJSON, isWinner, gameWon, matchWon
       ],
       (err, results, field) => {

@@ -182,7 +182,7 @@ class Player {
 
   static async createPlayers(clubId, players) {
     const connection = await db.getConnection();
-    const players = players.map(player => (
+    const formatted = players.map(player => (
       [shortid.generate(), player.name]
     ));
     return new Promise((resolve, reject) => {
@@ -190,7 +190,7 @@ class Player {
       connection.query(`
         INSERT INTO players (short_id, name)
         VALUES ?
-      `, [shortId, players], (err, results, field) => {
+      `, [shortId, formatted], (err, results, field) => {
         connection.release();
         if (err) {
           throw(err);
