@@ -1,0 +1,14 @@
+[Unit]
+Description=Matchpoints Webapp
+StartLimitInterval=0
+
+[Service]
+ExecStart=/bin/bash deploy/start.sh
+WorkingDirectory=/home/ubuntu/Matchpoints/Webapp
+Restart=always
+RestartSec=15
+User=deploy
+SyslogIdentifier=Webapp
+
+[Install]
+WantedBy=multi-user.target
